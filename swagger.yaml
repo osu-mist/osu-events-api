@@ -1,75 +1,284 @@
 swagger: '2.0'
+
 info:
-  title: Web API Skeleton
-  description: Skeleton for Dropwizard Web APIs
-  version: '0.0'
-  license:
-    name: GNU Affero General Public License Version 3
-    url: http://www.gnu.org/licenses/agpl-3.0.en.html
-externalDocs:
-  description: GitHub Repository
-  url: https://github.com/osu-mist/web-api-skeleton
-host: localhost
-schemes:
-  - http
-basePath: /api/v0
+  version: "0.0.1"
+  title: OSU Events API
+  
 consumes:
-  - text/plain
-produces:
-  - text/plain
+  - application/json  
+
 paths:
-  /:
+  /events:
     get:
-      summary: Get information
-      description: Build and runtime information about the application.
+      tags:
+        - events
+      description: "Get all events. Can be filtered by parameters to specify format."
+      produces:
+        - application/json
+        - text/csv
+        - text/calendar
       parameters:
-        - $ref: '#/parameters/pretty'
+        - name: format
+          in: query
+          description: > 
+            Specify format of successful response. Valid options are ics or csv. 
+            The response will be JSON if this parameter isn't used.
+          required: false
+          type: string
       responses:
         200:
-          description: Object containing information
+          description: "Successful response"
           schema:
-            $ref: '#/definitions/Info'
+            $ref: "#/definitions/ResultObjects"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
 
-parameters:
-  pretty:
-    name: pretty
-    in: query
-    type: boolean
-    required: false
-    description: If true, JSON response will be pretty-printed
+    post:
+      tags:
+        - events
+      description: "Add a new event"
+      produces:
+        - application/json
+      parameters:
+        - name: event
+          in: body
+          description: "JSON Representation of an event."
+          required: true
+          schema:
+            $ref: "#/definitions/ResultObject"
+      responses:
+        201:
+          description: "Event successfully created."
+          schema:
+            $ref: "#/definitions/ResultObject"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        409:
+          description: "Conflict: Client generated ID already exists or type is invalid."
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+
+  /events/{eventID}:
+    get:
+      tags:
+        - events
+      description: "Get a single event by ID"
+      produces:
+        - application/json
+      parameters:
+        - name: eventID
+          in: path
+          description: "ID of an event"
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/ResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"        
+
+    patch:
+      tags:
+        - events
+      description: "Update an existing event."
+      produces:
+        - application/json
+      parameters:
+        - name: eventID
+          in: path
+          description: "ID of an event"
+          required: true
+          type: integer
+        - name: event
+          in: body
+          description: "JSON Representation of an event."
+          required: true
+          schema:
+            $ref: "#/definitions/ResultObject"
+      responses:
+        200:
+          description: "Event successfully updated."
+          schema:
+            $ref: "#/definitions/ResultObject"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        409:
+          description: "Conflict: Type and/or id do not match server's endpoint"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+
+    delete:
+      tags:
+        - events
+      description: "Delete an existing event."
+      parameters:
+        - name: eventID
+          in: path
+          description: "ID of an event"
+          required: true
+          type: integer
+      responses:
+        204:
+          description: "Event successfully deleted."
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
 
 definitions:
-  Info:
+  ResultObject:
     properties:
-      name:
+      data:
+        $ref: "#/definitions/ResourceObject"
+
+  ResultObjects:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/ResourceObject"
+        
+  ResourceObject:
+    properties:
+      id:
         type: string
-        description: Name of the API.
-      time:
+      type:
         type: string
-        description: Build time in ISO 8601 format.
-      unixTime:
-        type: integer
-        description: Build time as milliseconds since the unix epoch.
-      commit:
+      attributes:
+        $ref: "#/definitions/Attributes"
+
+  Attributes:
+    properties:
+      title:
         type: string
-        description: Git commit hash of the revision which was built.
-      documentation:
+      description:
         type: string
-        description: Filename of the swagger specification for the API.
+      location:
+        type: string
+      room:
+        type: string
+      address:
+        type: string        
+      city:
+        type: string
+      state:
+        type: string
+      url:
+        type: string
+      photoURL:
+        type: string
+      ticketURL:
+        type: string
+      facebookURL:
+        type: string
+      cost:
+        type: string
+      hashtag:
+        type: string
+      keywords:
+        type: array
+        items:
+          type: string
+      tags:
+        type: array
+        items:
+          type: string
+      group:
+        type: string
+      allowsReviews:
+        type: boolean
+      sponsored:
+        type: boolean
+      venuePageOnly:
+        type: boolean
+      excludeFromTrending:
+        type: boolean
+      visibility:
+        type: string
+      department:
+        type: string
+      filters:
+        type: array
+        items:
+          $ref: "#/definitions/Filters"
+      customFields:
+        type: array
+        items:
+          $ref: "#/definitions/CustomFields"
+      instances:
+        type: array
+        items:
+          $ref: "#/definitions/EventInstances"
+  
+  CustomFields:
+    properties:
+      field:
+        type: string
+      value:
+        type: string
+        
+  Filters:
+    properties:
+      filter:
+        type: string
+      values:
+        type: array
+        items:
+          type: string
+
+  EventInstances:
+    properties:
+      startTime:
+        type: string
+        format: date-time
+      endTime:
+        type: string
+
   Error:
+    type: object
     properties:
       status:
         type: integer
-        description: HTTP status code.
+        format: int32
       developerMessage:
         type: string
-        description: An error string aimed at developers.
       userMesage:
         type: string
-        description: An error string aimed at end users.
       code:
         type: integer
-        description: Error code.
       details:
         type: string
-        description: A link to further information about the error.
