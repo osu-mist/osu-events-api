@@ -242,8 +242,8 @@ definitions:
       instances:
         type: array
         items:
-          $ref: "#/definitions/EventInstances"
-  
+          $ref: "#/definitions/EventInstance"
+    
   CustomFields:
     properties:
       field:
@@ -260,13 +260,16 @@ definitions:
         items:
           type: string
 
-  EventInstances:
+  EventInstance:
     properties:
+      id:
+        type: string
       startTime:
         type: string
         format: date-time
       endTime:
         type: string
+        format: date-time
 
   Error:
     type: object
