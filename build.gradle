@@ -28,9 +28,9 @@ buildscript {
 // https://docs.gradle.org/current/userguide/artifact_dependencies_tutorial.html#N10621
 repositories {
     mavenCentral()
-    // flatDir {
-    //     dirs 'bin'
-    // }
+     flatDir {
+         dirs 'bin'
+     }
 }
 
 // https://docs.gradle.org/current/userguide/artifact_dependencies_tutorial.html#N105E1
