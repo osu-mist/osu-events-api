@@ -30,10 +30,10 @@ class EventsResource extends Resource {
     @GET
     @Path('{id: \\d+}')
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getByID(@PathParam('id') IntParam id) {
+    public Response getByID(@PathParam('id') String id) {
 
         Response returnResponse
-        Event event = eventsDAO.getById(id.get())
+        Event event = eventsDAO.getById(id)
 
         if (event == null) {
             returnResponse = notFound().build()

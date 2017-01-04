@@ -17,7 +17,7 @@ public interface EventsDAO extends Closeable {
             EVENT_ID,
             TITLE,
             DESCRIPTION
-        from EVENTS where EVENT_ID=:id;
+        from EVENTS where EVENT_ID=:id
         """)
-    Event getById(@Bind("id") Integer id)
+    Event getById(@Bind("id") String id)
 }
