@@ -1,9 +1,12 @@
 package edu.oregonstate.mist.osuevents.resources
 
 import edu.oregonstate.mist.api.Resource
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.core.Event
+import edu.oregonstate.mist.osuevents.core.EventAttributes
+import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.db.EventsDAO
-import io.dropwizard.jersey.params.IntParam
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import javax.ws.rs.GET
@@ -32,14 +35,17 @@ class EventsResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getByID(@PathParam('id') String id) {
 
-        Response returnResponse
         Event event = eventsDAO.getById(id)
+        event.instances = eventsDAO.getInstances(id)
 
-        if (event == null) {
-            returnResponse = notFound().build()
-        } else {
-            returnResponse = ok(event).build()
+        def resultObject = new ResultObject()
+        if (event) {
+            resultObject.data = new ResourceObject(
+                    id: event.event_id,
+                    type: 'event',
+                    attributes: event
+            )
         }
-        returnResponse
+        ok(resultObject).build()
     }
 }

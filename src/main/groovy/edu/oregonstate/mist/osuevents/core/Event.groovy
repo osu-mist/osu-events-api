@@ -1,7 +1,7 @@
 package edu.oregonstate.mist.osuevents.core
 
 class Event {
-    String id
+    String event_id
 
     String title
     String description
@@ -12,15 +12,15 @@ class Event {
     String city
     String state
 
-    String url
+    String eventURL
     String photoURL
     String ticketURL
     String facebookURL
 
     String cost
     String hashtag
-    List<String> keywords = []
-    List<String> tags = []
+    String keywords
+    String tags
     String group
     String department
 
@@ -30,7 +30,9 @@ class Event {
     Boolean excludeFromTrending
 
     String visibility
-    HashMap<String, List<String>> filters = new HashMap<String, List<String>>()
-    HashMap<String, String> customFields = new HashMap<String, String>()
-    HashMap<String, List<Instance>> instances = new HashMap<String, List<Instance>>()
+    String customFields
+    String filters
+//    HashMap<String, List<String>> filters = new HashMap<String, List<String>>()
+//    HashMap<String, String> customFields = new HashMap<String, String>()
+    List<Instance> instances = []
 }

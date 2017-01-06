@@ -1,12 +1,14 @@
 package edu.oregonstate.mist.osuevents.db
 
 import edu.oregonstate.mist.osuevents.core.Event
+import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.mapper.EventMapper
+import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
 import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.SqlQuery
+import org.skife.jdbi.v2.sqlobject.customizers.Mapper
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper
 
-@RegisterMapper(EventMapper)
 public interface EventsDAO extends Closeable {
 
     /**
@@ -14,10 +16,51 @@ public interface EventsDAO extends Closeable {
      */
     @SqlQuery("""
         select
-            EVENT_ID,
-            TITLE,
-            DESCRIPTION
-        from EVENTS where EVENT_ID=:id
+            EVENTS.EVENT_ID,
+            EVENTS.TITLE,
+            EVENTS.DESCRIPTION,
+            PLACES.NAME as PLACE_NAME,
+            EVENTS.ROOM,
+            EVENTS.ADDRESS,
+            EVENTS.CITY,
+            EVENTS.STATE,
+            EVENTS.EVENT_URL,
+            EVENTS.PHOTO_URL,
+            EVENTS.TICKET_URL,
+            EVENTS.FACEBOOK_URL,
+            EVENTS.COST,
+            EVENTS.HASHTAG,
+            EVENTS.KEYWORDS,
+            EVENTS.TAGS,
+            GROUPS.NAME as GROUP_NAME,
+            DEPARTMENTS.NAME as DEPARTMENT_NAME,
+            EVENTS.ALLOWS_REVIEWS,
+            EVENTS.SPONSORED,
+            EVENTS.VENUE_PAGE_ONLY,
+            EVENTS.EXCLUDE_FROM_TRENDING,
+            EVENTS.VISIBILITY,
+            EVENTS.FILTERS,
+            EVENTS.CUSTOM_FIELDS
+        from EVENTS
+        left join PLACES
+          on EVENTS.PLACE_ID = PLACES.PLACE_ID
+        left join GROUPS
+          on EVENTS.GROUP_ID = GROUPS.GROUP_ID
+        left join DEPARTMENTS
+          ON EVENTS.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
+        where EVENT_ID=:id
         """)
+    @Mapper(EventMapper)
     Event getById(@Bind("id") String id)
+
+    @SqlQuery("""
+        select
+            CLIENT_INSTANCE_ID,
+            START_TIME,
+            END_TIME
+        FROM INSTANCES
+        WHERE EVENT_ID=:id
+        """)
+    @Mapper(InstanceMapper)
+    List<Instance> getInstances(@Bind("id") String id)
 }
