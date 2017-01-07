@@ -4,7 +4,6 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.core.Event
-import edu.oregonstate.mist.osuevents.core.EventAttributes
 import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.db.EventsDAO
 import org.slf4j.Logger
@@ -37,7 +36,6 @@ class EventsResource extends Resource {
 
         Event event = eventsDAO.getById(id)
         event.instances = eventsDAO.getInstances(id)
-
         def resultObject = new ResultObject()
         if (event) {
             resultObject.data = new ResourceObject(

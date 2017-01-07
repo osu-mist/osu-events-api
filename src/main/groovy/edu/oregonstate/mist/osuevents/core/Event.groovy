@@ -30,7 +30,7 @@ class Event {
     Boolean excludeFromTrending
 
     String visibility
-    String customFields
+    List<CustomFieldEntry> customFields = []
     String filters
 //    HashMap<String, List<String>> filters = new HashMap<String, List<String>>()
 //    HashMap<String, String> customFields = new HashMap<String, String>()

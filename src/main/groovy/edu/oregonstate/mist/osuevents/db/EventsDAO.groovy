@@ -56,8 +56,8 @@ public interface EventsDAO extends Closeable {
     @SqlQuery("""
         select
             CLIENT_INSTANCE_ID,
-            START_TIME,
-            END_TIME
+            TO_CHAR(START_TIME, 'yyyy-mm-dd hh:mm:ss') AS START_TIME,
+            TO_CHAR(END_TIME, 'yyyy-mm-dd hh:mm:ss') AS END_TIME
         FROM INSTANCES
         WHERE EVENT_ID=:id
         """)
