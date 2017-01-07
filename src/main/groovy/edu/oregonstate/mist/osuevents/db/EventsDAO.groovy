@@ -7,7 +7,6 @@ import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
 import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.SqlQuery
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper
 
 public interface EventsDAO extends Closeable {
 

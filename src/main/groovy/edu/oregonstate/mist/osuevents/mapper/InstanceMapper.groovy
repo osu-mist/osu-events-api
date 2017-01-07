@@ -1,7 +1,6 @@
 package edu.oregonstate.mist.osuevents.mapper
 
 import edu.oregonstate.mist.osuevents.core.Instance
-import groovy.json.JsonSlurper
 import org.skife.jdbi.v2.StatementContext
 import org.skife.jdbi.v2.tweak.ResultSetMapper
 import java.sql.ResultSet
