@@ -29,14 +29,15 @@ class EventsResource extends Resource {
  * GET by ID
  */
     @GET
-    @Path('{id: \\d+}')
+    @Path('{id: [0-9a-zA-Z]+}')
     @Produces(MediaType.APPLICATION_JSON)
     public Response getByID(@PathParam('id') String id) {
 
         Event event = eventsDAO.getById(id)
-        event.instances = eventsDAO.getInstances(id)
         def resultObject = new ResultObject()
+
         if (event) {
+            event.instances = eventsDAO.getInstances(id)
             resultObject.data = new ResourceObject(
                     id: event.event_id,
                     type: 'event',
