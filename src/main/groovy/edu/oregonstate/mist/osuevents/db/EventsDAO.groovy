@@ -62,4 +62,45 @@ public interface EventsDAO extends Closeable {
         """)
     @Mapper(InstanceMapper)
     List<Instance> getInstances(@Bind("id") String id)
+
+    /**
+     * Get all events
+     */
+    @SqlQuery("""
+        select
+            EVENTS.EVENT_ID,
+            EVENTS.TITLE,
+            EVENTS.DESCRIPTION,
+            PLACES.NAME as PLACE_NAME,
+            EVENTS.ROOM,
+            EVENTS.ADDRESS,
+            EVENTS.CITY,
+            EVENTS.STATE,
+            EVENTS.EVENT_URL,
+            EVENTS.PHOTO_URL,
+            EVENTS.TICKET_URL,
+            EVENTS.FACEBOOK_URL,
+            EVENTS.COST,
+            EVENTS.HASHTAG,
+            EVENTS.KEYWORDS,
+            EVENTS.TAGS,
+            GROUPS.NAME as GROUP_NAME,
+            DEPARTMENTS.NAME as DEPARTMENT_NAME,
+            EVENTS.ALLOWS_REVIEWS,
+            EVENTS.SPONSORED,
+            EVENTS.VENUE_PAGE_ONLY,
+            EVENTS.EXCLUDE_FROM_TRENDING,
+            EVENTS.VISIBILITY,
+            EVENTS.FILTERS,
+            EVENTS.CUSTOM_FIELDS
+        from EVENTS
+        left join PLACES
+          on EVENTS.PLACE_ID = PLACES.PLACE_ID
+        left join GROUPS
+          on EVENTS.GROUP_ID = GROUPS.GROUP_ID
+        left join DEPARTMENTS
+          ON EVENTS.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
+        """)
+    @Mapper(EventMapper)
+    List<Event> getEvents()
 }
