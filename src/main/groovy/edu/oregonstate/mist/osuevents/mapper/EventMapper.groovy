@@ -2,6 +2,7 @@ package edu.oregonstate.mist.osuevents.mapper
 
 import edu.oregonstate.mist.osuevents.core.CustomFieldEntry
 import edu.oregonstate.mist.osuevents.core.Event
+import edu.oregonstate.mist.osuevents.core.FilterEntry
 import groovy.json.JsonSlurper
 import org.skife.jdbi.v2.StatementContext
 import org.skife.jdbi.v2.tweak.ResultSetMapper
@@ -9,6 +10,9 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 class EventMapper implements ResultSetMapper<Event> {
+
+    def jsonSlurper = new JsonSlurper()
+
     public Event map(int i, ResultSet rs, StatementContext sc) throws SQLException {
         new Event(
                 event_id: rs.getString("EVENT_ID"),
@@ -27,7 +31,7 @@ class EventMapper implements ResultSetMapper<Event> {
                 hashtag: rs.getString("HASHTAG"),
                 keywords: rs.getString("KEYWORDS"),
                 tags: rs.getString("TAGS"),
-                filters: rs.getString("FILTERS"),
+                filters: getFilters(rs.getString("FILTERS")),
                 customFields: getCustomFields(rs.getString("CUSTOM_FIELDS")),
                 group: rs.getString("GROUP_NAME"),
                 department: rs.getString("DEPARTMENT_NAME"),
@@ -41,13 +45,21 @@ class EventMapper implements ResultSetMapper<Event> {
     private List<CustomFieldEntry> getCustomFields(String rawData) {
         List<CustomFieldEntry> customFields = []
         if (rawData) {
-            def jsonSlurper = new JsonSlurper()
             def customFieldData = jsonSlurper.parseText(rawData)
             customFieldData.each {
-                println(it)
                 customFields.add(new CustomFieldEntry(field: it.field, value: it.value))
             }
         }
         customFields
+    }
+    private List<FilterEntry> getFilters(String rawData) {
+        List<FilterEntry> filters = []
+        if (rawData) {
+            def filterData = jsonSlurper.parseText(rawData)
+            filterData.each {
+                filters.add(new FilterEntry(filter: it.filter, items: it.items))
+            }
+        }
+        filters
     }
 }
