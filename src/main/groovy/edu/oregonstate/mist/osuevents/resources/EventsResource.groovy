@@ -13,6 +13,7 @@ import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 import javax.ws.rs.Produces
+import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
@@ -54,7 +55,7 @@ class EventsResource extends Resource {
  */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getEvents(@Auth AuthenticatedUser _) {
+    public Response getEvents(@Auth AuthenticatedUser _, @QueryParam('format') String format) {
 
         def events = eventsDAO.getEvents()
         def resultObject = new ResultObject()
@@ -62,12 +63,24 @@ class EventsResource extends Resource {
 
         events.each {
             it.instances = eventsDAO.getInstances(it.event_id)
-            resultObject.data += new ResourceObject(
-                    id: it.event_id,
-                    type: 'event',
-                    attributes: it
-            )
         }
+
+        if (!format) {
+            events.each {
+                resultObject.data += new ResourceObject(
+                        id: it.event_id,
+                        type: 'event',
+                        attributes: it
+                )
+            }
+        }
+//        else if (format == "csv") {
+//
+//        } else if (format == "ics") {
+//
+//        } else {
+//            return badRequest("Invalid format value. Valid formats are csv or ics.").build()
+//        }
         ok(resultObject).build()
     }
 }
