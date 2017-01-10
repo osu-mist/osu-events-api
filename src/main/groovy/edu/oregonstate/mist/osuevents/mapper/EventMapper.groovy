@@ -15,7 +15,7 @@ class EventMapper implements ResultSetMapper<Event> {
 
     public Event map(int i, ResultSet rs, StatementContext sc) throws SQLException {
         new Event(
-                event_id: rs.getString("EVENT_ID"),
+                eventID: rs.getString("EVENT_ID"),
                 title: rs.getString("TITLE"),
                 description: rs.getString("DESCRIPTION"),
                 location: rs.getString("PLACE_NAME"),

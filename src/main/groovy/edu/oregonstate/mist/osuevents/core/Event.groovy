@@ -1,7 +1,7 @@
 package edu.oregonstate.mist.osuevents.core
 
 class Event {
-    String event_id
+    String eventID
 
     String title
     String description

@@ -9,11 +9,14 @@ import java.text.SimpleDateFormat
 
 class InstanceMapper implements ResultSetMapper<Instance> {
     public Instance map(int i, ResultSet rs, StatementContext sc) throws SQLException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss", Locale.ENGLISH)
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss")
+        format.setTimeZone(TimeZone.getTimeZone("UTC"))
+
         new Instance(
                 id: rs.getString("CLIENT_INSTANCE_ID"),
                 start: format.parse(rs.getString("START_TIME")),
-                end: format.parse(rs.getString("START_TIME"))
+                end: format.parse(rs.getString("END_TIME"))
         )
     }
 }
