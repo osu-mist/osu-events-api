@@ -112,7 +112,7 @@ public interface EventsDAO extends Closeable {
         INSERT INTO EVENTS (EVENT_ID, TITLE, DESCRIPTION, PLACE_ID, GROUP_ID, DEPARTMENT_ID,
             ROOM, ADDRESS, CITY, STATE, EVENT_URL, PHOTO_URL, TICKET_URL, FACEBOOK_URL, COST,
             HASHTAG, KEYWORDS, TAGS, ALLOWS_REVIEWS, SPONSORED, VENUE_PAGE_ONLY,
-            EXCLUDE_FROM_TRENDING, VISIBILITY, CREATED_AT)
+            EXCLUDE_FROM_TRENDING, VISIBILITY, FILTERS, CUSTOM_FIELDS, CREATED_AT)
         VALUES (:event_id,
             :event_title,
             :description,
@@ -140,6 +140,8 @@ public interface EventsDAO extends Closeable {
             :venue_page_only,
             :exclude_from_trending,
             :visibility,
+            :filters,
+            :custom_fields,
             SYSDATE)
         """)
 //    :filters,
@@ -168,9 +170,9 @@ public interface EventsDAO extends Closeable {
                      @Bind("sponsored") Boolean sponsored,
                      @Bind("venue_page_only") Boolean venuePageOnly,
                      @Bind("exclude_from_trending") Boolean excludeFromTrending,
-                     @Bind("visibility") String visibility)
-//                     @Bind("filters") String filters,
-//                     @Bind("custom_fields") String custom_fields)
+                     @Bind("visibility") String visibility,
+                     @Bind("filters") String filters,
+                     @Bind("custom_fields") String custom_fields)
 
     @SqlUpdate("""
         INSERT INTO INSTANCES (INSTANCE_ID, CLIENT_INSTANCE_ID, EVENT_ID, START_TIME, END_TIME)

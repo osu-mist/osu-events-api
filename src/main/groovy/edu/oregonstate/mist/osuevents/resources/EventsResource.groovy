@@ -4,8 +4,11 @@ import edu.oregonstate.mist.api.AuthenticatedUser
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.osuevents.Time
 import edu.oregonstate.mist.osuevents.core.Event
+import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.db.EventsDAO
+import groovy.json.JsonOutput
 import io.dropwizard.auth.Auth
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,11 +22,14 @@ import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import java.text.SimpleDateFormat
+
 import static java.util.UUID.randomUUID
 
 @Path('/events/')
 @Produces(MediaType.APPLICATION_JSON)
 class EventsResource extends Resource {
+
     //Logger logger = LoggerFactory.getLogger(EventsResource.class)
 
     private final EventsDAO eventsDAO
@@ -35,6 +41,7 @@ class EventsResource extends Resource {
     private final String uuidRegEx =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
 
+    Time time = new Time()
 /**
  * GET by ID
  */
@@ -101,14 +108,14 @@ class EventsResource extends Resource {
                                 @Valid ResourceObject newResourceObject) {
 
         Event newEvent = newResourceObject.attributes
+        newEvent.eventID = newEvent.eventID ?: randomUUID() as String
 
-        if (!newEvent.eventID) {
-            newEvent.eventID = randomUUID() as String
+        if (!newEvent.eventID.matches(uuidRegEx) || eventsDAO.getById(newEvent.eventID)) {
+            return conflict().build()
         }
 
-        if (!newEvent.eventID.matches(uuidRegEx)) {
-            return Response.status(Response.Status.CONFLICT).entity("Conflict!").build()
-        }
+        String customFieldData = JsonOutput.toJson(newEvent.customFields)
+        String filterData = JsonOutput.toJson(newEvent.filters)
 
         eventsDAO.createEvent(
                 newEvent.eventID, newEvent.title, newEvent.description, newEvent.location,
@@ -116,10 +123,22 @@ class EventsResource extends Resource {
                 newEvent.city, newEvent.state, newEvent.eventURL, newEvent.photoURL,
                 newEvent.ticketURL, newEvent.facebookURL, newEvent.cost, newEvent.hashtag,
                 newEvent.keywords, newEvent.tags, newEvent.allowsReviews, newEvent.sponsored,
-                newEvent.venuePageOnly, newEvent.excludeFromTrending, newEvent.visibility)
+                newEvent.venuePageOnly, newEvent.excludeFromTrending, newEvent.visibility,
+                filterData, customFieldData)
+
+        newEvent.instances.each {
+            eventsDAO.createInstance(
+                    it.id,
+                    newEvent.eventID,
+                    time.formatForDB(it.start.toString()),
+                    time.formatForDB(it.end.toString())
+            )
+        }
 
         Event event = eventsDAO.getById(newEvent.eventID)
         def resultObject = new ResultObject()
+        event.instances = eventsDAO.getInstances(newEvent.eventID)
+
         resultObject.data = new ResourceObject(
                 id: event.eventID,
                 type: 'event',
