@@ -13,7 +13,7 @@ class Time {
      * @param inputDate
      * @return outputDate
      */
-    public String formatForDB (String inputDate) {
+    public static String formatForDB (String inputDate) {
 
         dateOutputFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
 

@@ -41,7 +41,6 @@ class EventsResource extends Resource {
     private final String uuidRegEx =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
 
-    Time time = new Time()
 /**
  * GET by ID
  */
@@ -130,8 +129,8 @@ class EventsResource extends Resource {
             eventsDAO.createInstance(
                     it.id,
                     newEvent.eventID,
-                    time.formatForDB(it.start.toString()),
-                    time.formatForDB(it.end.toString())
+                    Time.formatForDB(it.start.toString()),
+                    Time.formatForDB(it.end.toString())
             )
         }
 
