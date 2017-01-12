@@ -49,6 +49,7 @@ public interface EventsDAO extends Closeable {
         left join DEPARTMENTS
           ON EVENTS.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
         where EVENT_ID=:id
+        and EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(EventMapper)
     Event getById(@Bind("id") String id)
@@ -60,6 +61,7 @@ public interface EventsDAO extends Closeable {
             TO_CHAR(END_TIME, 'yyyy-mm-dd hh24:mi:ss') AS END_TIME
         FROM INSTANCES
         WHERE EVENT_ID=:id
+        AND EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(InstanceMapper)
     List<Instance> getInstances(@Bind("id") String id)
@@ -182,4 +184,14 @@ public interface EventsDAO extends Closeable {
                         @Bind("event_id") String eventID,
                         @Bind("start_date") String start,
                         @Bind("end_date") String end)
+
+    /**
+     * DELETE by ID
+     */
+    @SqlUpdate("""
+    UPDATE EVENTS
+        SET DELETED_AT = SYSDATE
+        WHERE EVENT_ID=:id
+    """)
+    void deleteEvent(@Bind("id") String eventID)
 }

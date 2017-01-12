@@ -14,6 +14,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import javax.validation.Valid
 import javax.ws.rs.Consumes
+import javax.ws.rs.DELETE
 import javax.ws.rs.GET
 import javax.ws.rs.POST
 import javax.ws.rs.Path
@@ -45,10 +46,10 @@ class EventsResource extends Resource {
  * GET by ID
  */
     @GET
-    @Path('{id: [0-9a-zA-Z]+}')
+    @Path('{id: [0-9a-zA-Z-]+}')
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getByID(@Auth AuthenticatedUser _, @PathParam('id') String id) {
-
+    public Response getByID(@Auth AuthenticatedUser _,
+                            @PathParam('id') String id) {
         Event event = eventsDAO.getById(id)
         def resultObject = getResultObject(event)
 
@@ -60,8 +61,8 @@ class EventsResource extends Resource {
  */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getEvents(@Auth AuthenticatedUser _, @QueryParam('format') String format) {
-
+    public Response getEvents(@Auth AuthenticatedUser _,
+                              @QueryParam('format') String format) {
         def events = eventsDAO.getEvents()
         def resultObject = getResultObject(events)
 
@@ -82,7 +83,6 @@ class EventsResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEvent(@Auth AuthenticatedUser _,
                                 @Valid ResourceObject newResourceObject) {
-
         Event newEvent
 
         try {
@@ -130,6 +130,18 @@ class EventsResource extends Resource {
         def resultObject = getResultObject(event)
 
         created(resultObject).build()
+    }
+
+/**
+ * POST an event
+ */
+    @DELETE
+    @Path('{id: [0-9a-zA-Z-]+}')
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteEvent(@Auth AuthenticatedUser_,
+                                @PathParam('id') String id) {
+        eventsDAO.deleteEvent(id)
+        Response.noContent().build()
     }
 
     private ResultObject getResultObject(def events) {
