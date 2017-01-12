@@ -4,11 +4,12 @@ import edu.oregonstate.mist.api.AuthenticatedUser
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
-import edu.oregonstate.mist.osuevents.Time
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.db.EventsDAO
+import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
 import groovy.json.JsonOutput
 import io.dropwizard.auth.Auth
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import javax.validation.Valid
@@ -49,17 +50,8 @@ class EventsResource extends Resource {
     public Response getByID(@Auth AuthenticatedUser _, @PathParam('id') String id) {
 
         Event event = eventsDAO.getById(id)
-        def resultObject = new ResultObject()
+        def resultObject = getResultObject(event)
 
-        if (event) {
-            event.instances = eventsDAO.getInstances(id)
-            //println(event.instances[1].start)
-            resultObject.data = new ResourceObject(
-                    id: event.eventID,
-                    type: 'event',
-                    attributes: event
-            )
-        }
         ok(resultObject).build()
     }
 
@@ -71,22 +63,8 @@ class EventsResource extends Resource {
     public Response getEvents(@Auth AuthenticatedUser _, @QueryParam('format') String format) {
 
         def events = eventsDAO.getEvents()
-        def resultObject = new ResultObject()
-        resultObject.data = []
+        def resultObject = getResultObject(events)
 
-        events.each {
-            it.instances = eventsDAO.getInstances(it.eventID)
-        }
-
-        if (!format) {
-            events.each {
-                resultObject.data += new ResourceObject(
-                        id: it.eventID,
-                        type: 'event',
-                        attributes: it
-                )
-            }
-        }
 //        else if (format == "csv") {
 //
 //        } else if (format == "ics") {
@@ -105,7 +83,14 @@ class EventsResource extends Resource {
     public Response createEvent(@Auth AuthenticatedUser _,
                                 @Valid ResourceObject newResourceObject) {
 
-        Event newEvent = newResourceObject.attributes
+        Event newEvent
+
+        try {
+            newEvent = newResourceObject.attributes
+        } catch (GroovyCastException e) {
+            return badRequest("Resource object contains unrecognized fields.").build()
+        }
+
         newEvent.eventID = newEvent.eventID ?: randomUUID() as String
 
         if (!newEvent.eventID.matches(uuidRegEx) || eventsDAO.getById(newEvent.eventID)) {
@@ -129,24 +114,36 @@ class EventsResource extends Resource {
                 eventsDAO.createInstance(
                         it.id,
                         newEvent.eventID,
-                        Time.formatForDB(it.start.toString()),
-                        Time.formatForDB(it.end.toString())
+                        InstanceMapper.formatForDB(it.start.toString()),
+                        InstanceMapper.formatForDB(it.end.toString())
                 )
             }
         } catch (DateTimeParseException e) {
             return badRequest("Unable to parse date." +
                     "Dates should follow ISO 8601 specifications.").build()
+        } catch (MissingMethodException e) {
+            return badRequest("Unable to process instance." +
+                    "Ensure instance ID is a string.").build()
         }
 
         Event event = eventsDAO.getById(newEvent.eventID)
-        def resultObject = new ResultObject()
-        event.instances = eventsDAO.getInstances(newEvent.eventID)
+        def resultObject = getResultObject(event)
 
-        resultObject.data = new ResourceObject(
-                id: event.eventID,
-                type: 'event',
-                attributes: event
-        )
         created(resultObject).build()
+    }
+
+    private ResultObject getResultObject(def events) {
+        def resultObject = new ResultObject()
+        resultObject.data = []
+
+        events.each {
+            it.instances = eventsDAO.getInstances(it.eventID)
+            resultObject.data += new ResourceObject(
+                    id: it.eventID,
+                    type: 'event',
+                    attributes: it
+            )
+        }
+        resultObject
     }
 }
