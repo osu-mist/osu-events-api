@@ -5,6 +5,7 @@ import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.mapper.EventMapper
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
 import org.skife.jdbi.v2.sqlobject.Bind
+import org.skife.jdbi.v2.sqlobject.BindBean
 import org.skife.jdbi.v2.sqlobject.SqlQuery
 import org.skife.jdbi.v2.sqlobject.SqlUpdate
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper
@@ -61,7 +62,6 @@ public interface EventsDAO extends Closeable {
             TO_CHAR(END_TIME, 'yyyy-mm-dd hh24:mi:ss') AS END_TIME
         FROM INSTANCES
         WHERE EVENT_ID=:id
-        AND EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(InstanceMapper)
     List<Instance> getInstances(@Bind("id") String id)
@@ -103,6 +103,7 @@ public interface EventsDAO extends Closeable {
           on EVENTS.GROUP_ID = GROUPS.GROUP_ID
         left join DEPARTMENTS
           ON EVENTS.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
+        where EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(EventMapper)
     List<Event> getEvents()
@@ -115,62 +116,40 @@ public interface EventsDAO extends Closeable {
             ROOM, ADDRESS, CITY, STATE, EVENT_URL, PHOTO_URL, TICKET_URL, FACEBOOK_URL, COST,
             HASHTAG, KEYWORDS, TAGS, ALLOWS_REVIEWS, SPONSORED, VENUE_PAGE_ONLY,
             EXCLUDE_FROM_TRENDING, VISIBILITY, FILTERS, CUSTOM_FIELDS, CREATED_AT)
-        VALUES (:event_id,
-            :event_title,
+        VALUES (:eventID,
+            :title,
             :description,
             (SELECT PLACE_ID FROM PLACES
                 WHERE NAME = :location),
             (SELECT GROUP_ID FROM GROUPS
-                WHERE NAME = :group_name
-                OR PAGE_NAME = :group_name),
+                WHERE NAME = :group
+                OR PAGE_NAME = :group),
             (SELECT DEPARTMENT_ID FROM DEPARTMENTS
                 WHERE NAME = :department),
             :room,
             :address,
             :city,
             :state,
-            :event_url,
-            :photo_url,
-            :ticket_url,
-            :facebook_url,
+            :eventURL,
+            :photoURL,
+            :ticketURL,
+            :facebookURL,
             :cost,
             :hashtag,
             :keywords,
             :tags,
-            :allows_reviews,
+            :allowsReviews,
             :sponsored,
-            :venue_page_only,
-            :exclude_from_trending,
+            :venuePageOnly,
+            :excludeFromTrending,
             :visibility,
-            :filters,
-            :custom_fields,
+            :filterData,
+            :customFieldData,
             SYSDATE)
         """)
-    void createEvent(@Bind("event_id") String eventID,
-                     @Bind("event_title") String title,
-                     @Bind("description") String description,
-                     @Bind("location") String location,
-                     @Bind("group_name") String group,
-                     @Bind("department") String department,
-                     @Bind("room") String room,
-                     @Bind("address") String address,
-                     @Bind("city") String city,
-                     @Bind("state") String state,
-                     @Bind("event_url") String eventURL,
-                     @Bind("photo_url") String photoURL,
-                     @Bind("ticket_url") String ticketURL,
-                     @Bind("facebook_url") String facebookURL,
-                     @Bind("cost") String cost,
-                     @Bind("hashtag") String hashtag,
-                     @Bind("keywords") String keywords,
-                     @Bind("tags") String tags,
-                     @Bind("allows_reviews") Boolean allowsReviews,
-                     @Bind("sponsored") Boolean sponsored,
-                     @Bind("venue_page_only") Boolean venuePageOnly,
-                     @Bind("exclude_from_trending") Boolean excludeFromTrending,
-                     @Bind("visibility") String visibility,
-                     @Bind("filters") String filters,
-                     @Bind("custom_fields") String custom_fields)
+    void createEvent(@BindBean Event event,
+                     @Bind("filterData") String filterData,
+                     @Bind("customFieldData") String customFieldData)
 
     @SqlUpdate("""
         INSERT INTO INSTANCES (INSTANCE_ID, CLIENT_INSTANCE_ID, EVENT_ID, START_TIME, END_TIME)

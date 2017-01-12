@@ -100,14 +100,7 @@ class EventsResource extends Resource {
         String customFieldData = JsonOutput.toJson(newEvent.customFields)
         String filterData = JsonOutput.toJson(newEvent.filters)
 
-        eventsDAO.createEvent(
-                newEvent.eventID, newEvent.title, newEvent.description, newEvent.location,
-                newEvent.group, newEvent.department, newEvent.room, newEvent.address,
-                newEvent.city, newEvent.state, newEvent.eventURL, newEvent.photoURL,
-                newEvent.ticketURL, newEvent.facebookURL, newEvent.cost, newEvent.hashtag,
-                newEvent.keywords, newEvent.tags, newEvent.allowsReviews, newEvent.sponsored,
-                newEvent.venuePageOnly, newEvent.excludeFromTrending, newEvent.visibility,
-                filterData, customFieldData)
+        eventsDAO.createEvent(newEvent, filterData, customFieldData)
 
         try {
             newEvent.instances.each {
