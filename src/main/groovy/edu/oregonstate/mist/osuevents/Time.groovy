@@ -1,11 +1,14 @@
 package edu.oregonstate.mist.osuevents
 
-import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class Time {
-    public static SimpleDateFormat dateInputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
 
-    public static SimpleDateFormat dateOutputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    public static DateTimeFormatter dbFormatter = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withZone(ZoneId.of("UTC"))
 
     /**
      * Prepares raw date format given in a JSON body to a format
@@ -15,9 +18,10 @@ class Time {
      */
     public static String formatForDB (String inputDate) {
 
-        dateOutputFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+        ZonedDateTime cleanDate = ZonedDateTime.parse(
+                inputDate,
+                DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
-        Date convertedDate = dateInputFormat.parse(inputDate)
-        dateOutputFormat.format(convertedDate)
+        cleanDate.format(dbFormatter)
     }
 }

@@ -6,7 +6,6 @@ import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.Time
 import edu.oregonstate.mist.osuevents.core.Event
-import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.db.EventsDAO
 import groovy.json.JsonOutput
 import io.dropwizard.auth.Auth
@@ -22,7 +21,7 @@ import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
-import java.text.SimpleDateFormat
+import java.time.format.DateTimeParseException
 
 import static java.util.UUID.randomUUID
 
@@ -125,13 +124,18 @@ class EventsResource extends Resource {
                 newEvent.venuePageOnly, newEvent.excludeFromTrending, newEvent.visibility,
                 filterData, customFieldData)
 
-        newEvent.instances.each {
-            eventsDAO.createInstance(
-                    it.id,
-                    newEvent.eventID,
-                    Time.formatForDB(it.start.toString()),
-                    Time.formatForDB(it.end.toString())
-            )
+        try {
+            newEvent.instances.each {
+                eventsDAO.createInstance(
+                        it.id,
+                        newEvent.eventID,
+                        Time.formatForDB(it.start.toString()),
+                        Time.formatForDB(it.end.toString())
+                )
+            }
+        } catch (DateTimeParseException e) {
+            return badRequest("Unable to parse date." +
+                    "Dates should follow ISO 8601 specifications.").build()
         }
 
         Event event = eventsDAO.getById(newEvent.eventID)
