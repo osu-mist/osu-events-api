@@ -82,11 +82,11 @@ class EventsResource extends Resource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEvent(@Auth AuthenticatedUser _,
-                                @Valid ResourceObject newResourceObject) {
+                                @Valid ResultObject newResultObject) {
         Event newEvent
 
         try {
-            newEvent = newResourceObject.attributes
+            newEvent = newResultObject.data.attributes
         } catch (GroovyCastException e) {
             return badRequest("Resource object contains unrecognized fields.").build()
         }
