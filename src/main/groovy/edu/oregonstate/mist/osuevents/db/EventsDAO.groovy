@@ -144,10 +144,6 @@ public interface EventsDAO extends Closeable {
             :custom_fields,
             SYSDATE)
         """)
-//    :filters,
-//    :custom_fields,
-//    SYSDATE)
-//    , FILTERS, CUSTOM_FIELDS, CREATED_AT)
     void createEvent(@Bind("event_id") String eventID,
                      @Bind("event_title") String title,
                      @Bind("description") String description,
