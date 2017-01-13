@@ -51,9 +51,7 @@ class EventsResource extends Resource {
     public Response getByID(@Auth AuthenticatedUser _,
                             @PathParam('id') String id) {
         ResourceObject event = eventsDAO.getById(id)
-        def resultObject = getResultObject(event)
-
-        ok(resultObject).build()
+        ok(getResultObject(event)).build()
     }
 
 /**
@@ -64,7 +62,6 @@ class EventsResource extends Resource {
     public Response getEvents(@Auth AuthenticatedUser _,
                               @QueryParam('format') String format) {
         def events = eventsDAO.getEvents()
-        def resultObject = getResultObject(events)
 
 //        else if (format == "csv") {
 //
@@ -73,7 +70,7 @@ class EventsResource extends Resource {
 //        } else {
 //            return badRequest("Invalid format value. Valid formats are csv or ics.").build()
 //        }
-        ok(resultObject).build()
+        ok(getResultObject(events)).build()
     }
 /**
  * POST an event
@@ -123,9 +120,7 @@ class EventsResource extends Resource {
 
         //Get newly created event and put it in response
         ResourceObject event = eventsDAO.getById(newResourceObject.id)
-        def resultObject = getResultObject(event)
-
-        created(resultObject).build()
+        created(getResultObject(event)).build()
     }
 
 /**
