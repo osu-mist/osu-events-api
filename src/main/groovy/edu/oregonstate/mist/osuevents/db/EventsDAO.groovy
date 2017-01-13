@@ -1,5 +1,6 @@
 package edu.oregonstate.mist.osuevents.db
 
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.mapper.EventMapper
@@ -53,7 +54,7 @@ public interface EventsDAO extends Closeable {
         and EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(EventMapper)
-    Event getById(@Bind("id") String id)
+    ResourceObject getById(@Bind("id") String id)
 
     @SqlQuery("""
         select
@@ -106,7 +107,7 @@ public interface EventsDAO extends Closeable {
         where EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(EventMapper)
-    List<Event> getEvents()
+    List<ResourceObject> getEvents()
 
     /**
      * POST a new event
@@ -116,7 +117,7 @@ public interface EventsDAO extends Closeable {
             ROOM, ADDRESS, CITY, STATE, EVENT_URL, PHOTO_URL, TICKET_URL, FACEBOOK_URL, COST,
             HASHTAG, KEYWORDS, TAGS, ALLOWS_REVIEWS, SPONSORED, VENUE_PAGE_ONLY,
             EXCLUDE_FROM_TRENDING, VISIBILITY, FILTERS, CUSTOM_FIELDS, CREATED_AT)
-        VALUES (:eventID,
+        VALUES (:id,
             :title,
             :description,
             (SELECT PLACE_ID FROM PLACES
@@ -147,7 +148,8 @@ public interface EventsDAO extends Closeable {
             :customFieldData,
             SYSDATE)
         """)
-    void createEvent(@BindBean Event event,
+    void createEvent(@Bind("id") String id,
+                     @BindBean Event event,
                      @Bind("filterData") String filterData,
                      @Bind("customFieldData") String customFieldData)
 

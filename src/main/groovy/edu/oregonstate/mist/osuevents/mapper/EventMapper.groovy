@@ -1,5 +1,6 @@
 package edu.oregonstate.mist.osuevents.mapper
 
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.osuevents.core.CustomFieldEntry
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.FilterEntry
@@ -9,37 +10,40 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper
 import java.sql.ResultSet
 import java.sql.SQLException
 
-class EventMapper implements ResultSetMapper<Event> {
+class EventMapper implements ResultSetMapper<ResourceObject> {
 
     def jsonSlurper = new JsonSlurper()
 
-    public Event map(int i, ResultSet rs, StatementContext sc) throws SQLException {
-        new Event(
-                eventID: rs.getString("EVENT_ID"),
-                title: rs.getString("TITLE"),
-                description: rs.getString("DESCRIPTION"),
-                location: rs.getString("PLACE_NAME"),
-                room: rs.getString("ROOM"),
-                address: rs.getString("ADDRESS"),
-                city: rs.getString("CITY"),
-                state: rs.getString("STATE"),
-                eventURL: rs.getString("EVENT_URL"),
-                photoURL: rs.getString("PHOTO_URL"),
-                ticketURL: rs.getString("TICKET_URL"),
-                facebookURL: rs.getString("FACEBOOK_URL"),
-                cost: rs.getString("COST"),
-                hashtag: rs.getString("HASHTAG"),
-                keywords: rs.getString("KEYWORDS"),
-                tags: rs.getString("TAGS"),
-                filters: getFilters(rs.getString("FILTERS")),
-                customFields: getCustomFields(rs.getString("CUSTOM_FIELDS")),
-                group: rs.getString("GROUP_NAME"),
-                department: rs.getString("DEPARTMENT_NAME"),
-                allowsReviews: rs.getBoolean("ALLOWS_REVIEWS"),
-                sponsored: rs.getBoolean("SPONSORED"),
-                venuePageOnly: rs.getBoolean("VENUE_PAGE_ONLY"),
-                excludeFromTrending: rs.getBoolean("EXCLUDE_FROM_TRENDING"),
-                visibility: rs.getString("VISIBILITY")
+    public ResourceObject map(int i, ResultSet rs, StatementContext sc) throws SQLException {
+        new ResourceObject(
+                id: rs.getString("EVENT_ID"),
+                type: "event",
+                attributes: new Event (
+                        title: rs.getString("TITLE"),
+                        description: rs.getString("DESCRIPTION"),
+                        location: rs.getString("PLACE_NAME"),
+                        room: rs.getString("ROOM"),
+                        address: rs.getString("ADDRESS"),
+                        city: rs.getString("CITY"),
+                        state: rs.getString("STATE"),
+                        eventURL: rs.getString("EVENT_URL"),
+                        photoURL: rs.getString("PHOTO_URL"),
+                        ticketURL: rs.getString("TICKET_URL"),
+                        facebookURL: rs.getString("FACEBOOK_URL"),
+                        cost: rs.getString("COST"),
+                        hashtag: rs.getString("HASHTAG"),
+                        keywords: rs.getString("KEYWORDS"),
+                        tags: rs.getString("TAGS"),
+                        filters: getFilters(rs.getString("FILTERS")),
+                        customFields: getCustomFields(rs.getString("CUSTOM_FIELDS")),
+                        group: rs.getString("GROUP_NAME"),
+                        department: rs.getString("DEPARTMENT_NAME"),
+                        allowsReviews: rs.getBoolean("ALLOWS_REVIEWS"),
+                        sponsored: rs.getBoolean("SPONSORED"),
+                        venuePageOnly: rs.getBoolean("VENUE_PAGE_ONLY"),
+                        excludeFromTrending: rs.getBoolean("EXCLUDE_FROM_TRENDING"),
+                        visibility: rs.getString("VISIBILITY")
+                )
         )
     }
     private List<CustomFieldEntry> getCustomFields(String rawData) {

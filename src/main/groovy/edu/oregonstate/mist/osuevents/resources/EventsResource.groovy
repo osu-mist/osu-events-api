@@ -50,7 +50,7 @@ class EventsResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getByID(@Auth AuthenticatedUser _,
                             @PathParam('id') String id) {
-        Event event = eventsDAO.getById(id)
+        ResourceObject event = eventsDAO.getById(id)
         def resultObject = getResultObject(event)
 
         ok(resultObject).build()
@@ -83,30 +83,32 @@ class EventsResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEvent(@Auth AuthenticatedUser _,
                                 @Valid ResultObject newResultObject) {
+        ResourceObject newResourceObject
         Event newEvent
 
         try {
+            newResourceObject = newResultObject.data
             newEvent = newResultObject.data.attributes
         } catch (GroovyCastException e) {
-            return badRequest("Resource object contains unrecognized fields.").build()
+            return badRequest("Event contains unrecognized fields.").build()
         }
 
-        newEvent.eventID = newEvent.eventID ?: randomUUID() as String
+        newResourceObject.id = newResourceObject.id ?: randomUUID() as String
 
-        if (!newEvent.eventID.matches(uuidRegEx) || eventsDAO.getById(newEvent.eventID)) {
+        if (!newResourceObject.id.matches(uuidRegEx) || eventsDAO.getById(newResourceObject.id)) {
             return conflict().build()
         }
 
         String customFieldData = JsonOutput.toJson(newEvent.customFields)
         String filterData = JsonOutput.toJson(newEvent.filters)
 
-        eventsDAO.createEvent(newEvent, filterData, customFieldData)
+        eventsDAO.createEvent(newResourceObject.id, newEvent, filterData, customFieldData)
 
         try {
             newEvent.instances.each {
                 eventsDAO.createInstance(
                         it.id,
-                        newEvent.eventID,
+                        newResourceObject.id,
                         InstanceMapper.formatForDB(it.start.toString()),
                         InstanceMapper.formatForDB(it.end.toString())
                 )
@@ -119,7 +121,8 @@ class EventsResource extends Resource {
                     "Ensure instance ID is a string.").build()
         }
 
-        Event event = eventsDAO.getById(newEvent.eventID)
+        //Get newly created event and put it in response
+        ResourceObject event = eventsDAO.getById(newResourceObject.id)
         def resultObject = getResultObject(event)
 
         created(resultObject).build()
@@ -142,12 +145,9 @@ class EventsResource extends Resource {
         resultObject.data = []
 
         events.each {
-            it.instances = eventsDAO.getInstances(it.eventID)
-            resultObject.data += new ResourceObject(
-                    id: it.eventID,
-                    type: 'event',
-                    attributes: it
-            )
+            println(it.id)
+            it.attributes.instances = eventsDAO.getInstances(it.id)
+            resultObject.data += it
         }
         resultObject
     }
