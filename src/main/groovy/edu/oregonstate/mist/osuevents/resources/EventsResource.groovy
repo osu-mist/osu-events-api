@@ -9,6 +9,7 @@ import edu.oregonstate.mist.osuevents.db.EventsDAO
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
 import groovy.json.JsonOutput
 import io.dropwizard.auth.Auth
+import edu.oregonstate.mist.api.PATCH
 import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -62,7 +63,7 @@ class EventsResource extends Resource {
     public Response getEvents(@Auth AuthenticatedUser _,
                               @QueryParam('format') String format) {
         def events = eventsDAO.getEvents()
-
+//@TODO add methods for returning csv and ics formats
 //        else if (format == "csv") {
 //
 //        } else if (format == "ics") {
@@ -124,17 +125,54 @@ class EventsResource extends Resource {
     }
 
 /**
- * POST an event
+ * PATCH an event
+ */
+    @PATCH
+    @Path('{id: [0-9a-zA-Z-]+}')
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateEvent(@Auth AuthenticatedUser _,
+                                @PathParam('id') String id,
+                                @Valid ResultObject resultObject) {
+        ResourceObject currentResourceObject = eventsDAO.getById(id)
+
+        if (!currentResourceObject) {
+            return notFound().build()
+        } else if (resultObject.data.id != id) {
+            return badRequest("ID in JSON body must match ID in path parameter").build()
+        }
+
+        Event updatedEvent = new Event()
+
+        try {
+            resultObject.data.attributes.each { key, value ->
+                updatedEvent."$key" = value
+            }
+        } catch (MissingPropertyException e) {
+            return badRequest("Event contains unrecognized fields.").build()
+        }
+        eventsDAO.updateEvent(id, updatedEvent)
+        ok(getResultObject(eventsDAO.getById(id))).build()
+    }
+/**
+ * DELETE an event
  */
     @DELETE
     @Path('{id: [0-9a-zA-Z-]+}')
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteEvent(@Auth AuthenticatedUser_,
+    public Response deleteEvent(@Auth AuthenticatedUser _,
                                 @PathParam('id') String id) {
+        if (!eventsDAO.getById(id)) {
+            return notFound().build()
+        }
+
         eventsDAO.deleteEvent(id)
         Response.noContent().build()
     }
 
+/**
+ * Helper function for preparing a Result Object
+ */
     private ResultObject getResultObject(def events) {
         def resultObject = new ResultObject()
         resultObject.data = []

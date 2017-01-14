@@ -167,12 +167,57 @@ public interface EventsDAO extends Closeable {
                         @Bind("end_date") String end)
 
     /**
+     * PATCH by ID
+     */
+    @SqlUpdate("""
+        UPDATE EVENTS
+        SET
+            TITLE =                 :title,
+            DESCRIPTION =           :description,
+            PLACE_ID =              (SELECT PLACE_ID FROM PLACES
+                                        WHERE NAME = :location),
+            GROUP_ID =              (SELECT GROUP_ID FROM GROUPS
+                                        WHERE NAME = :group
+                                        OR PAGE_NAME = :group),
+            DEPARTMENT_ID =         (SELECT DEPARTMENT_ID FROM DEPARTMENTS
+                                        WHERE NAME = :department),
+            ROOM =                  :room,
+            ADDRESS =               :address,
+            CITY =                  :city,
+            STATE =                 :state,
+            EVENT_URL =             :eventURL,
+            PHOTO_URL =             :photoURL,
+            TICKET_URL =            :ticketURL,
+            FACEBOOK_URL =          :facebookURL,
+            COST =                  :cost,
+            HASHTAG =               :hashtag,
+            KEYWORDS =              :keywords,
+            TAGS =                  :tags,
+            ALLOWS_REVIEWS =        :allowsReviews,
+            SPONSORED =             :sponsored,
+            VENUE_PAGE_ONLY =       :venuePageOnly,
+            EXCLUDE_FROM_TRENDING = :excludeFromTrending,
+            VISIBILITY =            :visibility
+        WHERE EVENT_ID =            :id
+        """)
+//            FILTERS =               :filterData,
+//    CUSTOM_FIELDS =         :customFieldData,
+//    UPDATED_AT =            SYSDATE
+//    WHERE EVENT_ID =            :id
+//    """)
+    void updateEvent(@Bind("id") String id,
+                     @BindBean Event event)
+//    ,
+//                     @Bind("filterData") String filterData,
+//                     @Bind("customFieldData") String customFieldData)
+
+    /**
      * DELETE by ID
      */
     @SqlUpdate("""
-    UPDATE EVENTS
-        SET DELETED_AT = SYSDATE
-        WHERE EVENT_ID=:id
+        UPDATE EVENTS
+            SET DELETED_AT = SYSDATE
+            WHERE EVENT_ID=:id
     """)
     void deleteEvent(@Bind("id") String eventID)
 }
