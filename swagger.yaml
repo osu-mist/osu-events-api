@@ -183,8 +183,6 @@ definitions:
 
   Attributes:
     properties:
-      eventID:
-        type: string
       title:
         type: string
       description:
