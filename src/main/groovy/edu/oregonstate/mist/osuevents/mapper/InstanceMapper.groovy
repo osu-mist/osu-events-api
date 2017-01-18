@@ -13,8 +13,10 @@ class InstanceMapper implements ResultSetMapper<Instance> {
     public Instance map(int i, ResultSet rs, StatementContext sc) throws SQLException {
         new Instance(
                 id: rs.getString("CLIENT_INSTANCE_ID"),
-                start: ZonedDateTime.parse(rs.getString("START_TIME"), dbFormatter),
-                end: ZonedDateTime.parse(rs.getString("END_TIME"), dbFormatter)
+                start: (rs.getString("START_TIME")) ?
+                        ZonedDateTime.parse(rs.getString("START_TIME"), dbFormatter) : null,
+                end: (rs.getString("END_TIME")) ?
+                        ZonedDateTime.parse(rs.getString("END_TIME"), dbFormatter) : null
         )
     }
     private static DateTimeFormatter dbFormatter = DateTimeFormatter

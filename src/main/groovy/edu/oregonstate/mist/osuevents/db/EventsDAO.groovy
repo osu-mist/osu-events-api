@@ -50,7 +50,7 @@ public interface EventsDAO extends Closeable {
           ON EVENTS.GROUP_ID = GROUPS.GROUP_ID
         LEFT JOIN DEPARTMENTS
           ON EVENTS.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
-        WHERE EVENT_ID=:ID
+        WHERE EVENT_ID=:id
         AND EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(EventMapper)
@@ -63,8 +63,7 @@ public interface EventsDAO extends Closeable {
             TO_CHAR(END_TIME, 'yyyy-mm-dd hh24:mi:ss') AS END_TIME
         FROM INSTANCES
         WHERE EVENT_ID=:id
-        AND START_TIME IS NOT NULL
-        AND END_TIME IS NOT NULL
+        AND DELETED_AT IS NULL
         """)
     @Mapper(InstanceMapper)
     List<Instance> getInstances(@Bind("id") String id)
@@ -77,8 +76,7 @@ public interface EventsDAO extends Closeable {
         FROM INSTANCES
         WHERE EVENT_ID=:event_id
         AND CLIENT_INSTANCE_ID=:instance_id
-        AND START_TIME IS NOT NULL
-        AND END_TIME IS NOT NULL
+        AND DELETED_AT IS NULL
         """)
     @Mapper(InstanceMapper)
     Instance getInstance(@Bind("event_id") String eventID,
@@ -171,12 +169,18 @@ public interface EventsDAO extends Closeable {
                      @Bind("customFieldData") String customFieldData)
 
     @SqlUpdate("""
-        INSERT INTO INSTANCES (INSTANCE_ID, CLIENT_INSTANCE_ID, EVENT_ID, START_TIME, END_TIME)
+        INSERT INTO INSTANCES (INSTANCE_ID,
+                               CLIENT_INSTANCE_ID,
+                               EVENT_ID,
+                               START_TIME,
+                               END_TIME,
+                               CREATED_AT)
         VALUES (instance_seq.NEXTVAL,
             :client_instance_id,
             :event_id,
             TO_DATE(:start_date, 'yyyy-mm-dd hh24:mi:ss'),
-            TO_DATE(:end_date, 'yyyy-mm-dd hh24:mi:ss'))
+            TO_DATE(:end_date, 'yyyy-mm-dd hh24:mi:ss'),
+            SYSDATE)
         """)
     void createInstance(@Bind("client_instance_id") String instanceID,
                         @Bind("event_id") String eventID,
@@ -229,9 +233,10 @@ public interface EventsDAO extends Closeable {
         UPDATE INSTANCES
         SET
             START_TIME = TO_DATE(:start_date, 'yyyy-mm-dd hh24:mi:ss'),
-            END_TIME = TO_DATE(:end_date, 'yyyy-mm-dd hh24:mi:ss')
-        WHERE CLIENT_INSTANCE_ID = :client_instance_id
-        AND EVENT_ID = :event_id
+            END_TIME = TO_DATE(:end_date, 'yyyy-mm-dd hh24:mi:ss'),
+            UPDATED_AT = SYSDATE
+        WHERE CLIENT_INSTANCE_ID=:client_instance_id
+        AND EVENT_ID=:event_id
     """)
     void updateInstance(@Bind("client_instance_id") String instanceID,
                         @Bind("event_id") String eventID,
@@ -244,7 +249,16 @@ public interface EventsDAO extends Closeable {
     @SqlUpdate("""
         UPDATE EVENTS
             SET DELETED_AT = SYSDATE
-            WHERE EVENT_ID=:id
+            WHERE EVENT_ID = :id
     """)
     void deleteEvent(@Bind("id") String eventID)
+
+    @SqlUpdate("""
+        UPDATE INSTANCES
+            SET DELETED_AT = SYSDATE
+            WHERE EVENT_ID=:event_id
+            AND CLIENT_INSTANCE_ID=:instance_id
+    """)
+    void deleteInstance(@Bind("event_id") String eventID,
+                        @Bind("instance_id") String instanceID)
 }

@@ -43,7 +43,6 @@ class EventsResource extends Resource {
     private final String uuidRegEx =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
 
-
 /**
  * GET by ID
  */
@@ -168,19 +167,24 @@ class EventsResource extends Resource {
 
         try {
             updatedEvent.instances.each {
+                String start = it.start.toString()
+                String end = it.end.toString()
+
                 if (!eventsDAO.getInstance(id, it.id)) {
                     eventsDAO.createInstance(
                             it.id,
                             id,
-                            InstanceMapper.formatForDB(it.start.toString()),
-                            InstanceMapper.formatForDB(it.end.toString())
+                            InstanceMapper.formatForDB(start),
+                            InstanceMapper.formatForDB(end)
                     )
+                } else if ((start == "null") && (end == "null")) {
+                    eventsDAO.deleteInstance(id, it.id)
                 } else {
                     eventsDAO.updateInstance(
                             it.id,
                             id,
-                            InstanceMapper.formatForDB(it.start.toString()),
-                            InstanceMapper.formatForDB(it.end.toString())
+                            InstanceMapper.formatForDB(start),
+                            InstanceMapper.formatForDB(end)
                     )
                 }
             }
