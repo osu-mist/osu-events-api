@@ -1,8 +1,105 @@
-# Web API Skeleton
+# OSU Events API
 
-Skeleton for Dropwizard Web APIs.
+This API serves as a wrapper for getting event data into a vendor calendar system in a specific format. Events are created and updated using JSON requests, and events can be retrived in JSON, ICS, or CSV formats. The CSV is specific to the vendor calendar system.
 
-### Generate Keys
+## Resources
+This section will cover the basic process of creating, updating, and deleting events, as well as getting events. For a more detailed blueprint of this API, please see the [swagger specification](swagger.yaml).
+
+### POST /events
+Create an event by sending a result object in the body of a request. If you do not include an ID within the resource object, one will be created for you. Dates follow [RFC3339 formatting](https://xml2rfc.tools.ietf.org/public/rfc/html/rfc3339.html#anchor14).
+
+Request:
+
+	{
+      "data": {
+          "id": null,
+          "type": "event",
+          "attributes": {
+            "title": "Party",
+            "description": "It's a party!",
+            "location": "Student Union",
+            "room": "Third door on the left",
+            "address": "123 Main St.",
+            "city": "Nullville",
+            "state": "Oregon",
+            "eventURL": "www.example.com",
+            "photoURL": "www.example.com",
+            "ticketURL": "www.example.com",
+            "facebookURL": "www.facebook.com/example",
+            "cost": "Free",
+            "hashtag": "nullvilleparty",
+            "keywords": "party, fun, awesome",
+            "tags": "activity, entertainment",
+            "group": "Party Group",
+            "department": "Department of Party",
+            "allowsReviews": true,
+            "sponsored": false,
+            "venuePageOnly": false,
+            "excludeFromTrending": true,
+            "visibility": null,
+            "customFields": [
+              {
+                "field": "Theme",
+                "value": "Tropical Island"
+              }
+            ],
+            "filters": [
+              {
+                "filter": "Event Type",
+                "items": [
+                  "Party"
+                ]
+              },
+              {
+                "filter": "Meals Provided",
+                "items": [
+                  "Lunch"
+                ]
+              }
+            ],
+            "instances": [
+                {
+                "id": "1",
+                "start": "2017-01-13T12:00:00-08:00",
+                "end": "2017-01-13T14:00:00-08:00"
+              }]
+          }
+        }
+    }
+
+### PATCH /events/{eventID}
+Update an event by sending a result object in the body of a request. Any attributes not included in the request will remain their current values. To delete an instance of an event, set the values of start and end to null.
+
+Request:
+
+	{
+  		"data":
+			{
+            "id": "e116b4b4-3696-4b74-a5d5-21b2b9ad6fee",
+            "type": "event",
+            "attributes": {
+              "room": "Second floor, third door on the left",
+              "cost": "Free, but bring pizza money!",
+              "instances": [
+                  {
+                  "id": "1",
+                  "start": "2017-01-13T13:00:00-08:00",
+                  "end": "2017-01-13T15:00:00-08:00"
+                }]
+            }
+          }
+     }
+
+### DELETE /events/{eventID}
+Delete a single event by eventID. Returns 204 response if successful.
+
+### GET /events/{eventID}
+Get single event by eventID. If no event is found, result object is empty. Times are returned in UTC.
+
+### GET /events
+Get all events in JSON format.
+
+## Generate Keys
 
 HTTPS is required for Web APIs in development and production. Use `keytool(1)` to generate public and private keys.
 
@@ -80,94 +177,3 @@ Run the project:
 
     $ gradle run
 
-## Contrib Files
-
-Any code that contains intellectual property from a vendor should be stored in Github Enterprise instead of public Github. Make the name of the contrib repo in Github Enterprise follow this format using archivesBaseName in gradle.properties.
-
-    archivesBaseName-contrib
-
-Set the value of getContribFiles to yes in gradle.properties.
-
-    getContribFiles=yes
-
-Also set the value of contribCommit to the SHA1 of the desired commit to be used from the contrib repository.
-
-    contribCommit={SHA1}
-    
-Files in a Github Enterprise repo will be copied to this directory upon building the application.
-
-    gradle build
-
-Contrib files are copied to:
-
-    /src/main/groovy/edu/oregonstate/mist/contrib/
-    
-## Base a New Project off the Skeleton
-
-Clone the skeleton:
-
-    $ git clone --origin skeleton git@github.com:osu-mist/web-api-skeleton.git my-api
-    $ cd my-api
-
-Rename the webapiskeleton package and SkeletonApplication class:
-
-    $ git mv src/main/groovy/edu/oregonstate/mist/webapiskeleton src/main/groovy/edu/oregonstate/mist/myapi
-    $ vim src/main/groovy/edu/oregonstate/mist/myapi/SkeletonApplication.class
-
-Update gradle.properties with your package name and main class.
-
-Replace swagger.yaml with your own API specification.
-
-Update configuration-example.yaml as appropriate for your application.
-
-Update the resource examples at the end of this readme.
-
-## Base an Existing Project off the Skeleton
-
-Add the skeleton as a remote:
-
-    $ git remote add skeleton git@github.com:osu-mist/web-api-skeleton.git
-    $ git fetch skeleton
-
-Merge the skeleton into your codebase:
-
-    $ git checkout feature/abc-123-branch
-    $ git merge skeleton/master
-    ...
-    $ git commit -v
-
-
-## Incorporate Updates from the Skeleton
-
-Fetch updates from the skeleton:
-
-    $ git fetch skeleton
-
-Merge the updates into your codebase as before.
-Note that changes to CodeNarc configuration may introduce build failures.
-
-    $ git checkout feature/abc-124-branch
-    $ git merge skeleton/master
-    ...
-    $ git commit -v
-
-
-## Resources
-
-The Web API definition is contained in the [Swagger specification](swagger.yaml).
-
-The following examples demonstrate the use of `curl` to make authenticated HTTPS requests.
-
-### GET /
-
-This resource returns build and runtime information:
-
-    $ curl \
-    > --cacert doej.pem \
-    > --user "username:password" \
-    > https://localhost:8080/api/v0/
-    {"name":"web-api-skeleton","time":"2016-08-02 14:37:01-0700","unixTime":1470173821035,"commit":"e3d396e","documentation":"swagger.yaml"}
-
-NOTE: you should only specify a certificate with --cacert for local testing.
-Production servers should use a real certificate
-issued by a valid certificate authority.
