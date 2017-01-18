@@ -142,16 +142,48 @@ class EventsResource extends Resource {
             return badRequest("ID in JSON body must match ID in path parameter").build()
         }
 
-        Event updatedEvent = new Event()
+        Event updatedEvent
 
         try {
+            updatedEvent = currentResourceObject.attributes
             resultObject.data.attributes.each { key, value ->
                 updatedEvent."$key" = value
             }
         } catch (MissingPropertyException e) {
             return badRequest("Event contains unrecognized fields.").build()
         }
-        eventsDAO.updateEvent(id, updatedEvent)
+
+        String customFieldData = JsonOutput.toJson(updatedEvent.customFields)
+        String filterData = JsonOutput.toJson(updatedEvent.filters)
+
+        eventsDAO.updateEvent(id, updatedEvent, filterData, customFieldData)
+
+        try {
+            updatedEvent.instances.each {
+                if (!eventsDAO.getInstance(id, it.id)) {
+                    eventsDAO.createInstance(
+                            it.id,
+                            id,
+                            InstanceMapper.formatForDB(it.start.toString()),
+                            InstanceMapper.formatForDB(it.end.toString())
+                    )
+                } else {
+                    eventsDAO.updateInstance(
+                            it.id,
+                            id,
+                            InstanceMapper.formatForDB(it.start.toString()),
+                            InstanceMapper.formatForDB(it.end.toString())
+                    )
+                }
+            }
+        } catch (DateTimeParseException e) {
+            return badRequest("Unable to parse date." +
+                    "Dates should follow ISO 8601 specifications.").build()
+        } catch (MissingMethodException e) {
+            return badRequest("Unable to process instance." +
+                    "Ensure instance ID is a string.").build()
+        }
+
         ok(getResultObject(eventsDAO.getById(id))).build()
     }
 /**

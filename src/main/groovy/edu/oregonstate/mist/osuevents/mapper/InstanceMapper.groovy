@@ -22,7 +22,9 @@ class InstanceMapper implements ResultSetMapper<Instance> {
             .withZone(ZoneId.of("UTC"))
 
     public static String formatForDB (String inputDate) {
-
+        if (!inputDate || inputDate == "null") {
+            return null
+        }
         ZonedDateTime cleanDate = ZonedDateTime.parse(
                 inputDate,
                 DateTimeFormatter.ISO_OFFSET_DATE_TIME)

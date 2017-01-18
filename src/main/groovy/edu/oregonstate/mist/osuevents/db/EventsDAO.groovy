@@ -63,9 +63,26 @@ public interface EventsDAO extends Closeable {
             TO_CHAR(END_TIME, 'yyyy-mm-dd hh24:mi:ss') AS END_TIME
         FROM INSTANCES
         WHERE EVENT_ID=:id
+        AND START_TIME IS NOT NULL
+        AND END_TIME IS NOT NULL
         """)
     @Mapper(InstanceMapper)
     List<Instance> getInstances(@Bind("id") String id)
+
+    @SqlQuery("""
+        select
+            CLIENT_INSTANCE_ID,
+            TO_CHAR(START_TIME, 'yyyy-mm-dd hh24:mi:ss') AS START_TIME,
+            TO_CHAR(END_TIME, 'yyyy-mm-dd hh24:mi:ss') AS END_TIME
+        FROM INSTANCES
+        WHERE EVENT_ID=:event_id
+        AND CLIENT_INSTANCE_ID=:instance_id
+        AND START_TIME IS NOT NULL
+        AND END_TIME IS NOT NULL
+        """)
+    @Mapper(InstanceMapper)
+    Instance getInstance(@Bind("event_id") String eventID,
+                         @Bind("instance_id") String instanceID)
 
     /**
      * GET all events
@@ -197,19 +214,29 @@ public interface EventsDAO extends Closeable {
             SPONSORED =             :sponsored,
             VENUE_PAGE_ONLY =       :venuePageOnly,
             EXCLUDE_FROM_TRENDING = :excludeFromTrending,
-            VISIBILITY =            :visibility
+            VISIBILITY =            :visibility,
+            FILTERS =               :filterData,
+            CUSTOM_FIELDS =         :customFieldData,
+            UPDATED_AT =            SYSDATE
         WHERE EVENT_ID =            :id
-        """)
-//            FILTERS =               :filterData,
-//    CUSTOM_FIELDS =         :customFieldData,
-//    UPDATED_AT =            SYSDATE
-//    WHERE EVENT_ID =            :id
-//    """)
+    """)
     void updateEvent(@Bind("id") String id,
-                     @BindBean Event event)
-//    ,
-//                     @Bind("filterData") String filterData,
-//                     @Bind("customFieldData") String customFieldData)
+                     @BindBean Event event,
+                     @Bind("filterData") String filterData,
+                     @Bind("customFieldData") String customFieldData)
+
+    @SqlUpdate("""
+        UPDATE INSTANCES
+        SET
+            START_TIME = TO_DATE(:start_date, 'yyyy-mm-dd hh24:mi:ss'),
+            END_TIME = TO_DATE(:end_date, 'yyyy-mm-dd hh24:mi:ss')
+        WHERE CLIENT_INSTANCE_ID = :client_instance_id
+        AND EVENT_ID = :event_id
+    """)
+    void updateInstance(@Bind("client_instance_id") String instanceID,
+                        @Bind("event_id") String eventID,
+                        @Bind("start_date") String start,
+                        @Bind("end_date") String end)
 
     /**
      * DELETE by ID
