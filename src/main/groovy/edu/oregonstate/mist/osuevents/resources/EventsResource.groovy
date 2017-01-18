@@ -32,7 +32,7 @@ import static java.util.UUID.randomUUID
 @Produces(MediaType.APPLICATION_JSON)
 class EventsResource extends Resource {
 
-    //Logger logger = LoggerFactory.getLogger(EventsResource.class)
+    Logger logger = LoggerFactory.getLogger(EventsResource.class)
 
     private final EventsDAO eventsDAO
 
@@ -90,6 +90,9 @@ class EventsResource extends Resource {
             newEvent = newResultObject.data.attributes
         } catch (GroovyCastException e) {
             return badRequest(ErrorMessages.unknownFields).build()
+        } catch (Exception e) {
+            logger.error("Exception while calling createEvent", e)
+            return internalServerError(ErrorMessages.unexpectedException + e.toString()).build()
         }
 
         newResourceObject.id = newResourceObject.id ?: randomUUID() as String
@@ -116,6 +119,9 @@ class EventsResource extends Resource {
             return badRequest(ErrorMessages.parseDate).build()
         } catch (MissingMethodException e) {
             return badRequest(ErrorMessages.processInstance).build()
+        } catch (Exception e) {
+            logger.error("Exception while calling createEvent", e)
+            return internalServerError(ErrorMessages.unexpectedException + e.toString()).build()
         }
 
         //Get newly created event and put it in response
@@ -150,6 +156,9 @@ class EventsResource extends Resource {
             }
         } catch (MissingPropertyException e) {
             return badRequest(ErrorMessages.unknownFields).build()
+        } catch (Exception e) {
+            logger.error("Exception while calling updateEvent", e)
+            return internalServerError(ErrorMessages.unexpectedException + e.toString()).build()
         }
 
         String customFieldData = JsonOutput.toJson(updatedEvent.customFields)
@@ -179,6 +188,9 @@ class EventsResource extends Resource {
             return badRequest(ErrorMessages.parseDate).build()
         } catch (MissingMethodException e) {
             return badRequest(ErrorMessages.processInstance).build()
+        } catch (Exception e) {
+            logger.error("Exception while calling updateEvent", e)
+            return internalServerError(ErrorMessages.unexpectedException + e.toString()).build()
         }
 
         ok(getResultObject(eventsDAO.getById(id))).build()
