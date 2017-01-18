@@ -17,11 +17,11 @@ public interface EventsDAO extends Closeable {
      * GET by ID
      */
     @SqlQuery("""
-        select
+        SELECT
             EVENTS.EVENT_ID,
             EVENTS.TITLE,
             EVENTS.DESCRIPTION,
-            PLACES.NAME as PLACE_NAME,
+            PLACES.NAME AS PLACE_NAME,
             EVENTS.ROOM,
             EVENTS.ADDRESS,
             EVENTS.CITY,
@@ -34,8 +34,8 @@ public interface EventsDAO extends Closeable {
             EVENTS.HASHTAG,
             EVENTS.KEYWORDS,
             EVENTS.TAGS,
-            GROUPS.NAME as GROUP_NAME,
-            DEPARTMENTS.NAME as DEPARTMENT_NAME,
+            GROUPS.NAME AS GROUP_NAME,
+            DEPARTMENTS.NAME AS DEPARTMENT_NAME,
             EVENTS.ALLOWS_REVIEWS,
             EVENTS.SPONSORED,
             EVENTS.VENUE_PAGE_ONLY,
@@ -43,21 +43,21 @@ public interface EventsDAO extends Closeable {
             EVENTS.VISIBILITY,
             EVENTS.FILTERS,
             EVENTS.CUSTOM_FIELDS
-        from EVENTS
-        left join PLACES
-          on EVENTS.PLACE_ID = PLACES.PLACE_ID
-        left join GROUPS
-          on EVENTS.GROUP_ID = GROUPS.GROUP_ID
-        left join DEPARTMENTS
+        FROM EVENTS
+        LEFT JOIN PLACES
+          ON EVENTS.PLACE_ID = PLACES.PLACE_ID
+        LEFT JOIN GROUPS
+          ON EVENTS.GROUP_ID = GROUPS.GROUP_ID
+        LEFT JOIN DEPARTMENTS
           ON EVENTS.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
-        where EVENT_ID=:id
-        and EVENTS.DELETED_AT IS NULL
+        WHERE EVENT_ID=:ID
+        AND EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(EventMapper)
     ResourceObject getById(@Bind("id") String id)
 
     @SqlQuery("""
-        select
+        SELECT
             CLIENT_INSTANCE_ID,
             TO_CHAR(START_TIME, 'yyyy-mm-dd hh24:mi:ss') AS START_TIME,
             TO_CHAR(END_TIME, 'yyyy-mm-dd hh24:mi:ss') AS END_TIME
@@ -70,7 +70,7 @@ public interface EventsDAO extends Closeable {
     List<Instance> getInstances(@Bind("id") String id)
 
     @SqlQuery("""
-        select
+        SELECT
             CLIENT_INSTANCE_ID,
             TO_CHAR(START_TIME, 'yyyy-mm-dd hh24:mi:ss') AS START_TIME,
             TO_CHAR(END_TIME, 'yyyy-mm-dd hh24:mi:ss') AS END_TIME
@@ -88,7 +88,7 @@ public interface EventsDAO extends Closeable {
      * GET all events
      */
     @SqlQuery("""
-        select
+        SELECT
             EVENTS.EVENT_ID,
             EVENTS.TITLE,
             EVENTS.DESCRIPTION,
@@ -114,14 +114,14 @@ public interface EventsDAO extends Closeable {
             EVENTS.VISIBILITY,
             EVENTS.FILTERS,
             EVENTS.CUSTOM_FIELDS
-        from EVENTS
-        left join PLACES
-          on EVENTS.PLACE_ID = PLACES.PLACE_ID
-        left join GROUPS
-          on EVENTS.GROUP_ID = GROUPS.GROUP_ID
-        left join DEPARTMENTS
+        FROM EVENTS
+        LEFT JOIN PLACES
+          ON EVENTS.PLACE_ID = PLACES.PLACE_ID
+        LEFT JOIN GROUPS
+          ON EVENTS.GROUP_ID = GROUPS.GROUP_ID
+        LEFT JOIN DEPARTMENTS
           ON EVENTS.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
-        where EVENTS.DELETED_AT IS NULL
+        WHERE EVENTS.DELETED_AT IS NULL
         """)
     @Mapper(EventMapper)
     List<ResourceObject> getEvents()

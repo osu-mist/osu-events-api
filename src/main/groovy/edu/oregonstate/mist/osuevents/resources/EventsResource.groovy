@@ -43,6 +43,7 @@ class EventsResource extends Resource {
     private final String uuidRegEx =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
 
+
 /**
  * GET by ID
  */
@@ -88,7 +89,7 @@ class EventsResource extends Resource {
             newResourceObject = newResultObject.data
             newEvent = newResultObject.data.attributes
         } catch (GroovyCastException e) {
-            return badRequest("Event contains unrecognized fields.").build()
+            return badRequest(ErrorMessages.unknownFields).build()
         }
 
         newResourceObject.id = newResourceObject.id ?: randomUUID() as String
@@ -112,11 +113,9 @@ class EventsResource extends Resource {
                 )
             }
         } catch (DateTimeParseException e) {
-            return badRequest("Unable to parse date." +
-                    "Dates should follow ISO 8601 specifications.").build()
+            return badRequest(ErrorMessages.parseDate).build()
         } catch (MissingMethodException e) {
-            return badRequest("Unable to process instance." +
-                    "Ensure instance ID is a string.").build()
+            return badRequest(ErrorMessages.processInstance).build()
         }
 
         //Get newly created event and put it in response
@@ -150,7 +149,7 @@ class EventsResource extends Resource {
                 updatedEvent."$key" = value
             }
         } catch (MissingPropertyException e) {
-            return badRequest("Event contains unrecognized fields.").build()
+            return badRequest(ErrorMessages.unknownFields).build()
         }
 
         String customFieldData = JsonOutput.toJson(updatedEvent.customFields)
@@ -177,11 +176,9 @@ class EventsResource extends Resource {
                 }
             }
         } catch (DateTimeParseException e) {
-            return badRequest("Unable to parse date." +
-                    "Dates should follow ISO 8601 specifications.").build()
+            return badRequest(ErrorMessages.parseDate).build()
         } catch (MissingMethodException e) {
-            return badRequest("Unable to process instance." +
-                    "Ensure instance ID is a string.").build()
+            return badRequest(ErrorMessages.processInstance).build()
         }
 
         ok(getResultObject(eventsDAO.getById(id))).build()
