@@ -1,7 +1,7 @@
 CREATE TABLE apismgr.EVENTS_EVENTS 
 (
   EVENT_ID              VARCHAR2(36) NOT NULL,
-  TITLE                 VARCHAR2(256) NOT NULL,
+  TITLE                 VARCHAR2(256),
   DESCRIPTION           CLOB,
   PLACE_ID              NUMBER,
   GROUP_ID              NUMBER,
@@ -73,6 +73,9 @@ CREATE TABLE apismgr.EVENTS_INSTANCES
   EVENT_ID           VARCHAR2(36) NOT NULL,
   START_TIME         DATE NOT NULL,
   END_TIME           DATE NOT NULL,
+  CREATED_AT         DATE NOT NULL,
+  UPDATED_AT         DATE,
+  DELETED_AT         DATE,
   CONSTRAINT PK_EVENTS_INSTANCES PRIMARY KEY 
     (
       INSTANCE_ID 
@@ -87,6 +90,9 @@ COMMENT ON COLUMN apismgr.INSTANCES.CLIENT_INSTANCE_ID IS 'Able to be generated 
 COMMENT ON COLUMN apismgr.INSTANCES.EVENT_ID IS 'Foreign key for EVENTS table.';
 COMMENT ON COLUMN apismgr.INSTANCES.START_TIME IS 'Start date/time of instance.';
 COMMENT ON COLUMN apismgr.INSTANCES.END_TIME IS 'End date/time of instance.';
+COMMENT ON COLUMN apismgr.INSTANCES.CREATED_AT IS 'Stores SYSDATE when instance was created.';
+COMMENT ON COLUMN apismgr.INSTANCES.UPDATED_AT IS 'Stores SYSDATE when instance was updated.';
+COMMENT ON COLUMN apismgr.INSTANCES.DELETED_AT IS 'Stores SYSDATE when instance was deleted.';
 
 CREATE TABLE apismgr.EVENTS_GROUPS 
 (
