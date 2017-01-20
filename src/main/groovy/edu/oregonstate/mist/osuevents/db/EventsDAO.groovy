@@ -136,12 +136,15 @@ public interface EventsDAO extends Closeable {
             :title,
             :description,
             (SELECT PLACE_ID FROM PLACES
-                WHERE NAME = :location),
+                WHERE NAME = :location
+                AND DELETED_AT IS NULL),
             (SELECT GROUP_ID FROM GROUPS
-                WHERE NAME = :group
-                OR PAGE_NAME = :group),
+                WHERE (NAME = :group
+                OR PAGE_NAME = :group)
+                AND DELETED_AT IS NULL),
             (SELECT DEPARTMENT_ID FROM DEPARTMENTS
-                WHERE NAME = :department),
+                WHERE NAME = :department
+                AND DELETED_AT IS NULL),
             :room,
             :address,
             :city,
@@ -196,12 +199,15 @@ public interface EventsDAO extends Closeable {
             TITLE =                 :title,
             DESCRIPTION =           :description,
             PLACE_ID =              (SELECT PLACE_ID FROM PLACES
-                                        WHERE NAME = :location),
+                                        WHERE NAME = :location
+                                        AND DELETED_AT IS NULL),
             GROUP_ID =              (SELECT GROUP_ID FROM GROUPS
-                                        WHERE NAME = :group
-                                        OR PAGE_NAME = :group),
+                                        WHERE (NAME = :group
+                                        OR PAGE_NAME = :group)
+                                        AND DELETED_AT IS NULL),
             DEPARTMENT_ID =         (SELECT DEPARTMENT_ID FROM DEPARTMENTS
-                                        WHERE NAME = :department),
+                                        WHERE NAME = :department
+                                        AND DELETED_AT IS NULL),
             ROOM =                  :room,
             ADDRESS =               :address,
             CITY =                  :city,
