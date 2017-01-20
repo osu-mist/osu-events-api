@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.osuevents.resources
 
 import edu.oregonstate.mist.api.AuthenticatedUser
+import edu.oregonstate.mist.api.Error
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
@@ -82,31 +83,23 @@ class EventsResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEvent(@Auth AuthenticatedUser _,
                                 @Valid ResultObject newResultObject) {
-        ResourceObject newResourceObject
-        Event newEvent
+        List<Error> errors = getErrors(newResultObject)
 
-        try {
-            newResourceObject = newResultObject.data
-            newEvent = newResultObject.data.attributes
-        } catch (GroovyCastException e) {
-            return badRequest(ErrorMessages.unknownFields).build()
-        } catch (Exception e) {
-            logger.error("Exception while calling createEvent", e)
-            return internalServerError(ErrorMessages.unexpectedException).build()
+        if (errors) {
+            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST)
+            return responseBuilder.entity(errors).build()
         }
-
-        //generate id if one wasn't included in the request
-        newResourceObject.id = newResourceObject.id ?: randomUUID() as String
-
-        if (!newResourceObject.id.matches(uuidRegEx) || eventsDAO.getById(newResourceObject.id)) {
-            return conflict().build()
-        }
-
-        //get custom fields and filters ready for DAO
-        String customFieldData = JsonOutput.toJson(newEvent.customFields)
-        String filterData = JsonOutput.toJson(newEvent.filters)
-
         try {
+            ResourceObject newResourceObject = newResultObject.data
+            Event newEvent = newResultObject.data.attributes
+
+            //generate id if one wasn't included in the request
+            newResourceObject.id = newResourceObject.id ?: randomUUID() as String
+
+            //get custom fields and filters ready for DAO
+            String customFieldData = JsonOutput.toJson(newEvent.customFields)
+            String filterData = JsonOutput.toJson(newEvent.filters)
+
             newEvent.instances.each {
                 eventsDAO.createInstance(
                         it.id,
@@ -115,20 +108,16 @@ class EventsResource extends Resource {
                         InstanceMapper.formatForDB(it.end.toString())
                 )
             }
-        } catch (DateTimeParseException e) {
-            return badRequest(ErrorMessages.parseDate).build()
-        } catch (MissingMethodException e) {
-            return badRequest(ErrorMessages.processInstance).build()
+
+            eventsDAO.createEvent(newResourceObject.id, newEvent, filterData, customFieldData)
+
+            //get newly created event and put it in response
+            ResourceObject event = eventsDAO.getById(newResourceObject.id)
+            created(getResultObject(event)).build()
         } catch (Exception e) {
             logger.error("Exception while calling createEvent", e)
             return internalServerError(ErrorMessages.unexpectedException).build()
         }
-
-        eventsDAO.createEvent(newResourceObject.id, newEvent, filterData, customFieldData)
-
-        //get newly created event and put it in response
-        ResourceObject event = eventsDAO.getById(newResourceObject.id)
-        created(getResultObject(event)).build()
     }
 
 /**
@@ -221,7 +210,69 @@ class EventsResource extends Resource {
         eventsDAO.deleteEvent(id)
         Response.noContent().build()
     }
+/**
+ * Helper function for data validation. Returns list of applicable errors.
+ */
+    private List<Error> getErrors(ResultObject resultObject) {
 
+        List<Error> errors = []
+        ResourceObject newResourceObject
+        Event newEvent
+
+        try {
+            newResourceObject = resultObject.data
+            newEvent = resultObject.data.attributes
+        } catch (GroovyCastException e) {
+            errors.add(new Error(
+                    status: 400,
+                    developerMessage: ErrorMessages.unknownFields,
+                    userMessage: Resource.properties.get('badRequest.userMessage'),
+                    code: Integer.parseInt(Resource.properties.get('badRequest.code')),
+                    details: Resource.properties.get('badRequest.details')
+            ))
+            return errors
+        }
+
+        if (newResourceObject.id) {
+            if (!newResourceObject.id.matches(uuidRegEx)) {
+                errors.add(new Error(
+                        status: 409,
+                        developerMessage: ErrorMessages.invalidUUID
+                ))
+            }
+            if (eventsDAO.getById(newResourceObject.id)) {
+                errors.add(new Error(
+                        status: 409,
+                        developerMessage: ErrorMessages.idExists
+                ))
+            }
+        }
+            newEvent.instances.each {
+                try {
+                    InstanceMapper.formatForDB(it.start.toString())
+                    InstanceMapper.formatForDB(it.end.toString())
+                } catch (DateTimeParseException e) {
+                    errors.add(new Error(
+                            status: 400,
+                            developerMessage: "Error with instance ID: ${it.id}. " +
+                                    ErrorMessages.parseDate,
+                            userMessage: Resource.properties.get('badRequest.userMessage'),
+                            code: Integer.parseInt(Resource.properties.get('badRequest.code')),
+                            details: Resource.properties.get('badRequest.details')
+                    ))
+                } catch (MissingMethodException e) {
+                    errors.add(new Error(
+                            status: 400,
+                            developerMessage: "Error with instance ID: ${it.id}. " +
+                                    ErrorMessages.processInstance,
+                            userMessage: Resource.properties.get('badRequest.userMessage'),
+                            code: Integer.parseInt(Resource.properties.get('badRequest.code')),
+                            details: Resource.properties.get('badRequest.details')
+                    ))
+                }
+            }
+        errors
+    }
 /**
  * Helper function for preparing a Result Object
  */
