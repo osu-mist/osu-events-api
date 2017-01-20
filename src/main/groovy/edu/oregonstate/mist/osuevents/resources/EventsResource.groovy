@@ -230,7 +230,6 @@ class EventsResource extends Resource {
         resultObject.data = []
 
         events.each {
-            println(it.id)
             it.attributes.instances = eventsDAO.getInstances(it.id)
             resultObject.data += it
         }
