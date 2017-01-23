@@ -130,54 +130,59 @@ class EventsResource extends Resource {
     public Response updateEvent(@Auth AuthenticatedUser _,
                                 @PathParam('id') String id,
                                 @Valid ResultObject resultObject) {
-        List<Error> errors = getErrors(resultObject, true, id)
+        List<Error> errors = getErrors(resultObject, id)
 
         if (errors) {
             Response.ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST)
             return responseBuilder.entity(errors).build()
         }
 
-        ResourceObject currentResourceObject = eventsDAO.getById(id)
-        Event updatedEvent
+        try {
+            ResourceObject currentResourceObject = eventsDAO.getById(id)
+            Event updatedEvent
 
-        updatedEvent = currentResourceObject.attributes
-        resultObject.data.attributes.each { key, value ->
-            updatedEvent."$key" = value
-        }
-
-        //get custom fields and filters ready for DAO
-        String customFieldData = JsonOutput.toJson(updatedEvent.customFields)
-        String filterData = JsonOutput.toJson(updatedEvent.filters)
-
-        updatedEvent.instances.each {
-            String start = it.start.toString()
-            String end = it.end.toString()
-
-            //if instance doesn't exist, create it
-            if (!eventsDAO.getInstance(id, it.id.toString())) {
-                eventsDAO.createInstance(
-                        it.id.toString(),
-                        id,
-                        InstanceMapper.formatForDB(start),
-                        InstanceMapper.formatForDB(end)
-                )
-            //if start and end values are null, delete the instance
-            } else if ((start == "null") && (end == "null")) {
-                eventsDAO.deleteInstance(id, it.id.toString())
-            } else {
-                eventsDAO.updateInstance(
-                        it.id.toString(),
-                        id,
-                        InstanceMapper.formatForDB(start),
-                        InstanceMapper.formatForDB(end)
-                )
+            updatedEvent = currentResourceObject.attributes
+            resultObject.data.attributes.each { key, value ->
+                updatedEvent."$key" = value
             }
+
+            //get custom fields and filters ready for DAO
+            String customFieldData = JsonOutput.toJson(updatedEvent.customFields)
+            String filterData = JsonOutput.toJson(updatedEvent.filters)
+
+            updatedEvent.instances.each {
+                String start = it.start.toString()
+                String end = it.end.toString()
+
+                //if instance doesn't exist, create it
+                if (!eventsDAO.getInstance(id, it.id.toString())) {
+                    eventsDAO.createInstance(
+                            it.id.toString(),
+                            id,
+                            InstanceMapper.formatForDB(start),
+                            InstanceMapper.formatForDB(end)
+                    )
+                    //if start and end values are null, delete the instance
+                } else if ((start == "null") && (end == "null")) {
+                    eventsDAO.deleteInstance(id, it.id.toString())
+                } else {
+                    eventsDAO.updateInstance(
+                            it.id.toString(),
+                            id,
+                            InstanceMapper.formatForDB(start),
+                            InstanceMapper.formatForDB(end)
+                    )
+                }
+            }
+
+            eventsDAO.updateEvent(id, updatedEvent, filterData, customFieldData)
+
+            //get updated event and put it in response
+            ok(getResultObject(eventsDAO.getById(id))).build()
+        } catch (Exception e) {
+            logger.error("Exception while calling updateEvent", e)
+            return internalServerError(ErrorMessages.unexpectedException).build()
         }
-
-        eventsDAO.updateEvent(id, updatedEvent, filterData, customFieldData)
-
-        //get updated event and put it in response
-        ok(getResultObject(eventsDAO.getById(id))).build()
     }
 /**
  * DELETE an event
@@ -198,15 +203,13 @@ class EventsResource extends Resource {
  * Helper function for data validation. Returns list of applicable errors.
  */
     private List<Error> getErrors(ResultObject resultObject,
-                                  Boolean update = false,
                                   String pathID = null) {
-
         List<Error> errors = []
         ResourceObject resourceObject
         Event event
 
-        if (update) {
-            if (!eventsDAO.getById(resultObject.data.id)) {
+        if (pathID) {
+            if (!eventsDAO.getById(pathID)) {
                 errors.add(new Error(
                         status: 404,
                         developerMessage: Resource.properties.get('notFound.developerMessage'),
@@ -216,17 +219,13 @@ class EventsResource extends Resource {
                 ))
             }
             if (resultObject.data.id != pathID) {
-                errors.add(new Error(
-                        status: 400,
-                        developerMessage: "ID in JSON body must match ID in path parameter",
-                        userMessage: Resource.properties.get('badRequest.userMessage'),
-                        code: Integer.parseInt(Resource.properties.get('badRequest.code')),
-                        details: Resource.properties.get('badRequest.details')
-                ))
+                Error mismatchID = ErrorMessages.badRequest
+                mismatchID.developerMessage = "ID in JSON body must match ID in path parameter"
+                errors.add(mismatchID)
             }
         }
 
-        if (resultObject.data.id && !update) {
+        if (resultObject.data.id && !pathID) {
             resultObject.data.id = resultObject.data.id.toString()
 
             if (!resultObject.data.id.matches(uuidRegEx)) {
@@ -247,13 +246,9 @@ class EventsResource extends Resource {
             resourceObject = resultObject.data
             event = resultObject.data.attributes
         } catch (GroovyCastException e) {
-            errors.add(new Error(
-                    status: 400,
-                    developerMessage: ErrorMessages.unknownFields,
-                    userMessage: Resource.properties.get('badRequest.userMessage'),
-                    code: Integer.parseInt(Resource.properties.get('badRequest.code')),
-                    details: Resource.properties.get('badRequest.details')
-            ))
+            Error unknownFields = ErrorMessages.badRequest
+            unknownFields.developerMessage = ErrorMessages.unknownFields
+            errors.add(unknownFields)
             return errors
         }
 
@@ -263,12 +258,12 @@ class EventsResource extends Resource {
                 InstanceMapper.formatForDB(it.end.toString())
             } catch (DateTimeParseException e) {
                 errors.add(new Error(
-                        status: 400,
+                        status: ErrorMessages.badRequest.status,
                         developerMessage: "Error with instance ID: ${it.id}. " +
-                                ErrorMessages.parseDate,
-                        userMessage: Resource.properties.get('badRequest.userMessage'),
-                        code: Integer.parseInt(Resource.properties.get('badRequest.code')),
-                        details: Resource.properties.get('badRequest.details')
+                            ErrorMessages.parseDate,
+                        userMessage: ErrorMessages.badRequest.userMessage,
+                        code: ErrorMessages.badRequest.code,
+                        details: ErrorMessages.badRequest.details
                 ))
             }
         }
