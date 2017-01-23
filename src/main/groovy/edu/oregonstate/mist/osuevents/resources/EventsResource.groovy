@@ -102,7 +102,7 @@ class EventsResource extends Resource {
 
             newEvent.instances.each {
                 eventsDAO.createInstance(
-                        it.id,
+                        it.id.toString(),
                         newResourceObject.id,
                         InstanceMapper.formatForDB(it.start.toString()),
                         InstanceMapper.formatForDB(it.end.toString())
