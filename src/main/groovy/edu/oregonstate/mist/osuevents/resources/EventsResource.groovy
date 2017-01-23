@@ -251,7 +251,6 @@ class EventsResource extends Resource {
             errors.add(unknownFields)
             return errors
         }
-
         event.instances.each {
             try {
                 InstanceMapper.formatForDB(it.start.toString())
@@ -260,7 +259,7 @@ class EventsResource extends Resource {
                 errors.add(new Error(
                         status: ErrorMessages.badRequest.status,
                         developerMessage: "Error with instance ID: ${it.id}. " +
-                            ErrorMessages.parseDate,
+                                ErrorMessages.parseDate,
                         userMessage: ErrorMessages.badRequest.userMessage,
                         code: ErrorMessages.badRequest.code,
                         details: ErrorMessages.badRequest.details
