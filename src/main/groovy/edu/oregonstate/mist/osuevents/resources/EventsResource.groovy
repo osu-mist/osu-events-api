@@ -219,6 +219,23 @@ class EventsResource extends Resource {
         ResourceObject newResourceObject
         Event newEvent
 
+        if (resultObject.data.id) {
+            resultObject.data.id = resultObject.data.id.toString()
+
+            if (!resultObject.data.id.matches(uuidRegEx)) {
+                errors.add(new Error(
+                        status: 409,
+                        developerMessage: ErrorMessages.invalidUUID
+                ))
+            }
+            if (eventsDAO.getById(resultObject.data.id)) {
+                errors.add(new Error(
+                        status: 409,
+                        developerMessage: ErrorMessages.idExists
+                ))
+            }
+        }
+
         try {
             newResourceObject = resultObject.data
             newEvent = resultObject.data.attributes
@@ -233,44 +250,30 @@ class EventsResource extends Resource {
             return errors
         }
 
-        if (newResourceObject.id) {
-            if (!newResourceObject.id.matches(uuidRegEx)) {
+        newEvent.instances.each {
+            try {
+                InstanceMapper.formatForDB(it.start.toString())
+                InstanceMapper.formatForDB(it.end.toString())
+            } catch (DateTimeParseException e) {
                 errors.add(new Error(
-                        status: 409,
-                        developerMessage: ErrorMessages.invalidUUID
+                        status: 400,
+                        developerMessage: "Error with instance ID: ${it.id}. " +
+                                ErrorMessages.parseDate,
+                        userMessage: Resource.properties.get('badRequest.userMessage'),
+                        code: Integer.parseInt(Resource.properties.get('badRequest.code')),
+                        details: Resource.properties.get('badRequest.details')
                 ))
-            }
-            if (eventsDAO.getById(newResourceObject.id)) {
+            } catch (MissingMethodException e) {
                 errors.add(new Error(
-                        status: 409,
-                        developerMessage: ErrorMessages.idExists
+                        status: 400,
+                        developerMessage: "Error with instance ID: ${it.id}. " +
+                                ErrorMessages.processInstance,
+                        userMessage: Resource.properties.get('badRequest.userMessage'),
+                        code: Integer.parseInt(Resource.properties.get('badRequest.code')),
+                        details: Resource.properties.get('badRequest.details')
                 ))
             }
         }
-            newEvent.instances.each {
-                try {
-                    InstanceMapper.formatForDB(it.start.toString())
-                    InstanceMapper.formatForDB(it.end.toString())
-                } catch (DateTimeParseException e) {
-                    errors.add(new Error(
-                            status: 400,
-                            developerMessage: "Error with instance ID: ${it.id}. " +
-                                    ErrorMessages.parseDate,
-                            userMessage: Resource.properties.get('badRequest.userMessage'),
-                            code: Integer.parseInt(Resource.properties.get('badRequest.code')),
-                            details: Resource.properties.get('badRequest.details')
-                    ))
-                } catch (MissingMethodException e) {
-                    errors.add(new Error(
-                            status: 400,
-                            developerMessage: "Error with instance ID: ${it.id}. " +
-                                    ErrorMessages.processInstance,
-                            userMessage: Resource.properties.get('badRequest.userMessage'),
-                            code: Integer.parseInt(Resource.properties.get('badRequest.code')),
-                            details: Resource.properties.get('badRequest.details')
-                    ))
-                }
-            }
         errors
     }
 /**
