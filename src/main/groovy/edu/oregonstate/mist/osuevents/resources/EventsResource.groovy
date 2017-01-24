@@ -220,7 +220,7 @@ class EventsResource extends Resource {
             }
             if (resultObject.data.id != pathID) {
                 Error mismatchID = ErrorMessages.badRequest
-                mismatchID.developerMessage = "ID in JSON body must match ID in path parameter"
+                mismatchID.developerMessage = ErrorMessages.mismatchID
                 errors.add(mismatchID)
             }
         }
