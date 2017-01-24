@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.osuevents.health
 
 import com.codahale.metrics.health.HealthCheck
+import com.codahale.metrics.health.HealthCheck.Result
 import edu.oregonstate.mist.osuevents.db.EventsDAO
 
 class EventsHealthCheck extends HealthCheck {
