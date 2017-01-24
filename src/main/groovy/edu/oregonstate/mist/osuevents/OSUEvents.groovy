@@ -11,6 +11,7 @@ import edu.oregonstate.mist.api.PrettyPrintResponseFilter
 import edu.oregonstate.mist.api.jsonapi.GenericExceptionMapper
 import edu.oregonstate.mist.api.jsonapi.NotFoundExceptionMapper
 import edu.oregonstate.mist.osuevents.db.EventsDAO
+import edu.oregonstate.mist.osuevents.health.EventsHealthCheck
 import edu.oregonstate.mist.osuevents.resources.EventsResource
 import io.dropwizard.Application
 import io.dropwizard.auth.AuthDynamicFeature
@@ -79,6 +80,9 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "jdbi")
         EventsDAO eventsDAO = jdbi.onDemand(EventsDAO.class)
         environment.jersey().register(new EventsResource(eventsDAO))
+
+        EventsHealthCheck healthCheck = new EventsHealthCheck(eventsDAO)
+        environment.healthChecks().register("eventsHealthCheck", healthCheck)
     }
 
     /**

@@ -267,4 +267,7 @@ public interface EventsDAO extends Closeable {
     """)
     void deleteInstance(@Bind("event_id") String eventID,
                         @Bind("instance_id") String instanceID)
+
+    @SqlQuery("SELECT 1 FROM dual")
+    Integer checkHealth()
 }
