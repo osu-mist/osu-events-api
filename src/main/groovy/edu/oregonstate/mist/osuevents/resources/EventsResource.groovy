@@ -54,6 +54,11 @@ class EventsResource extends Resource {
     public Response getByID(@Auth AuthenticatedUser _,
                             @PathParam('id') String id) {
         ResourceObject event = eventsDAO.getById(id)
+
+        if (!event) {
+            return notFound().build()
+        }
+
         ok(getResultObject(event)).build()
     }
 
