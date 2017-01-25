@@ -3,7 +3,6 @@ package edu.oregonstate.mist.osuevents.db
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.HttpClient
-import org.apache.http.HttpHeaders
 import org.apache.http.client.utils.URIBuilder
 
 class UtilHttp {
@@ -14,19 +13,24 @@ class UtilHttp {
     }
 
     public CloseableHttpResponse sendGet(String resourceURI,
-                                         HttpClient httpClient) {
-        URI uri = getBackendURI(resourceURI)
+                                         HttpClient httpClient,
+                                         LinkedHashMap<String, Integer> query) {
+        URI uri = getBackendURI(resourceURI, query)
 
         HttpGet httpGet = new HttpGet(uri)
         println(httpGet.URI)
         httpClient.execute(httpGet)
     }
 
-    private URI getBackendURI(String resourceURI) {
+    private URI getBackendURI(String resourceURI, LinkedHashMap<String, Integer> query) {
         URIBuilder uriBuilder = new URIBuilder()
                 .setScheme(backendScheme)
                 .setHost(backendHost)
                 .setPath(backendPath + resourceURI)
+
+        query.each { k, v ->
+            uriBuilder.setParameter(k, v.toString())
+        }
 
         uriBuilder.build()
     }
