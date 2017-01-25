@@ -224,9 +224,7 @@ class EventsResource extends Resource {
                 ))
             }
             if (resultObject.data.id != pathID) {
-                Error mismatchID = ErrorMessages.badRequest
-                mismatchID.developerMessage = ErrorMessages.mismatchID
-                errors.add(mismatchID)
+                errors.add(ErrorMessages.badRequest(ErrorMessages.mismatchID))
             }
         }
 
@@ -251,23 +249,30 @@ class EventsResource extends Resource {
             resourceObject = resultObject.data
             event = resultObject.data.attributes
         } catch (GroovyCastException e) {
-            Error unknownFields = ErrorMessages.badRequest
-            unknownFields.developerMessage = ErrorMessages.unknownFields
-            errors.add(unknownFields)
+            errors.add(ErrorMessages.badRequest(ErrorMessages.unknownFields))
             return errors
         }
+
+        if (event.location && !eventsDAO.checkLocation(event.location)) {
+            errors.add(ErrorMessages.badRequest("Location could not be found."))
+        }
+
+        if (event.group && !eventsDAO.checkGroup(event.group)) {
+            errors.add(ErrorMessages.badRequest("Group could not be found."))
+        }
+
+        if (event.department && !eventsDAO.checkDepartment(event.department)) {
+            errors.add(ErrorMessages.badRequest("Department could not be found."))
+        }
+
         event.instances.each {
             try {
                 InstanceMapper.formatForDB(it.start.toString())
                 InstanceMapper.formatForDB(it.end.toString())
             } catch (DateTimeParseException e) {
-                errors.add(new Error(
-                        status: ErrorMessages.badRequest.status,
-                        developerMessage: "Error with instance ID: ${it.id}. " +
-                                ErrorMessages.parseDate,
-                        userMessage: ErrorMessages.badRequest.userMessage,
-                        code: ErrorMessages.badRequest.code,
-                        details: ErrorMessages.badRequest.details
+                errors.add(ErrorMessages.badRequest(
+                        "Error with instance ID: ${it.id}. " +
+                                ErrorMessages.parseDate
                 ))
             }
         }
