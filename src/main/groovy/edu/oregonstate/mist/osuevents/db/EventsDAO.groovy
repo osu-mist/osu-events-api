@@ -143,7 +143,8 @@ public interface EventsDAO extends Closeable {
                 OR PAGE_NAME = :group)
                 AND DELETED_AT IS NULL),
             (SELECT DEPARTMENT_ID FROM DEPARTMENTS
-                WHERE NAME = :department
+                WHERE (NAME = :department
+                OR PAGE_NAME = :department)
                 AND DELETED_AT IS NULL),
             :room,
             :address,
@@ -206,7 +207,8 @@ public interface EventsDAO extends Closeable {
                                         OR PAGE_NAME = :group)
                                         AND DELETED_AT IS NULL),
             DEPARTMENT_ID =         (SELECT DEPARTMENT_ID FROM DEPARTMENTS
-                                        WHERE NAME = :department
+                                        WHERE (NAME = :department
+                                        OR PAGE_NAME = :department)
                                         AND DELETED_AT IS NULL),
             ROOM =                  :room,
             ADDRESS =               :address,
@@ -267,6 +269,29 @@ public interface EventsDAO extends Closeable {
     """)
     void deleteInstance(@Bind("event_id") String eventID,
                         @Bind("instance_id") String instanceID)
+
+    @SqlQuery("""
+        SELECT PLACE_ID FROM PLACES
+            WHERE NAME = :location
+            AND DELETED_AT IS NULL
+    """)
+    String checkLocation(@Bind("location") String location)
+
+    @SqlQuery("""
+        SELECT GROUP_ID FROM GROUPS
+            WHERE (NAME = :group
+            OR PAGE_NAME = :group)
+            AND DELETED_AT IS NULL
+    """)
+    String checkGroup(@Bind("group") String group)
+
+    @SqlQuery("""
+        SELECT DEPARTMENT_ID FROM DEPARTMENTS
+            WHERE (NAME = :department
+            OR PAGE_NAME = :department)
+            AND DELETED_AT IS NULL
+    """)
+    String checkDepartment(@Bind("department") String department)
 
     @SqlQuery("SELECT 1 FROM dual")
     Integer checkHealth()
