@@ -16,7 +16,11 @@ class CacheDAO {
         this.httpClient = httpClient
         this.utilHttp = utilHttp
     }
-
+//    public def getFilters() {}
+//    public def getGroups() {}
+//    public def getDepartments() {}
+//    public def getGroups() {}
+    
     public def getPlaces() {
         def jsonSlurper = new JsonSlurper()
         def data = []
