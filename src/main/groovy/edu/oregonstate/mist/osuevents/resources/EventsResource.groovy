@@ -170,6 +170,7 @@ class EventsResource extends Resource {
                     //if start and end values are null, delete the instance
                 } else if ((start == "null") && (end == "null")) {
                     eventsDAO.deleteInstance(id, it.id.toString())
+                    //otherwise, update the instance
                 } else {
                     eventsDAO.updateInstance(
                             it.id.toString(),
@@ -258,7 +259,6 @@ class EventsResource extends Resource {
             return errors
         }
 
-        //hashtag field cannot contain a '#'
         if (event.hashtag && event.hashtag.contains("#")) {
             errors.add(ErrorMessages.badRequest("Hashtag cannot contain '#'."))
         }
