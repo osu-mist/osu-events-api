@@ -3,8 +3,10 @@ package edu.oregonstate.mist.osuevents.db
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.Instance
+import edu.oregonstate.mist.osuevents.core.Place
 import edu.oregonstate.mist.osuevents.mapper.EventMapper
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
+import edu.oregonstate.mist.osuevents.mapper.PlacesMapper
 import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.BindBean
 import org.skife.jdbi.v2.sqlobject.SqlQuery
@@ -267,6 +269,29 @@ public interface EventsDAO extends Closeable {
     """)
     void deleteInstance(@Bind("event_id") String eventID,
                         @Bind("instance_id") String instanceID)
+
+    @SqlQuery("""
+        SELECT PLACE_ID, NAME FROM PLACES
+            WHERE PLACE_ID = :id
+    """)
+    @Mapper(PlacesMapper)
+    Place getPlace(@Bind("id") String placeID)
+
+    @SqlUpdate("""
+        INSERT INTO PLACES (PLACE_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createPlace(@BindBean Place place)
+
+    @SqlUpdate("""
+        UPDATE PLACES
+          SET
+            NAME = :newName,
+            UPDATED_AT = SYSDATE
+          WHERE PLACE_ID = :id
+    """)
+    void updatePlace(@Bind("id") String id,
+                     @Bind("newName") String newName)
 
     @SqlQuery("SELECT 1 FROM dual")
     Integer checkHealth()

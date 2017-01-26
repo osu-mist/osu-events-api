@@ -1,5 +1,6 @@
 package edu.oregonstate.mist.osuevents.db
 
+import edu.oregonstate.mist.osuevents.core.Place
 import groovy.json.JsonSlurper
 import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
@@ -44,14 +45,19 @@ class CacheDAO {
         }
         sanitizePlaces(data)
     }
-    private def sanitizePlaces(def data) {
-        def cleanData = [:]
+    private List<Place> sanitizePlaces(def data) {
+        List<Place> places = []
+
         data.each {
             it.places.each {
-                cleanData[it.place.id] = it.place.name
+                println("place id = ${it.place.id}, place name = ${it.place.name}")
+                places.add(new Place(
+                        id: it.place.id,
+                        name: it.place.name
+                ))
             }
         }
-        cleanData
+        places
     }
 
     private String sendRequest(String resourceURI,

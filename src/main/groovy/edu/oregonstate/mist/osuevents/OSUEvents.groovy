@@ -93,7 +93,7 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         UtilHttp utilHttp = new UtilHttp(configuration.cacheSource)
 
         CacheDAO cacheDAO = new CacheDAO(utilHttp, httpClient)
-        def cacheResource = new CacheResource(cacheDAO)
+        def cacheResource = new CacheResource(cacheDAO, eventsDAO)
         cacheResource.setEndpointUri(configuration.getApi().getEndpointUri())
         environment.jersey().register(cacheResource)
 
