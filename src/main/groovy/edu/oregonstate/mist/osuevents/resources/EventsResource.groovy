@@ -265,6 +265,29 @@ class EventsResource extends Resource {
             errors.add(ErrorMessages.badRequest("Department could not be found."))
         }
 
+        event.customFields.each {
+            if (!eventsDAO.checkCustomField(it.field.toString())) {
+                errors.add(ErrorMessages.badRequest("Custom field '${it.field}' does not exist."))
+            }
+        }
+
+        event.filters.each {
+            String filterName = it.filter
+            String filterID = eventsDAO.checkFilter(it.filter.toString())
+
+            if (!filterID) {
+                errors.add(ErrorMessages.badRequest("Filter '${it.filter}' does not exist."))
+            } else {
+                it.items.each {
+                    if (!eventsDAO.checkFilterItem(it, filterID)) {
+                        errors.add(ErrorMessages.badRequest(
+                                "Filter item '${it}' is not applicable to '"
+                                + filterName + "'."))
+                    }
+                }
+            }
+        }
+
         event.instances.each {
             try {
                 InstanceMapper.formatForDB(it.start.toString())
