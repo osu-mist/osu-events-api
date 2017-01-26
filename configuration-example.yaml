@@ -54,3 +54,19 @@ database:
   initialSize: 1
   minSize: 1
   validationQuery: "SELECT 1 FROM dual"
+
+cache:
+  backendScheme: http
+  backendHost: backend.calendar.system.com
+  backendPath: /api/example
+
+httpClient:
+  timeout: 150000ms
+  connectionTimeout: 15000ms
+  timeToLive: 1h
+  cookiesEnabled: false
+  maxConnections: 2
+  maxConnectionsPerRoute: 2
+  keepAlive: 0ms
+  retries: 0
+  userAgent: osu-events-api
