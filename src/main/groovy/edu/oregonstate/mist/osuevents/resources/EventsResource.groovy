@@ -213,6 +213,7 @@ class EventsResource extends Resource {
         ResourceObject resourceObject
         Event event
 
+        //if checking a PATCH request
         if (pathID) {
             if (!eventsDAO.getById(pathID)) {
                 errors.add(new Error(
@@ -223,11 +224,14 @@ class EventsResource extends Resource {
                         details: Resource.properties.get('notFound.details')
                 ))
             }
+
+            //ID in path and body should match
             if (resultObject.data.id != pathID) {
                 errors.add(ErrorMessages.badRequest(ErrorMessages.mismatchID))
             }
         }
 
+        //if checking a POST request
         if (resultObject.data.id && !pathID) {
             resultObject.data.id = resultObject.data.id.toString()
 
@@ -245,6 +249,7 @@ class EventsResource extends Resource {
             }
         }
 
+        //try casting ResultObject into ResourceObject and Event
         try {
             resourceObject = resultObject.data
             event = resultObject.data.attributes
@@ -253,12 +258,11 @@ class EventsResource extends Resource {
             return errors
         }
 
-        if (event.hashtag) {
-            if (event.hashtag.contains("#")) {
-                errors.add(ErrorMessages.badRequest("Hashtag cannot contain '#'."))
-            }
+        //hashtag field cannot contain a '#'
+        if (event.hashtag && event.hashtag.contains("#")) {
+            errors.add(ErrorMessages.badRequest("Hashtag cannot contain '#'."))
         }
-        
+
         if (event.location && !eventsDAO.checkLocation(event.location)) {
             errors.add(ErrorMessages.badRequest("Location could not be found."))
         }
@@ -281,8 +285,10 @@ class EventsResource extends Resource {
             String filterName = it.filter
             String filterID = eventsDAO.checkFilter(it.filter.toString())
 
+            //check if filter exists
             if (!filterID) {
                 errors.add(ErrorMessages.badRequest("Filter '${it.filter}' does not exist."))
+            //if filter exists, check its items
             } else {
                 it.items.each {
                     if (!eventsDAO.checkFilterItem(it, filterID)) {
