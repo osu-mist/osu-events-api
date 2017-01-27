@@ -1,6 +1,5 @@
 package edu.oregonstate.mist.osuevents.db
 
-import edu.oregonstate.mist.osuevents.core.Place
 import groovy.json.JsonSlurper
 import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
@@ -12,6 +11,7 @@ class CacheDAO {
 
     private UtilHttp utilHttp
     private HttpClient httpClient
+    private JsonSlurper jsonSlurper = new JsonSlurper()
 
     CacheDAO(UtilHttp utilHttp, HttpClient httpClient) {
         this.httpClient = httpClient
@@ -23,13 +23,11 @@ class CacheDAO {
 //    public def getGroups() {}
 
     public def getCustomFields() {
-        def jsonSlurper = new JsonSlurper()
         def data = []
 
     }
 
     public def getPlaces() {
-        def jsonSlurper = new JsonSlurper()
         def data = []
         Integer page = 1
         def query = [pp:100]
