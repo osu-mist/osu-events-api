@@ -21,25 +21,34 @@ class CacheDAO {
 //    public def getGroups() {}
 //    public def getDepartments() {}
 //    public def getGroups() {}
-    
+
+    public def getCustomFields() {
+        def jsonSlurper = new JsonSlurper()
+        def data = []
+
+    }
+
     public def getPlaces() {
         def jsonSlurper = new JsonSlurper()
         def data = []
         Integer page = 1
+        def query = [pp:100]
+        query['page'] = page
 
         data.add(page - 1,
                 jsonSlurper.parseText(
                         sendRequest(placesResource,
-                                    page)
+                                    query)
                 )
         )
 
         while (data[page - 1].page.current != data[page - 1].page.total) {
             page++
+            query['page'] = page
             data.add(page - 1,
                     jsonSlurper.parseText(
                             sendRequest(placesResource,
-                                    page)
+                                    query)
                     )
             )
         }
@@ -57,10 +66,8 @@ class CacheDAO {
     }
 
     private String sendRequest(String resourceURI,
-                               Integer page) {
+                               def query = []) {
         CloseableHttpResponse response
-        def query = [pp:100]
-        query['page'] = page
         String responseBody
         try {
             response = utilHttp.sendGet(resourceURI, httpClient, query)
