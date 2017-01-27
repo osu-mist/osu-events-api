@@ -1,0 +1,35 @@
+{
+	"id": "852f779a-4fcf-2a77-91cb-f203d3bddc8d",
+	"name": "OSU-Events-API-Example-Calls",
+	"description": "",
+	"order": [
+		"6fbed440-60c0-7edb-4cc9-2827d877e86f"
+	],
+	"folders": [],
+	"timestamp": 1485391617357,
+	"owner": "399539",
+	"public": false,
+	"published": false,
+	"requests": [
+		{
+			"id": "6fbed440-60c0-7edb-4cc9-2827d877e86f",
+			"headers": "Content-Type: application/json\n",
+			"url": "https://localhost:8080/api/v0/events",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1485446980686,
+			"name": "POST New Event",
+			"description": "Sends a request to create a new event. Since no eventID is included in the request, the API will generate one and include it in the response.",
+			"collectionId": "852f779a-4fcf-2a77-91cb-f203d3bddc8d",
+			"responses": [],
+			"rawModeData": "{\n  \"links\": {},\n  \"data\": \n    {\n      \"type\": \"event\",\n      \"attributes\": {\n        \"title\": \"Postman POST Example\",\n        \"description\": \"Use this to create a new event! Since we are specifying a location, there is no need to specify an address.\",\n        \"location\": \"Memorial Union\",\n        \"room\": \"Horizon Room\",\n        \"address\": null,\n        \"city\": null,\n        \"state\": null,\n        \"eventURL\": \"www.example.com\",\n        \"photoURL\": \"www.example.com/example.jpg\",\n        \"ticketURL\": \"www.ticketwebsite.com\",\n        \"facebookURL\": \"www.facebook.com/eventexample\",\n        \"cost\": \"General public: $10, developers: free!\",\n        \"hashtag\": \"hastag\",\n        \"keywords\": \"separated, by, commas\",\n        \"tags\": \"also, separated, by, commas\",\n        \"group\": \"ECS\",\n        \"department\": \"Information Services\",\n        \"allowsReviews\": true,\n        \"sponsored\": true,\n        \"venuePageOnly\": false,\n        \"excludeFromTrending\": true,\n        \"visibility\": \"Logged in\",\n        \"customFields\": [\n          {\n            \"field\": \"Theme\",\n            \"value\": \"Tropical Island\"\n          }\n        ],\n        \"filters\": [\n          {\n            \"filter\": \"College\",\n            \"items\": [\n              \"Science\"\n            ]\n          },\n          {\n            \"filter\": \"Event Type\",\n            \"items\": [\n              \"Lecture\",\n              \"Music\"\n            ]\n          }\n        ],\n        \"instances\": [\n          {\n            \"id\": \"1\",\n            \"start\": \"2017-01-13T06:00:00-08:00\",\n            \"end\": \"2017-01-13T07:00:00-08:00\"\n          },\n          {\n            \"id\": \"2\",\n            \"start\": \"2017-01-14T04:00:00Z\",\n            \"end\": \"2017-01-14T05:00:00Z\"\n          }\n        ]\n      }\n    }\n}"
+		}
+	]
+}
