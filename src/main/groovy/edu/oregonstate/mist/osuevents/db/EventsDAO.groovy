@@ -6,7 +6,7 @@ import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.core.Place
 import edu.oregonstate.mist.osuevents.mapper.EventMapper
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
-import edu.oregonstate.mist.osuevents.mapper.PlacesMapper
+import edu.oregonstate.mist.osuevents.mapper.PlaceMapper
 import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.BindBean
 import org.skife.jdbi.v2.sqlobject.SqlQuery
@@ -271,7 +271,7 @@ public interface EventsDAO extends Closeable {
                         @Bind("instance_id") String instanceID)
 
     @SqlQuery("SELECT PLACE_ID, NAME FROM PLACES")
-    @Mapper(PlacesMapper)
+    @Mapper(PlaceMapper)
     List<Place> getPlaces()
 
     @SqlUpdate("""
