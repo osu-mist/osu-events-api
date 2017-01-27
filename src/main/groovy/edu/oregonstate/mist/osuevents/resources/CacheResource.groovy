@@ -31,23 +31,56 @@ class CacheResource extends Resource {
     @Path('places')
     @Produces(MediaType.APPLICATION_JSON)
     public Response updatePlaces(@Auth AuthenticatedUser _) {
-        List<Place> places = cacheDAO.getPlaces()
+        def placesDB = placeToMap(eventsDAO.getPlaces())
+        def places = cacheDAO.getPlaces()
+        def changes = compareMapPair(placesDB, places)
 
-        places.each {
-            println("ID: ${it.id}, Name: ${it.name}")
-            Place place = eventsDAO.getPlace(it.id)
-
-            if (!place) {
-                println("Place doesn't exist.")
-                eventsDAO.createPlace(it)
-            } else if (place.name != it.name) {
-                println("Update the Name")
-                eventsDAO.updatePlace(place.id, it.name)
-            } else {
-                println ("Place exists.")
-            }
+        changes.deleted.each {
+            eventsDAO.deletePlace(it.key)
         }
 
-        ok(places).build()
+        changes.new.each {
+            eventsDAO.createPlace(new Place(
+                        id: it.key,
+                        name: it.value
+                ))
+        }
+
+        changes.updated.each {
+            eventsDAO.updatePlace(new Place(
+                        id: it.key,
+                        name: it.value
+                ))
+
+        }
+
+        ok(changes).build()
+    }
+
+    private def placeToMap(List<Place> places) {
+        def placesMap = [:]
+
+        places.each {
+            placesMap[new String("${it.id}")] = new String("${it.name}")
+        }
+        placesMap
+    }
+
+    private def compareMapPair(def oldMap, def newMap) {
+        def newKeys = newMap*.key
+        def oldKeys = oldMap*.key
+
+        def removedKeys = oldKeys - newKeys
+        def addedKeys = newKeys - oldKeys
+        def commonKeys = newKeys - removedKeys - addedKeys
+        def changedKeys = commonKeys.findAll { oldMap[it] != newMap[it] }
+        def unchangedKeys = commonKeys - changedKeys
+
+        [
+                deleted: oldMap.findAll { it.key in removedKeys },
+                new: newMap.findAll { it.key in addedKeys },
+                updated: newMap.findAll { it.key in changedKeys },
+                unchanged: newMap.findAll { it.key in unchangedKeys }
+        ]
     }
 }

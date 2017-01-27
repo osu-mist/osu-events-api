@@ -45,16 +45,12 @@ class CacheDAO {
         }
         sanitizePlaces(data)
     }
-    private List<Place> sanitizePlaces(def data) {
-        List<Place> places = []
+    private def sanitizePlaces(def data) {
+        def places = [:]
 
         data.each {
             it.places.each {
-                println("place id = ${it.place.id}, place name = ${it.place.name}")
-                places.add(new Place(
-                        id: it.place.id,
-                        name: it.place.name
-                ))
+                places[new String("${it.place.id}")] = new String("${it.place.name}")
             }
         }
         places

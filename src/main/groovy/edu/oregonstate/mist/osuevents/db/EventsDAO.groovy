@@ -270,12 +270,9 @@ public interface EventsDAO extends Closeable {
     void deleteInstance(@Bind("event_id") String eventID,
                         @Bind("instance_id") String instanceID)
 
-    @SqlQuery("""
-        SELECT PLACE_ID, NAME FROM PLACES
-            WHERE PLACE_ID = :id
-    """)
+    @SqlQuery("SELECT PLACE_ID, NAME FROM PLACES")
     @Mapper(PlacesMapper)
-    Place getPlace(@Bind("id") String placeID)
+    List<Place> getPlaces()
 
     @SqlUpdate("""
         INSERT INTO PLACES (PLACE_ID, NAME, CREATED_AT)
@@ -286,12 +283,17 @@ public interface EventsDAO extends Closeable {
     @SqlUpdate("""
         UPDATE PLACES
           SET
-            NAME = :newName,
+            NAME = :name,
             UPDATED_AT = SYSDATE
           WHERE PLACE_ID = :id
     """)
-    void updatePlace(@Bind("id") String id,
-                     @Bind("newName") String newName)
+    void updatePlace(@BindBean Place place)
+
+    @SqlUpdate("""
+        DELETE FROM PLACES
+            WHERE PLACE_ID = :id
+    """)
+    void deletePlace(@Bind("id") def placeID)
 
     @SqlQuery("SELECT 1 FROM dual")
     Integer checkHealth()

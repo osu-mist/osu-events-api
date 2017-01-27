@@ -18,7 +18,6 @@ class UtilHttp {
         URI uri = getBackendURI(resourceURI, query)
 
         HttpGet httpGet = new HttpGet(uri)
-        println(httpGet.URI)
         httpClient.execute(httpGet)
     }
 
