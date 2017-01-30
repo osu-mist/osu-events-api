@@ -331,8 +331,7 @@ public interface EventsDAO extends Closeable {
 
     @SqlQuery("""
         SELECT DEPARTMENT_ID FROM DEPARTMENTS
-            WHERE (NAME = :department
-            OR PAGE_NAME = :department)
+            WHERE NAME = :department
             AND DELETED_AT IS NULL
     """)
     String checkDepartment(@Bind("department") String department)
@@ -440,8 +439,7 @@ public interface EventsDAO extends Closeable {
 
     @SqlQuery("""
         SELECT GROUP_ID FROM GROUPS
-            WHERE (NAME = :group
-            OR PAGE_NAME = :group)
+            WHERE NAME = :group
             AND DELETED_AT IS NULL
     """)
     String checkGroup(@Bind("group") String group)
