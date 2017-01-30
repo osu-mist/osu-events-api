@@ -58,6 +58,36 @@ class CacheResource extends Resource {
     }
 
     @PUT
+    @Path('departments')
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateDepartments(@Auth AuthenticatedUser _) {
+        def departmentsDB = cacheObjectsToMap(eventsDAO.getDepartments())
+        def departments = cacheDAO.getDepartments()
+        def changes = compareMapPair(departmentsDB, departments)
+
+        changes.deleted.each {
+            eventsDAO.deleteDepartment(it.key)
+        }
+
+        changes.new.each {
+            eventsDAO.createDepartment(new CacheObject(
+                    id: it.key,
+                    name: it.value
+            ))
+        }
+
+        changes.updated.each {
+            eventsDAO.updateDepartment(new CacheObject(
+                    id: it.key,
+                    name: it.value
+            ))
+
+        }
+
+        ok(changes).build()
+    }
+
+    @PUT
     @Path('filters')
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateFilters(@Auth AuthenticatedUser _) {

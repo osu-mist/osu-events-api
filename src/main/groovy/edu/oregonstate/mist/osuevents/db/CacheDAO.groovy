@@ -11,6 +11,7 @@ class CacheDAO {
     private static final String labelsResource = "/events/labels"
     private static final String filterItemsResource = "/events/filters"
     private static final String groupsResource = "/groups"
+    private static final String departmentsResource = "/departments"
 
     private UtilHttp utilHttp
     private HttpClient httpClient
@@ -30,6 +31,19 @@ class CacheDAO {
         }
 
         customFields
+    }
+
+    public def getDepartments() {
+        def data = pageIteration(departmentsResource)
+        def departments = [:]
+
+        data.each {
+            it.departments.each {
+                departments[new String("${it.department.id}")] = new String("${it.department.name}")
+            }
+        }
+
+        departments
     }
 
     public def getFilters() {

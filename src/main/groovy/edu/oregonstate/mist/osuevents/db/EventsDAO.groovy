@@ -304,6 +304,39 @@ public interface EventsDAO extends Closeable {
     """)
     String checkCustomField(@Bind("field") String field)
 
+    @SqlQuery("SELECT DEPARTMENT_ID AS ID, NAME FROM DEPARTMENTS")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getDepartments()
+
+    @SqlUpdate("""
+        INSERT INTO DEPARTMENTS (DEPARTMENT_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createDepartment(@BindBean CacheObject group)
+
+    @SqlUpdate("""
+        UPDATE DEPARTMENTS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE DEPARTMENT_ID = :id
+    """)
+    void updateDepartment(@BindBean CacheObject group)
+
+    @SqlUpdate("""
+        DELETE FROM DEPARTMENTS
+            WHERE DEPARTMENT_ID = :id
+    """)
+    void deleteDepartment(@Bind("id") def groupID)
+
+    @SqlQuery("""
+        SELECT DEPARTMENT_ID FROM DEPARTMENTS
+            WHERE (NAME = :department
+            OR PAGE_NAME = :department)
+            AND DELETED_AT IS NULL
+    """)
+    String checkDepartment(@Bind("department") String department)
+
     @SqlQuery("SELECT FILTER_ID AS ID, NAME FROM FILTERS")
     @Mapper(CacheObjectMapper)
     List<CacheObject> getFilters()
@@ -444,14 +477,6 @@ public interface EventsDAO extends Closeable {
             AND DELETED_AT IS NULL
     """)
     String checkPlace(@Bind("location") String location)
-
-    @SqlQuery("""
-        SELECT DEPARTMENT_ID FROM DEPARTMENTS
-            WHERE (NAME = :department
-            OR PAGE_NAME = :department)
-            AND DELETED_AT IS NULL
-    """)
-    String checkDepartment(@Bind("department") String department)
 
     @SqlQuery("SELECT 1 FROM dual")
     Integer checkHealth()
