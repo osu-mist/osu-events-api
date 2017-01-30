@@ -101,7 +101,7 @@ Get all events in JSON format.
 
 ## Updating the Cache
 This API maintains a local cache of custom data from the vendor calendar system.
-This cache should be updated on a regular basis to ensure the data validation specific to
+The cache should be updated on a regular basis to ensure the data validation specific to
 the /events resources is accurate. Doing a PUT request to these endpoints will update
 their respective cache.
 
