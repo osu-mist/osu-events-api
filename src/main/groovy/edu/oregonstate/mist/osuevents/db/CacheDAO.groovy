@@ -23,12 +23,24 @@ class CacheDAO {
 
     public def getCustomFields() {
         def data = jsonSlurper.parseText(sendRequest(labelsResource))
-        sanitizeCustomFields(data)
+        def customFields = [:]
+
+        data.custom_fields.each {
+            customFields[new String("${it.key}")] = new String("${it.value}")
+        }
+
+        customFields
     }
 
     public def getFilters() {
         def data = jsonSlurper.parseText(sendRequest(labelsResource))
-        sanitizeFilters(data)
+        def filters = [:]
+
+        data.filters.each {
+            filters[new String("${it.key}")] = new String("${it.value}")
+        }
+
+        filters
     }
 
     public def getFilterItems() {
@@ -50,28 +62,6 @@ class CacheDAO {
 
     public def getPlaces() {
         def data = pageIteration(placesResource)
-        sanitizePlaces(data)
-    }
-
-    private def sanitizeCustomFields(def data) {
-        def customFields = [:]
-
-        data.custom_fields.each {
-            customFields[new String("${it.key}")] = new String("${it.value}")
-        }
-        customFields
-    }
-
-    private def sanitizeFilters(def data) {
-        def filters = [:]
-
-        data.filters.each {
-            filters[new String("${it.key}")] = new String("${it.value}")
-        }
-        filters
-    }
-
-    private def sanitizePlaces(def data) {
         def places = [:]
 
         data.each {
@@ -79,6 +69,7 @@ class CacheDAO {
                 places[new String("${it.place.id}")] = new String("${it.place.name}")
             }
         }
+
         places
     }
 
