@@ -54,6 +54,11 @@ class EventsResource extends Resource {
     public Response getByID(@Auth AuthenticatedUser _,
                             @PathParam('id') String id) {
         ResourceObject event = eventsDAO.getById(id)
+
+        if (!event) {
+            return notFound().build()
+        }
+
         ok(getResultObject(event)).build()
     }
 
@@ -165,6 +170,7 @@ class EventsResource extends Resource {
                     //if start and end values are null, delete the instance
                 } else if ((start == "null") && (end == "null")) {
                     eventsDAO.deleteInstance(id, it.id.toString())
+                    //otherwise, update the instance
                 } else {
                     eventsDAO.updateInstance(
                             it.id.toString(),
@@ -208,6 +214,7 @@ class EventsResource extends Resource {
         ResourceObject resourceObject
         Event event
 
+        //if checking a PATCH request
         if (pathID) {
             if (!eventsDAO.getById(pathID)) {
                 errors.add(new Error(
@@ -218,13 +225,14 @@ class EventsResource extends Resource {
                         details: Resource.properties.get('notFound.details')
                 ))
             }
+
+            //ID in path and body should match
             if (resultObject.data.id != pathID) {
-                Error mismatchID = ErrorMessages.badRequest
-                mismatchID.developerMessage = ErrorMessages.mismatchID
-                errors.add(mismatchID)
+                errors.add(ErrorMessages.badRequest(ErrorMessages.mismatchID))
             }
         }
 
+        //if checking a POST request
         if (resultObject.data.id && !pathID) {
             resultObject.data.id = resultObject.data.id.toString()
 
@@ -242,27 +250,64 @@ class EventsResource extends Resource {
             }
         }
 
+        //try casting ResultObject into ResourceObject and Event
         try {
             resourceObject = resultObject.data
             event = resultObject.data.attributes
         } catch (GroovyCastException e) {
-            Error unknownFields = ErrorMessages.badRequest
-            unknownFields.developerMessage = ErrorMessages.unknownFields
-            errors.add(unknownFields)
+            errors.add(ErrorMessages.badRequest(ErrorMessages.unknownFields))
             return errors
         }
+
+        if (event.hashtag && event.hashtag.contains("#")) {
+            errors.add(ErrorMessages.badRequest("Hashtag cannot contain '#'."))
+        }
+
+        if (event.location && !eventsDAO.checkLocation(event.location)) {
+            errors.add(ErrorMessages.badRequest("Location could not be found."))
+        }
+
+        if (event.group && !eventsDAO.checkGroup(event.group)) {
+            errors.add(ErrorMessages.badRequest("Group could not be found."))
+        }
+
+        if (event.department && !eventsDAO.checkDepartment(event.department)) {
+            errors.add(ErrorMessages.badRequest("Department could not be found."))
+        }
+
+        event.customFields.each {
+            if (!eventsDAO.checkCustomField(it.field.toString())) {
+                errors.add(ErrorMessages.badRequest("Custom field '${it.field}' does not exist."))
+            }
+        }
+
+        event.filters.each {
+            String filterName = it.filter
+            String filterID = eventsDAO.checkFilter(it.filter.toString())
+
+            //check if filter exists
+            if (!filterID) {
+                errors.add(ErrorMessages.badRequest("Filter '${it.filter}' does not exist."))
+            //if filter exists, check its items
+            } else {
+                it.items.each {
+                    if (!eventsDAO.checkFilterItem(it, filterID)) {
+                        errors.add(ErrorMessages.badRequest(
+                                "Filter item '${it}' is not applicable to '"
+                                + filterName + "'."))
+                    }
+                }
+            }
+        }
+
         event.instances.each {
             try {
                 InstanceMapper.formatForDB(it.start.toString())
                 InstanceMapper.formatForDB(it.end.toString())
             } catch (DateTimeParseException e) {
-                errors.add(new Error(
-                        status: ErrorMessages.badRequest.status,
-                        developerMessage: "Error with instance ID: ${it.id}. " +
-                                ErrorMessages.parseDate,
-                        userMessage: ErrorMessages.badRequest.userMessage,
-                        code: ErrorMessages.badRequest.code,
-                        details: ErrorMessages.badRequest.details
+                errors.add(ErrorMessages.badRequest(
+                        "Error with instance ID: ${it.id}. " +
+                                ErrorMessages.parseDate
                 ))
             }
         }

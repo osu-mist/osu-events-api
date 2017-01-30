@@ -145,7 +145,8 @@ public interface EventsDAO extends Closeable {
                 OR PAGE_NAME = :group)
                 AND DELETED_AT IS NULL),
             (SELECT DEPARTMENT_ID FROM DEPARTMENTS
-                WHERE NAME = :department
+                WHERE (NAME = :department
+                OR PAGE_NAME = :department)
                 AND DELETED_AT IS NULL),
             :room,
             :address,
@@ -208,7 +209,8 @@ public interface EventsDAO extends Closeable {
                                         OR PAGE_NAME = :group)
                                         AND DELETED_AT IS NULL),
             DEPARTMENT_ID =         (SELECT DEPARTMENT_ID FROM DEPARTMENTS
-                                        WHERE NAME = :department
+                                        WHERE (NAME = :department
+                                        OR PAGE_NAME = :department)
                                         AND DELETED_AT IS NULL),
             ROOM =                  :room,
             ADDRESS =               :address,
@@ -377,6 +379,54 @@ public interface EventsDAO extends Closeable {
             WHERE PLACE_ID = :id
     """)
     void deletePlace(@Bind("id") def placeID)
+
+    @SqlQuery("""
+        SELECT PLACE_ID FROM PLACES
+            WHERE NAME = :location
+            AND DELETED_AT IS NULL
+    """)
+    String checkLocation(@Bind("location") String location)
+
+    @SqlQuery("""
+        SELECT GROUP_ID FROM GROUPS
+            WHERE (NAME = :group
+            OR PAGE_NAME = :group)
+            AND DELETED_AT IS NULL
+    """)
+    String checkGroup(@Bind("group") String group)
+
+    @SqlQuery("""
+        SELECT DEPARTMENT_ID FROM DEPARTMENTS
+            WHERE (NAME = :department
+            OR PAGE_NAME = :department)
+            AND DELETED_AT IS NULL
+    """)
+    String checkDepartment(@Bind("department") String department)
+
+    @SqlQuery("""
+        SELECT CUSTOM_FIELD_ID FROM CUSTOM_FIELDS
+            WHERE NAME = :field
+            AND DELETED_AT IS NULL
+    """)
+    String checkCustomField(@Bind("field") String field)
+
+    @SqlQuery ("""
+        SELECT FILTER_ID FROM FILTERS
+          WHERE NAME = :filter
+          AND DELETED_AT IS NULL
+    """)
+    String checkFilter(@Bind("filter") String filter)
+
+    @SqlQuery ("""
+        SELECT FILTER_ITEMS.ITEM_ID FROM FILTER_ITEMS
+          LEFT JOIN FILTERS
+            ON FILTER_ITEMS.FILTER_ID = FILTERS.FILTER_ID
+          WHERE FILTER_ITEMS.NAME = :item
+          AND FILTERS.FILTER_ID = :filterID
+          AND FILTER_ITEMS.DELETED_AT IS NULL
+    """)
+    String checkFilterItem(@Bind("item") String item,
+                           @Bind("filterID") String filterID)
 
     @SqlQuery("SELECT 1 FROM dual")
     Integer checkHealth()

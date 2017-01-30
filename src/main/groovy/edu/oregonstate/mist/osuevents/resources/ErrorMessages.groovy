@@ -19,11 +19,13 @@ class ErrorMessages {
 
     public final static String mismatchID = "ID in JSON body must match ID in path parameter"
 
-    public final static Error badRequest = new Error(
-            status: 400,
-            userMessage: Resource.properties.get('badRequest.userMessage'),
-            code: Integer.parseInt(Resource.properties.get('badRequest.code')),
-            details: Resource.properties.get('badRequest.details')
-    )
-
+    public static Error badRequest(String developerMessage = null) {
+        new Error(
+                status: 400,
+                developerMessage: developerMessage,
+                userMessage: Resource.properties.get('badRequest.userMessage'),
+                code: Integer.parseInt(Resource.properties.get('badRequest.code')),
+                details: Resource.properties.get('badRequest.details')
+        )
+    }
 }
