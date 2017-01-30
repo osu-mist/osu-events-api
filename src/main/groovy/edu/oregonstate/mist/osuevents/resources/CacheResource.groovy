@@ -83,7 +83,7 @@ class CacheResource extends Resource {
             ))
 
         }
-        allChanges["filterChanges"] = filterChanges
+        allChanges["filters"] = filterChanges
 
         def filterItemsAll = cacheDAO.getFilterItems()
         def allFilterItemChanges = [:]
@@ -118,7 +118,7 @@ class CacheResource extends Resource {
             }
             allFilterItemChanges["${filterID}"] = filterItemChanges
         }
-        allChanges["filterItemChanges"] = allFilterItemChanges
+        allChanges["filterItems"] = allFilterItemChanges
 
         ok(allChanges).build()
     }
