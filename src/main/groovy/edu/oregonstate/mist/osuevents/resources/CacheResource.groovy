@@ -124,6 +124,36 @@ class CacheResource extends Resource {
     }
 
     @PUT
+    @Path('groups')
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateGroups(@Auth AuthenticatedUser _) {
+        def groupsDB = cacheObjectsToMap(eventsDAO.getGroups())
+        def groups = cacheDAO.getGroups()
+        def changes = compareMapPair(groupsDB, groups)
+
+        changes.deleted.each {
+            eventsDAO.deleteGroup(it.key)
+        }
+
+        changes.new.each {
+            eventsDAO.createGroup(new CacheObject(
+                    id: it.key,
+                    name: it.value
+            ))
+        }
+
+        changes.updated.each {
+            eventsDAO.updateGroup(new CacheObject(
+                    id: it.key,
+                    name: it.value
+            ))
+
+        }
+
+        ok(changes).build()
+    }
+
+    @PUT
     @Path('places')
     @Produces(MediaType.APPLICATION_JSON)
     public Response updatePlaces(@Auth AuthenticatedUser _) {

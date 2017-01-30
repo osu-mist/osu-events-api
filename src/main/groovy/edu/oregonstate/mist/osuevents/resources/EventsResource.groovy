@@ -263,7 +263,7 @@ class EventsResource extends Resource {
             errors.add(ErrorMessages.badRequest("Hashtag cannot contain '#'."))
         }
 
-        if (event.location && !eventsDAO.checkLocation(event.location)) {
+        if (event.location && !eventsDAO.checkPlace(event.location)) {
             errors.add(ErrorMessages.badRequest("Location could not be found."))
         }
 

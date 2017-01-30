@@ -297,6 +297,13 @@ public interface EventsDAO extends Closeable {
     """)
     void deleteCustomField(@Bind("id") def customFieldID)
 
+    @SqlQuery("""
+        SELECT CUSTOM_FIELD_ID FROM CUSTOM_FIELDS
+            WHERE NAME = :field
+            AND DELETED_AT IS NULL
+    """)
+    String checkCustomField(@Bind("field") String field)
+
     @SqlQuery("SELECT FILTER_ID AS ID, NAME FROM FILTERS")
     @Mapper(CacheObjectMapper)
     List<CacheObject> getFilters()
@@ -321,6 +328,13 @@ public interface EventsDAO extends Closeable {
             WHERE FILTER_ID = :id
     """)
     void deleteFilter(@Bind("id") def filterID)
+
+    @SqlQuery ("""
+        SELECT FILTER_ID FROM FILTERS
+          WHERE NAME = :filter
+          AND DELETED_AT IS NULL
+    """)
+    String checkFilter(@Bind("filter") String filter)
 
     @SqlQuery("""
         SELECT ITEM_ID AS ID, NAME FROM FILTER_ITEMS
@@ -355,6 +369,50 @@ public interface EventsDAO extends Closeable {
     void deleteFilterItem(@Bind("id") def filterItemID,
                           @Bind("filter_id") def filterID)
 
+    @SqlQuery ("""
+        SELECT FILTER_ITEMS.ITEM_ID FROM FILTER_ITEMS
+          LEFT JOIN FILTERS
+            ON FILTER_ITEMS.FILTER_ID = FILTERS.FILTER_ID
+          WHERE FILTER_ITEMS.NAME = :item
+          AND FILTERS.FILTER_ID = :filterID
+          AND FILTER_ITEMS.DELETED_AT IS NULL
+    """)
+    String checkFilterItem(@Bind("item") String item,
+                           @Bind("filterID") String filterID)
+
+    @SqlQuery("SELECT GROUP_ID AS ID, NAME FROM GROUPS")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getGroups()
+
+    @SqlUpdate("""
+        INSERT INTO GROUPS (GROUP_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createGroup(@BindBean CacheObject group)
+
+    @SqlUpdate("""
+        UPDATE GROUPS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE GROUP_ID = :id
+    """)
+    void updateGroup(@BindBean CacheObject group)
+
+    @SqlUpdate("""
+        DELETE FROM GROUPS
+            WHERE GROUP_ID = :id
+    """)
+    void deleteGroup(@Bind("id") def groupID)
+
+    @SqlQuery("""
+        SELECT GROUP_ID FROM GROUPS
+            WHERE (NAME = :group
+            OR PAGE_NAME = :group)
+            AND DELETED_AT IS NULL
+    """)
+    String checkGroup(@Bind("group") String group)
+
     @SqlQuery("SELECT PLACE_ID AS ID, NAME FROM PLACES")
     @Mapper(CacheObjectMapper)
     List<CacheObject> getPlaces()
@@ -385,15 +443,7 @@ public interface EventsDAO extends Closeable {
             WHERE NAME = :location
             AND DELETED_AT IS NULL
     """)
-    String checkLocation(@Bind("location") String location)
-
-    @SqlQuery("""
-        SELECT GROUP_ID FROM GROUPS
-            WHERE (NAME = :group
-            OR PAGE_NAME = :group)
-            AND DELETED_AT IS NULL
-    """)
-    String checkGroup(@Bind("group") String group)
+    String checkPlace(@Bind("location") String location)
 
     @SqlQuery("""
         SELECT DEPARTMENT_ID FROM DEPARTMENTS
@@ -402,31 +452,6 @@ public interface EventsDAO extends Closeable {
             AND DELETED_AT IS NULL
     """)
     String checkDepartment(@Bind("department") String department)
-
-    @SqlQuery("""
-        SELECT CUSTOM_FIELD_ID FROM CUSTOM_FIELDS
-            WHERE NAME = :field
-            AND DELETED_AT IS NULL
-    """)
-    String checkCustomField(@Bind("field") String field)
-
-    @SqlQuery ("""
-        SELECT FILTER_ID FROM FILTERS
-          WHERE NAME = :filter
-          AND DELETED_AT IS NULL
-    """)
-    String checkFilter(@Bind("filter") String filter)
-
-    @SqlQuery ("""
-        SELECT FILTER_ITEMS.ITEM_ID FROM FILTER_ITEMS
-          LEFT JOIN FILTERS
-            ON FILTER_ITEMS.FILTER_ID = FILTERS.FILTER_ID
-          WHERE FILTER_ITEMS.NAME = :item
-          AND FILTERS.FILTER_ID = :filterID
-          AND FILTER_ITEMS.DELETED_AT IS NULL
-    """)
-    String checkFilterItem(@Bind("item") String item,
-                           @Bind("filterID") String filterID)
 
     @SqlQuery("SELECT 1 FROM dual")
     Integer checkHealth()

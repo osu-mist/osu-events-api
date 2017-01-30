@@ -10,6 +10,7 @@ class CacheDAO {
     private static final String placesResource = "/places"
     private static final String labelsResource = "/events/labels"
     private static final String filterItemsResource = "/events/filters"
+    private static final String groupsResource = "/groups"
 
     private UtilHttp utilHttp
     private HttpClient httpClient
@@ -34,29 +35,21 @@ class CacheDAO {
         jsonSlurper.parseText(sendRequest(filterItemsResource))
     }
 
-    public def getPlaces() {
-        def data = []
-        Integer page = 1
-        def query = [pp:100]
-        query['page'] = page
+    public def getGroups() {
+        def data = pageIteration(groupsResource)
+        def groups = [:]
 
-        data.add(page - 1,
-                jsonSlurper.parseText(
-                        sendRequest(placesResource,
-                                    query)
-                )
-        )
-
-        while (data[page - 1].page.current != data[page - 1].page.total) {
-            page++
-            query['page'] = page
-            data.add(page - 1,
-                    jsonSlurper.parseText(
-                            sendRequest(placesResource,
-                                    query)
-                    )
-            )
+        data.each {
+            it.groups.each {
+                groups[new String("${it.group.id}")] = new String("${it.group.name}")
+            }
         }
+
+        groups
+    }
+
+    public def getPlaces() {
+        def data = pageIteration(placesResource)
         sanitizePlaces(data)
     }
 
@@ -78,9 +71,6 @@ class CacheDAO {
         filters
     }
 
-//    private def sanitizeFilterItems(def data ) {
-//
-//    }
     private def sanitizePlaces(def data) {
         def places = [:]
 
@@ -90,6 +80,32 @@ class CacheDAO {
             }
         }
         places
+    }
+
+    private def pageIteration(String resource) {
+        def data = []
+        Integer page = 1
+        def query = [pp:100]
+        query['page'] = page
+
+        data.add(page - 1,
+                jsonSlurper.parseText(
+                        sendRequest(resource,
+                                query)
+                )
+        )
+
+        while (data[page - 1].page.current != data[page - 1].page.total) {
+            page++
+            query['page'] = page
+            data.add(page - 1,
+                    jsonSlurper.parseText(
+                            sendRequest(resource,
+                                    query)
+                    )
+            )
+        }
+        data
     }
 
     private String sendRequest(String resourceURI,
