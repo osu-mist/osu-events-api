@@ -1,12 +1,12 @@
 package edu.oregonstate.mist.osuevents.db
 
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.osuevents.core.CacheObject
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.Instance
-import edu.oregonstate.mist.osuevents.core.Place
+import edu.oregonstate.mist.osuevents.mapper.CacheObjectMapper
 import edu.oregonstate.mist.osuevents.mapper.EventMapper
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
-import edu.oregonstate.mist.osuevents.mapper.PlaceMapper
 import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.BindBean
 import org.skife.jdbi.v2.sqlobject.SqlQuery
@@ -270,15 +270,98 @@ public interface EventsDAO extends Closeable {
     void deleteInstance(@Bind("event_id") String eventID,
                         @Bind("instance_id") String instanceID)
 
-    @SqlQuery("SELECT PLACE_ID, NAME FROM PLACES")
-    @Mapper(PlaceMapper)
-    List<Place> getPlaces()
+    @SqlQuery("SELECT CUSTOM_FIELD_ID AS ID, NAME FROM CUSTOM_FIELDS")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getCustomFields()
+
+    @SqlUpdate("""
+        INSERT INTO CUSTOM_FIELDS (CUSTOM_FIELD_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createCustomField(@BindBean CacheObject customField)
+
+    @SqlUpdate("""
+        UPDATE CUSTOM_FIELDS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE CUSTOM_FIELD_ID = :id
+    """)
+    void updateCustomField(@BindBean CacheObject customField)
+
+    @SqlUpdate("""
+        DELETE FROM CUSTOM_FIELDS
+            WHERE CUSTOM_FIELD_ID = :id
+    """)
+    void deleteCustomField(@Bind("id") def customFieldID)
+
+    @SqlQuery("SELECT FILTER_ID AS ID, NAME FROM FILTERS")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getFilters()
+
+    @SqlUpdate("""
+        INSERT INTO FILTERS (FILTER_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createFilter(@BindBean CacheObject filter)
+
+    @SqlUpdate("""
+        UPDATE FILTERS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE FILTER_ID = :id
+    """)
+    void updateFilter(@BindBean CacheObject filter)
+
+    @SqlUpdate("""
+        DELETE FROM FILTERS
+            WHERE FILTER_ID = :id
+    """)
+    void deleteFilter(@Bind("id") def filterID)
+
+    @SqlQuery("""
+        SELECT ITEM_ID AS ID, NAME FROM FILTER_ITEMS
+            WHERE FILTER_ID = :filter_id
+    """)
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getFilterItems(@Bind("filter_id") def filterID)
+
+    @SqlUpdate("""
+        INSERT INTO FILTER_ITEMS (ITEM_ID, FILTER_ID, NAME, CREATED_AT)
+            VALUES (:id, :filter_id, :name, SYSDATE)
+    """)
+    void createFilterItem(@BindBean CacheObject filterItem,
+                          @Bind("filter_id") def filterID)
+
+    @SqlUpdate("""
+        UPDATE FILTER_ITEMS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE ITEM_ID = :id
+          AND FILTER_ID = :filter_id
+    """)
+    void updateFilterItem(@BindBean CacheObject filterItem,
+                          @Bind("filter_id") def filterID)
+
+    @SqlUpdate("""
+        DELETE FROM FILTER_ITEMS
+            WHERE ITEM_ID = :id
+            AND FILTER_ID = :filter_id
+    """)
+    void deleteFilterItem(@Bind("id") def filterItemID,
+                          @Bind("filter_id") def filterID)
+
+    @SqlQuery("SELECT PLACE_ID AS ID, NAME FROM PLACES")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getPlaces()
 
     @SqlUpdate("""
         INSERT INTO PLACES (PLACE_ID, NAME, CREATED_AT)
             VALUES (:id, :name, SYSDATE)
     """)
-    void createPlace(@BindBean Place place)
+    void createPlace(@BindBean CacheObject place)
 
     @SqlUpdate("""
         UPDATE PLACES
@@ -287,7 +370,7 @@ public interface EventsDAO extends Closeable {
             UPDATED_AT = SYSDATE
           WHERE PLACE_ID = :id
     """)
-    void updatePlace(@BindBean Place place)
+    void updatePlace(@BindBean CacheObject place)
 
     @SqlUpdate("""
         DELETE FROM PLACES

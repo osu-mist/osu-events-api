@@ -8,6 +8,8 @@ import org.apache.http.util.EntityUtils
 
 class CacheDAO {
     private static final String placesResource = "/places"
+    private static final String labelsResource = "/events/labels"
+    private static final String filterItemsResource = "/events/filters"
 
     private UtilHttp utilHttp
     private HttpClient httpClient
@@ -17,14 +19,19 @@ class CacheDAO {
         this.httpClient = httpClient
         this.utilHttp = utilHttp
     }
-//    public def getFilters() {}
-//    public def getGroups() {}
-//    public def getDepartments() {}
-//    public def getGroups() {}
 
     public def getCustomFields() {
-        def data = []
+        def data = jsonSlurper.parseText(sendRequest(labelsResource))
+        sanitizeCustomFields(data)
+    }
 
+    public def getFilters() {
+        def data = jsonSlurper.parseText(sendRequest(labelsResource))
+        sanitizeFilters(data)
+    }
+
+    public def getFilterItems() {
+        jsonSlurper.parseText(sendRequest(filterItemsResource))
     }
 
     public def getPlaces() {
@@ -52,6 +59,28 @@ class CacheDAO {
         }
         sanitizePlaces(data)
     }
+
+    private def sanitizeCustomFields(def data) {
+        def customFields = [:]
+
+        data.custom_fields.each {
+            customFields[new String("${it.key}")] = new String("${it.value}")
+        }
+        customFields
+    }
+
+    private def sanitizeFilters(def data) {
+        def filters = [:]
+
+        data.filters.each {
+            filters[new String("${it.key}")] = new String("${it.value}")
+        }
+        filters
+    }
+
+//    private def sanitizeFilterItems(def data ) {
+//
+//    }
     private def sanitizePlaces(def data) {
         def places = [:]
 
@@ -64,7 +93,7 @@ class CacheDAO {
     }
 
     private String sendRequest(String resourceURI,
-                               def query = []) {
+                               def query = [:]) {
         CloseableHttpResponse response
         String responseBody
         try {
