@@ -99,6 +99,18 @@ Get single event by eventID. If no event is found, result object is empty. Times
 ### GET /events
 Get all events in JSON format.
 
+## Updating the Cache
+This API maintains a local cache of custom data from the vendor calendar system.
+This cache should be updated on a regular basis to ensure the data validation specific to
+the /events resources is accurate. Doing a PUT request to these endpoints will update
+their respective cache.
+
+* Custom Fields /cache/update/customfields
+* Departments /cache/update/departments
+* Filters /cache/update/filters
+* Groups /cache/update/groups
+* Places /cache/update/places
+
 ## Generate Keys
 
 HTTPS is required for Web APIs in development and production. Use `keytool(1)` to generate public and private keys.
