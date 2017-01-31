@@ -3,6 +3,7 @@
 ## Do not commit changes that contain credentials or sensitive data!
 
 server:
+  allowedMethods: [GET, POST, PATCH, DELETE, PUT]
   rootPath: /api/v0/*
   applicationConnectors:
     - type: https
