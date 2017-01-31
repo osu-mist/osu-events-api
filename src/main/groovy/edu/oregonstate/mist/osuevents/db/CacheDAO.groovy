@@ -89,21 +89,27 @@ class CacheDAO {
 
     private def pageIteration(String resource) {
         def data = []
-        Integer page = 1
-        def query = [pp:100]
-        query['page'] = page
+        def query = [pp:100, page:1]
 
-        data.add(page - 1,
+        data.add(query['page'] - 1,
                 jsonSlurper.parseText(
                         sendRequest(resource,
                                 query)
                 )
         )
 
-        while (data[page - 1].page.current != data[page - 1].page.total) {
-            page++
-            query['page'] = page
-            data.add(page - 1,
+        Integer expectedPages = data[query['page'] - 1].page.total
+
+        pageLoop:
+        while (data[query['page'] - 1].page.current < data[query['page'] - 1].page.total) {
+            query['page']++
+
+            if (expectedPages < query['page']) {
+                println("breaking")
+                break pageLoop
+            }
+
+            data.add(query['page'] - 1,
                     jsonSlurper.parseText(
                             sendRequest(resource,
                                     query)
