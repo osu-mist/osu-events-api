@@ -6,6 +6,10 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.util.EntityUtils
 
+/**
+ * DAO for preparing requests and manipulating responses with vendor
+ * calendar system API. Returns fields only needed by CacheResource.
+ */
 class CacheDAO {
     private static final String placesResource = "/places"
     private static final String labelsResource = "/events/labels"
@@ -87,6 +91,10 @@ class CacheDAO {
         places
     }
 
+    /**
+     * Use as an intermediary method for vendor API endpoints that require pagination.
+     * Iterates through results until all pages have been requested and collected.
+     */
     private def pageIteration(String resource) {
         def data = []
         def query = [pp:100, page:1]
@@ -119,6 +127,10 @@ class CacheDAO {
         data
     }
 
+    /**
+     * Prepares an HTTP request to send to UtilHttp and returns response
+     * body as a string.
+     */
     private String sendRequest(String resourceURI,
                                def query = [:]) {
         CloseableHttpResponse response
