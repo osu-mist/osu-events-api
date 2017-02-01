@@ -10,15 +10,20 @@ import edu.oregonstate.mist.api.BasicAuthenticator
 import edu.oregonstate.mist.api.PrettyPrintResponseFilter
 import edu.oregonstate.mist.api.jsonapi.GenericExceptionMapper
 import edu.oregonstate.mist.api.jsonapi.NotFoundExceptionMapper
+import edu.oregonstate.mist.osuevents.db.CacheDAO
 import edu.oregonstate.mist.osuevents.db.EventsDAO
+import edu.oregonstate.mist.osuevents.db.UtilHttp
 import edu.oregonstate.mist.osuevents.health.EventsHealthCheck
+import edu.oregonstate.mist.osuevents.resources.CacheResource
 import edu.oregonstate.mist.osuevents.resources.EventsResource
 import io.dropwizard.Application
 import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.auth.AuthValueFactoryProvider
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
+import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import org.apache.http.client.HttpClient
 import org.skife.jdbi.v2.DBI
 import io.dropwizard.jdbi.DBIFactory
 
@@ -80,6 +85,17 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "jdbi")
         EventsDAO eventsDAO = jdbi.onDemand(EventsDAO.class)
         environment.jersey().register(new EventsResource(eventsDAO))
+
+        HttpClient httpClient = new HttpClientBuilder(environment)
+                .using(configuration.getHttpClientConfiguration())
+                .build("backend-http-client")
+
+        UtilHttp utilHttp = new UtilHttp(configuration.cacheSource)
+
+        CacheDAO cacheDAO = new CacheDAO(utilHttp, httpClient)
+        def cacheResource = new CacheResource(cacheDAO, eventsDAO)
+        cacheResource.setEndpointUri(configuration.getApi().getEndpointUri())
+        environment.jersey().register(cacheResource)
 
         EventsHealthCheck healthCheck = new EventsHealthCheck(eventsDAO)
         environment.healthChecks().register("eventsHealthCheck", healthCheck)

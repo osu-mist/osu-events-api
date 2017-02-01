@@ -1,8 +1,10 @@
 package edu.oregonstate.mist.osuevents.db
 
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.osuevents.core.CacheObject
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.Instance
+import edu.oregonstate.mist.osuevents.mapper.CacheObjectMapper
 import edu.oregonstate.mist.osuevents.mapper.EventMapper
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
 import org.skife.jdbi.v2.sqlobject.Bind
@@ -270,28 +272,30 @@ public interface EventsDAO extends Closeable {
     void deleteInstance(@Bind("event_id") String eventID,
                         @Bind("instance_id") String instanceID)
 
-    @SqlQuery("""
-        SELECT PLACE_ID FROM PLACES
-            WHERE NAME = :location
-            AND DELETED_AT IS NULL
-    """)
-    String checkLocation(@Bind("location") String location)
+    @SqlQuery("SELECT CUSTOM_FIELD_ID AS ID, NAME FROM CUSTOM_FIELDS")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getCustomFields()
 
-    @SqlQuery("""
-        SELECT GROUP_ID FROM GROUPS
-            WHERE (NAME = :group
-            OR PAGE_NAME = :group)
-            AND DELETED_AT IS NULL
+    @SqlUpdate("""
+        INSERT INTO CUSTOM_FIELDS (CUSTOM_FIELD_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
     """)
-    String checkGroup(@Bind("group") String group)
+    void createCustomField(@BindBean CacheObject customField)
 
-    @SqlQuery("""
-        SELECT DEPARTMENT_ID FROM DEPARTMENTS
-            WHERE (NAME = :department
-            OR PAGE_NAME = :department)
-            AND DELETED_AT IS NULL
+    @SqlUpdate("""
+        UPDATE CUSTOM_FIELDS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE CUSTOM_FIELD_ID = :id
     """)
-    String checkDepartment(@Bind("department") String department)
+    void updateCustomField(@BindBean CacheObject customField)
+
+    @SqlUpdate("""
+        DELETE FROM CUSTOM_FIELDS
+            WHERE CUSTOM_FIELD_ID = :id
+    """)
+    void deleteCustomField(@Bind("id") def customFieldID)
 
     @SqlQuery("""
         SELECT CUSTOM_FIELD_ID FROM CUSTOM_FIELDS
@@ -300,12 +304,102 @@ public interface EventsDAO extends Closeable {
     """)
     String checkCustomField(@Bind("field") String field)
 
+    @SqlQuery("SELECT DEPARTMENT_ID AS ID, NAME FROM DEPARTMENTS")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getDepartments()
+
+    @SqlUpdate("""
+        INSERT INTO DEPARTMENTS (DEPARTMENT_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createDepartment(@BindBean CacheObject group)
+
+    @SqlUpdate("""
+        UPDATE DEPARTMENTS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE DEPARTMENT_ID = :id
+    """)
+    void updateDepartment(@BindBean CacheObject group)
+
+    @SqlUpdate("""
+        DELETE FROM DEPARTMENTS
+            WHERE DEPARTMENT_ID = :id
+    """)
+    void deleteDepartment(@Bind("id") def groupID)
+
+    @SqlQuery("""
+        SELECT DEPARTMENT_ID FROM DEPARTMENTS
+            WHERE NAME = :department
+            AND DELETED_AT IS NULL
+    """)
+    String checkDepartment(@Bind("department") String department)
+
+    @SqlQuery("SELECT FILTER_ID AS ID, NAME FROM FILTERS")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getFilters()
+
+    @SqlUpdate("""
+        INSERT INTO FILTERS (FILTER_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createFilter(@BindBean CacheObject filter)
+
+    @SqlUpdate("""
+        UPDATE FILTERS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE FILTER_ID = :id
+    """)
+    void updateFilter(@BindBean CacheObject filter)
+
+    @SqlUpdate("""
+        DELETE FROM FILTERS
+            WHERE FILTER_ID = :id
+    """)
+    void deleteFilter(@Bind("id") def filterID)
+
     @SqlQuery ("""
         SELECT FILTER_ID FROM FILTERS
           WHERE NAME = :filter
           AND DELETED_AT IS NULL
     """)
     String checkFilter(@Bind("filter") String filter)
+
+    @SqlQuery("""
+        SELECT ITEM_ID AS ID, NAME FROM FILTER_ITEMS
+            WHERE FILTER_ID = :filter_id
+    """)
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getFilterItems(@Bind("filter_id") def filterID)
+
+    @SqlUpdate("""
+        INSERT INTO FILTER_ITEMS (ITEM_ID, FILTER_ID, NAME, CREATED_AT)
+            VALUES (:id, :filter_id, :name, SYSDATE)
+    """)
+    void createFilterItem(@BindBean CacheObject filterItem,
+                          @Bind("filter_id") def filterID)
+
+    @SqlUpdate("""
+        UPDATE FILTER_ITEMS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE ITEM_ID = :id
+          AND FILTER_ID = :filter_id
+    """)
+    void updateFilterItem(@BindBean CacheObject filterItem,
+                          @Bind("filter_id") def filterID)
+
+    @SqlUpdate("""
+        DELETE FROM FILTER_ITEMS
+            WHERE ITEM_ID = :id
+            AND FILTER_ID = :filter_id
+    """)
+    void deleteFilterItem(@Bind("id") def filterItemID,
+                          @Bind("filter_id") def filterID)
 
     @SqlQuery ("""
         SELECT FILTER_ITEMS.ITEM_ID FROM FILTER_ITEMS
@@ -317,6 +411,70 @@ public interface EventsDAO extends Closeable {
     """)
     String checkFilterItem(@Bind("item") String item,
                            @Bind("filterID") String filterID)
+
+    @SqlQuery("SELECT GROUP_ID AS ID, NAME FROM GROUPS")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getGroups()
+
+    @SqlUpdate("""
+        INSERT INTO GROUPS (GROUP_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createGroup(@BindBean CacheObject group)
+
+    @SqlUpdate("""
+        UPDATE GROUPS
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE GROUP_ID = :id
+    """)
+    void updateGroup(@BindBean CacheObject group)
+
+    @SqlUpdate("""
+        DELETE FROM GROUPS
+            WHERE GROUP_ID = :id
+    """)
+    void deleteGroup(@Bind("id") def groupID)
+
+    @SqlQuery("""
+        SELECT GROUP_ID FROM GROUPS
+            WHERE NAME = :group
+            AND DELETED_AT IS NULL
+    """)
+    String checkGroup(@Bind("group") String group)
+
+    @SqlQuery("SELECT PLACE_ID AS ID, NAME FROM PLACES")
+    @Mapper(CacheObjectMapper)
+    List<CacheObject> getPlaces()
+
+    @SqlUpdate("""
+        INSERT INTO PLACES (PLACE_ID, NAME, CREATED_AT)
+            VALUES (:id, :name, SYSDATE)
+    """)
+    void createPlace(@BindBean CacheObject place)
+
+    @SqlUpdate("""
+        UPDATE PLACES
+          SET
+            NAME = :name,
+            UPDATED_AT = SYSDATE
+          WHERE PLACE_ID = :id
+    """)
+    void updatePlace(@BindBean CacheObject place)
+
+    @SqlUpdate("""
+        DELETE FROM PLACES
+            WHERE PLACE_ID = :id
+    """)
+    void deletePlace(@Bind("id") def placeID)
+
+    @SqlQuery("""
+        SELECT PLACE_ID FROM PLACES
+            WHERE NAME = :location
+            AND DELETED_AT IS NULL
+    """)
+    String checkPlace(@Bind("location") String location)
 
     @SqlQuery("SELECT 1 FROM dual")
     Integer checkHealth()
