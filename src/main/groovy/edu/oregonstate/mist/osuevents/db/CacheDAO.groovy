@@ -102,13 +102,12 @@ class CacheDAO {
     private def pageIteration(String resource) {
         def data = []
         def query = [pp:100, page:1]
-
-        data.add(query['page'] - 1,
+        def addToData = { data.add(query['page'] - 1,
                 jsonSlurper.parseText(
                         sendRequest(resource,
-                                query)
-                )
-        )
+                                query)))
+        }
+        addToData()
 
         Integer expectedPages = data[query['page'] - 1].page.total
 
@@ -120,13 +119,7 @@ class CacheDAO {
                 logger.warn("Pagination bug found when calling backend resource: ${resource}")
                 break pageLoop
             }
-
-            data.add(query['page'] - 1,
-                    jsonSlurper.parseText(
-                            sendRequest(resource,
-                                    query)
-                    )
-            )
+            addToData()
         }
         data
     }
