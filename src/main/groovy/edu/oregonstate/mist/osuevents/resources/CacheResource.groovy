@@ -6,8 +6,6 @@ import edu.oregonstate.mist.osuevents.core.CacheObject
 import edu.oregonstate.mist.osuevents.db.CacheDAO
 import edu.oregonstate.mist.osuevents.db.EventsDAO
 import io.dropwizard.auth.Auth
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import javax.ws.rs.PUT
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
@@ -17,8 +15,6 @@ import javax.ws.rs.core.Response
 @Path('/cache/update/')
 @Produces(MediaType.APPLICATION_JSON)
 class CacheResource extends Resource {
-    Logger logger = LoggerFactory.getLogger(CacheResource.class)
-
     private final CacheDAO cacheDAO
     private final EventsDAO eventsDAO
 
