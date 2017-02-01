@@ -5,6 +5,8 @@ import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.util.EntityUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * DAO for preparing requests and manipulating responses with vendor
@@ -20,6 +22,8 @@ class CacheDAO {
     private UtilHttp utilHttp
     private HttpClient httpClient
     private JsonSlurper jsonSlurper = new JsonSlurper()
+
+    Logger logger = LoggerFactory.getLogger(CacheDAO.class)
 
     CacheDAO(UtilHttp utilHttp, HttpClient httpClient) {
         this.httpClient = httpClient
@@ -113,7 +117,7 @@ class CacheDAO {
             query['page']++
 
             if (expectedPages < query['page']) {
-                println("breaking")
+                logger.warn("Pagination bug found when calling backend resource: ${resource}")
                 break pageLoop
             }
 
@@ -140,6 +144,8 @@ class CacheDAO {
             HttpEntity entity = response.getEntity()
             responseBody = EntityUtils.toString(entity)
             EntityUtils.consume(entity)
+        } catch (Exception e) {
+            logger.error("Exception while sending HTTP request to backend resource: ${resourceURI}")
         } finally {
             response?.close()
         }
