@@ -237,16 +237,10 @@ class EventsResource extends Resource {
             resultObject.data.id = resultObject.data.id.toString()
 
             if (!resultObject.data.id.matches(uuidRegEx)) {
-                errors.add(new Error(
-                        status: 409,
-                        developerMessage: ErrorMessages.invalidUUID
-                ))
+                errors.add(ErrorMessages.conflict(ErrorMessages.invalidUUID))
             }
             if (eventsDAO.getById(resultObject.data.id)) {
-                errors.add(new Error(
-                        status: 409,
-                        developerMessage: ErrorMessages.idExists
-                ))
+                errors.add(ErrorMessages.conflict(ErrorMessages.idExists))
             }
         }
 
