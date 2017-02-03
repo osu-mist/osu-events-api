@@ -103,7 +103,9 @@ abstract class Resource {
         responseBuilder.entity(new Error(
                 status: 409,
                 developerMessage: properties.get('conflict.developerMessage'),
-                userMessage: properties.get('conflict.userMessage')
+                userMessage: properties.get('conflict.userMessage'),
+                code: Integer.parseInt(properties.get('conflict.code')),
+                details: properties.get('conflict.details')
         ))
     }
 

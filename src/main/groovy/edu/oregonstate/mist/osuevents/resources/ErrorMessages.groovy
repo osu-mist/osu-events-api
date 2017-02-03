@@ -28,4 +28,14 @@ class ErrorMessages {
                 details: Resource.properties.get('badRequest.details')
         )
     }
+
+    public static Error conflict(String developerMessage = null) {
+        new Error(
+                status: 409,
+                developerMessage: developerMessage,
+                userMessage: Resource.properties.get('conflict.userMessage'),
+                code: Integer.parseInt(Resource.properties.get('conflict.code')),
+                details: Resource.properties.get('conflict.details')
+        )
+    }
 }
