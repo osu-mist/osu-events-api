@@ -31,4 +31,43 @@ class Event {
     List<CustomFieldEntry> customFields = []
     List<FilterEntry> filters = []
     List<Instance> instances = []
+
+    public String[] toCSVRecord() {
+        [
+
+                title,
+                description,
+
+                location,
+                address,
+                city,
+                state,
+                eventURL,
+                room,
+                keywords,
+                tags,
+                photoURL,
+                ticketURL,
+                cost,
+                hashtag,
+                facebookURL,
+                group,
+                department,
+
+                visibility,
+
+                sponsored,
+                venuePageOnly,
+                excludeFromTrending,
+
+                allowsReviews,
+
+                customFields.toString(),
+                //customFieldsToCSVField(),
+                //filtersToCSVField(),
+                //instacesToCSVField(),
+
+                //eventID,
+        ]
+    }
 }

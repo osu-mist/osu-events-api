@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response
 import java.time.format.DateTimeParseException
 
 import static java.util.UUID.randomUUID
+import com.opencsv.CSVWriter
 
 @Path('/events/')
 @Produces(MediaType.APPLICATION_JSON)
@@ -67,13 +68,51 @@ class EventsResource extends Resource {
  */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    //TODO Add CSV MediaType to response object
     public Response getEvents(@Auth AuthenticatedUser _,
                               @QueryParam('format') String format) {
         def events = eventsDAO.getEvents()
-//@TODO add methods for returning csv and ics formats
-//        else if (format == "csv") {
-//
-//        } else if (format == "ics") {
+        def resultObject
+
+        if (!format) {
+            events.each {
+                resultObject.data += new ResourceObject(
+                        id: it.eventID,
+                        type: 'event',
+                        attributes: it
+                )
+            }
+        } else if (format == "csv") {
+            resultObject = getResultObject(events)
+
+            def time = new Date().time
+            String csvfilename = "events_gospel" + time + ".csv"
+
+            CSVWriter writer = new CSVWriter(new FileWriter(csvfilename))
+
+            //CSV Layout Header
+            writer.writeNext(["Title" , "Description" , "Date From" , "Date To" , "Recurrence" ,
+                              "Start Time", "End Time" , "Location" , "Address" , "City" , "State" ,
+                              "Event Website" , "Room" , "Keywords" , "Tags" , "Photo URL" ,
+                              "Ticket URL" , "Cost" , "Hashtag" , "Facebook URL" , "Group" ,
+                              "Department" , "Allow User Activity" , "Allow User Attendance" ,
+                              "Visibility" , "Featured Tabs" , "Sponsored" , "Venue Page Only" ,
+                              "Exclude From Trending" , "Event Types" , "Top level filter" ,
+                              "Custom Field"] as String[])
+
+            resultObject.data.each {
+                //System.out.println(it)
+                def event = it.attributes as Event
+                //System.out.println(event.instances.toString())
+                //TODO Handle event id?
+                //TODO Handle event.customFields, event.filters, event.instances
+                //TODO Handle date time formatting
+                writer.writeNext(event.toCSVRecord())
+            }
+
+            writer.close()
+            //TODO Add clean up for this file
+        } // else if (format == "ics") {
 //
 //        } else {
 //            return badRequest("Invalid format value. Valid formats are csv or ics.").build()
