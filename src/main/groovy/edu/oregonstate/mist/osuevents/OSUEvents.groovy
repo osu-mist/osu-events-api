@@ -29,7 +29,6 @@ import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import javax.ws.rs.WebApplicationException
 
-
 /**
  * Main application class.
  */
