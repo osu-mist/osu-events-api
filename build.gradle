@@ -47,6 +47,7 @@ dependencies {
     compile "de.thomaskrille:dropwizard-template-config:1.4.0"
     compile "io.dropwizard:dropwizard-jdbi:${dropwizardVersion}"
     compile ':ojdbc6:'
+    compile 'com.opencsv:opencsv:3.9'
 }
 
 codenarc {
