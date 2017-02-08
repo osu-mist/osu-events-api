@@ -276,16 +276,10 @@ class EventsResource extends Resource {
             resultObject.data.id = resultObject.data.id.toString()
 
             if (!resultObject.data.id.matches(uuidRegEx)) {
-                errors.add(new Error(
-                        status: 409,
-                        developerMessage: ErrorMessages.invalidUUID
-                ))
+                errors.add(ErrorMessages.conflict(ErrorMessages.invalidUUID))
             }
             if (eventsDAO.getById(resultObject.data.id)) {
-                errors.add(new Error(
-                        status: 409,
-                        developerMessage: ErrorMessages.idExists
-                ))
+                errors.add(ErrorMessages.conflict(ErrorMessages.idExists))
             }
         }
 
@@ -302,7 +296,7 @@ class EventsResource extends Resource {
             errors.add(ErrorMessages.badRequest("Hashtag cannot contain '#'."))
         }
 
-        if (event.location && !eventsDAO.checkLocation(event.location)) {
+        if (event.location && !eventsDAO.checkPlace(event.location)) {
             errors.add(ErrorMessages.badRequest("Location could not be found."))
         }
 
