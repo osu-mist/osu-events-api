@@ -24,7 +24,7 @@ class ErrorMessages {
                 status: 400,
                 developerMessage: developerMessage,
                 userMessage: Resource.properties.get('badRequest.userMessage'),
-                code: Integer.parseInt(Resource.properties.get('badRequest.code')),
+                code: Integer.parseInt(Resource.properties.get('badRequest.code') ?: "1400"),
                 details: Resource.properties.get('badRequest.details')
         )
     }
@@ -34,7 +34,7 @@ class ErrorMessages {
                 status: 409,
                 developerMessage: developerMessage,
                 userMessage: Resource.properties.get('conflict.userMessage'),
-                code: Integer.parseInt(Resource.properties.get('conflict.code')),
+                code: Integer.parseInt(Resource.properties.get('conflict.code') ?: "1409"),
                 details: Resource.properties.get('conflict.details')
         )
     }
