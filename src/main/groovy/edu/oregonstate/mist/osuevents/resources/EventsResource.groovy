@@ -39,7 +39,7 @@ class EventsResource extends Resource {
     private final EventsDAO eventsDAO
     private final ZoneId backendTimezone
 
-    EventsResource(EventsDAO eventsDAO, String backendTimezone) {
+    EventsResource(EventsDAO eventsDAO, String backendTimezone = "UTC") {
         this.eventsDAO = eventsDAO
         this.backendTimezone = ZoneId.of(backendTimezone)
     }
