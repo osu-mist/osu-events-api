@@ -5,19 +5,21 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class CSVHelperFunctions {
-    public static String getCSVDate(ZonedDateTime dateTime, ZoneId backendTimeZone) {
+    private static String csvDateFormat(String pattern,
+                                        ZonedDateTime dateTime,
+                                        ZoneId backendTimeZone) {
         DateTimeFormatter csvDateFormatter = DateTimeFormatter
-                .ofPattern("MM/dd/yyyy")
+                .ofPattern(pattern)
                 .withZone(backendTimeZone)
 
         dateTime.format(csvDateFormatter)
     }
 
-    public static String getCSVTime(ZonedDateTime dateTime, ZoneId backendTimeZone) {
-        DateTimeFormatter csvTimeFormatter = DateTimeFormatter
-                .ofPattern("hh:mm a")
-                .withZone(backendTimeZone)
+    public static String getCSVDate(ZonedDateTime dateTime, ZoneId backendTimeZone) {
+        csvDateFormat("MM/dd/yyyy", dateTime, backendTimeZone)
+    }
 
-        dateTime.format(csvTimeFormatter)
+    public static String getCSVTime(ZonedDateTime dateTime, ZoneId backendTimeZone) {
+        csvDateFormat("hh:mm a", dateTime, backendTimeZone)
     }
 }
