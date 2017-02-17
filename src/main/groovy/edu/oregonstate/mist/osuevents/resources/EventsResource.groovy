@@ -25,6 +25,7 @@ import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import java.time.ZoneId
 import java.time.format.DateTimeParseException
 
 import static java.util.UUID.randomUUID
@@ -37,9 +38,11 @@ class EventsResource extends Resource {
     Logger logger = LoggerFactory.getLogger(EventsResource.class)
 
     private final EventsDAO eventsDAO
+    private final ZoneId backendTimezone
 
-    EventsResource(EventsDAO eventsDAO) {
+    EventsResource(EventsDAO eventsDAO, String backendTimezone = "UTC") {
         this.eventsDAO = eventsDAO
+        this.backendTimezone = ZoneId.of(backendTimezone)
     }
 
     //used to check if client-generated id is a valid UUID

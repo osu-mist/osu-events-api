@@ -87,7 +87,8 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         DBIFactory factory = new DBIFactory()
         DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "jdbi")
         EventsDAO eventsDAO = jdbi.onDemand(EventsDAO.class)
-        environment.jersey().register(new EventsResource(eventsDAO))
+        String backendTimezone = configuration.cacheSource.get("backendTimezone")
+        environment.jersey().register(new EventsResource(eventsDAO, backendTimezone))
 
         HttpClient httpClient = new HttpClientBuilder(environment)
                 .using(configuration.getHttpClientConfiguration())
