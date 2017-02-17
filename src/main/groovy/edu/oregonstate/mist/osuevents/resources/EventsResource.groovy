@@ -6,6 +6,7 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.core.Event
+import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.db.EventsDAO
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
 import groovy.json.JsonOutput
@@ -74,7 +75,7 @@ class EventsResource extends Resource {
     //TODO Add CSV MediaType to response object
     public Response getEvents(@Auth AuthenticatedUser _,
                               @QueryParam('format') String format) {
-        def events = eventsDAO.getEvents()
+        List<ResourceObject> events = eventsDAO.getEvents()
         def resultObject
 
         if (!format) {
@@ -86,28 +87,53 @@ class EventsResource extends Resource {
                 )
             }
         } else if (format == "csv") {
+
+            ArrayList<String> baseEventsCSVHeader=
+                    ["EventID","Title" , "Description" , "Date From" , "Date To" , "Recurrence" ,
+                     "Start Time", "End Time" , "Location" , "Address" , "City" , "State" ,
+                     "Event Website" , "Room" , "Keywords" , "Tags" , "Photo URL" ,
+                     "Ticket URL" , "Cost" , "Hashtag" , "Facebook URL" , "Group" ,
+                     "Department" , "Allow User Activity" , "Allow User Attendance" ,
+                     "Visibility" , "Featured Tabs" , "Sponsored" , "Venue Page Only" ,
+                     "Exclude From Trending" , "Event Types"]
+
+            def csvheader = baseEventsCSVHeader
+
+            def fields = eventsDAO.getCustomFields()
+            fields.each {
+                csvheader += it.name
+            }
+
+            /*
+            System.out.println("Debug edu.oregonstate.mist start")
+            System.out.println(csvheader.toString())
+            System.out.println("Debug edu.oregonstate.mist stop")*/
+
             resultObject = getResultObject(events)
 
             def time = new Date().time
             String csvfilename = "events_gospel" + time + ".csv"
-
             CSVWriter writer = new CSVWriter(new FileWriter(csvfilename))
 
+            //TODO CUSTOM FIELDS
+            //TODO FILTERS
+            //eventsDAO.getFilters();
+            //TODO Finalize base csv header as a constant.
             //CSV Layout Header
-            writer.writeNext(["Title" , "Description" , "Date From" , "Date To" , "Recurrence" ,
-                              "Start Time", "End Time" , "Location" , "Address" , "City" , "State" ,
-                              "Event Website" , "Room" , "Keywords" , "Tags" , "Photo URL" ,
-                              "Ticket URL" , "Cost" , "Hashtag" , "Facebook URL" , "Group" ,
-                              "Department" , "Allow User Activity" , "Allow User Attendance" ,
-                              "Visibility" , "Featured Tabs" , "Sponsored" , "Venue Page Only" ,
-                              "Exclude From Trending" , "Event Types" , "Top level filter" ,
-                              "Custom Field"] as String[])
+            writer.writeNext(csvheader as String[])
 
             resultObject.data.each {
                 //System.out.println(it)
-                def event = it.attributes as Event
+                //TODO Handle event id
+                String event_id = it.id
+                def base_event = it.attributes as Event
+                List<Instance> event_instances = eventsDAO.getInstances(event_id)
+                if(event_instances.size() == 0){
+                    //Singular Event, no instances defined.
+                }else{
+
+                }
                 //System.out.println(event.instances.toString())
-                //TODO Handle event id?
                 //TODO Handle event.customFields, event.filters, event.instances
                 //TODO Handle date time formatting
                 writer.writeNext(event.toCSVRecord())
