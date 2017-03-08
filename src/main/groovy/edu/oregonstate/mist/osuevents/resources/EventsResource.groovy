@@ -5,10 +5,13 @@ import edu.oregonstate.mist.api.Error
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.osuevents.core.CacheObject
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.db.EventsDAO
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
+import edu.oregonstate.mist.osuevents.resources.CSVHelperFunctions
+import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 import io.dropwizard.auth.Auth
 import edu.oregonstate.mist.api.PATCH
@@ -87,58 +90,75 @@ class EventsResource extends Resource {
                 )
             }
         } else if (format == "csv") {
-
-            ArrayList<String> baseEventsCSVHeader=
-                    ["EventID","Title" , "Description" , "Date From" , "Date To" , "Recurrence" ,
+            final ArrayList<String> BASECSVHEADER =
+                    ["EventID","Title" , "Description" , "Date From" , "Date To" ,
                      "Start Time", "End Time" , "Location" , "Address" , "City" , "State" ,
                      "Event Website" , "Room" , "Keywords" , "Tags" , "Photo URL" ,
                      "Ticket URL" , "Cost" , "Hashtag" , "Facebook URL" , "Group" ,
                      "Department" , "Allow User Activity" , "Allow User Attendance" ,
                      "Visibility" , "Featured Tabs" , "Sponsored" , "Venue Page Only" ,
-                     "Exclude From Trending" , "Event Types"]
+                     "Exclude From Trending"]
 
-            def csvheader = baseEventsCSVHeader
+            //TODO Handle localist default "Event Types" filter as another collumn.
+            //Note Event Types is a filter
+            ArrayList<String> csvheader = BASECSVHEADER.clone()
 
             def fields = eventsDAO.getCustomFields()
             fields.each {
                 csvheader += it.name
             }
 
-            /*
-            System.out.println("Debug edu.oregonstate.mist start")
-            System.out.println(csvheader.toString())
-            System.out.println("Debug edu.oregonstate.mist stop")*/
-
-            resultObject = getResultObject(events)
-
             def time = new Date().time
             String csvfilename = "events_gospel" + time + ".csv"
             CSVWriter writer = new CSVWriter(new FileWriter(csvfilename))
+            writer.writeNext((String [] ) csvheader.toArray())
 
-            //TODO CUSTOM FIELDS
             //TODO FILTERS
-            //eventsDAO.getFilters();
-            //TODO Finalize base csv header as a constant.
-            //CSV Layout Header
-            writer.writeNext(csvheader as String[])
 
+            resultObject = getResultObject(events)
             resultObject.data.each {
-                //System.out.println(it)
-                //TODO Handle event id
-                String event_id = it.id
-                def base_event = it.attributes as Event
-                List<Instance> event_instances = eventsDAO.getInstances(event_id)
-                if(event_instances.size() == 0){
-                    //Singular Event, no instances defined.
-                }else{
+                String eventid = it.id
+                Event baseEvent = it.attributes as Event
 
+                ArrayList<String> baseEventRecord =
+                        [eventid, baseEvent.title, baseEvent.description,
+                        "DATE_FROM_PLACE_HOLDER", "DATE_TO_PLACE_HOLDER", "START_TIME_PLACE_HOLDER",
+                         "END_TIME_PLACE_HOLDER",
+                        baseEvent.location, baseEvent.address, baseEvent.city, baseEvent.state,
+                         baseEvent.eventURL, baseEvent.room, baseEvent.keywords, baseEvent.tags,
+                         baseEvent.photoURL, baseEvent.ticketURL, baseEvent.cost, baseEvent.hashtag,
+                         baseEvent.facebookURL, baseEvent.group, baseEvent.department,
+                         "Allow_User_Activity", "USER_ATTENDANCE_FIELD", baseEvent.visibility,
+                         "FEATURED_TABS", baseEvent.sponsored, baseEvent.venuePageOnly,
+                         baseEvent.excludeFromTrending ]
+
+                def eventCFieldsMap = baseEvent.customFields.collectEntries {[it.field,it.value]}
+                fields.each {
+                    String entryVal = eventCFieldsMap[it.name]
+                    if(entryVal == null) {
+                        entryVal = ""
+                    }
+                    baseEventRecord.add(entryVal)
                 }
-                //System.out.println(event.instances.toString())
-                //TODO Handle event.customFields, event.filters, event.instances
-                //TODO Handle date time formatting
-                writer.writeNext(event.toCSVRecord())
-            }
 
+                List<Instance> eventInstances = eventsDAO.getInstances(eventid)
+
+                eventInstances.each {
+                    String[] instanceRecord = baseEventRecord.clone()
+
+                    //"DATE_FROM_PLACE_HOLDER"
+                    instanceRecord[3] = CSVHelperFunctions.getCSVDate(it.start,backendTimezone)
+                    //"DATE_TO_PLACE_HOLDER"
+                    instanceRecord[4] = CSVHelperFunctions.getCSVDate(it.end,backendTimezone)
+                    //"START_TIME_PLACE_HOLDER"
+                    instanceRecord[5] = CSVHelperFunctions.getCSVTime(it.start, backendTimezone)
+                    //"END_TIME_PLACE_HOLDER"
+                    instanceRecord[6] = CSVHelperFunctions.getCSVTime(it.end, backendTimezone)
+
+                    writer.writeNext(instanceRecord)
+                    //TODO Handle "Allow_User_Activity","USER_ATTENDANCE_FIELD", "FEATURED_TABS"
+                }
+            }
             writer.close()
             //TODO Add clean up for this file
         } // else if (format == "ics") {
