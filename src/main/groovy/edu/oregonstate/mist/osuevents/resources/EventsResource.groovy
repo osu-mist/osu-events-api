@@ -74,7 +74,7 @@ class EventsResource extends Resource {
  * GET all events
  */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces([MediaType.APPLICATION_JSON, "text/csv"])
     //TODO Add CSV MediaType to response object
     public Response getEvents(@Auth AuthenticatedUser _,
                               @QueryParam('format') String format) {
