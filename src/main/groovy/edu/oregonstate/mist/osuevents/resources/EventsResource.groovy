@@ -99,21 +99,23 @@ class EventsResource extends Resource {
                      "Visibility" , "Featured Tabs" , "Sponsored" , "Venue Page Only" ,
                      "Exclude From Trending"]
 
-            //TODO Handle localist default "Event Types" filter as another collumn.
-            //Note Event Types is a filter
             ArrayList<String> csvheader = BASECSVHEADER.clone()
 
+            def filters = eventsDAO.getFilters()
             def fields = eventsDAO.getCustomFields()
+
+            filters.each {
+                csvheader += it.name
+            }
             fields.each {
                 csvheader += it.name
             }
 
             def time = new Date().time
             String csvfilename = "events_gospel" + time + ".csv"
-            CSVWriter writer = new CSVWriter(new FileWriter(csvfilename))
-            writer.writeNext((String [] ) csvheader.toArray())
+            CSVWriter writer = new CSVWriter(new BufferedWriter(new FileWriter(csvfilename)))
 
-            //TODO FILTERS
+            writer.writeNext((String [] ) csvheader.toArray())
 
             resultObject = getResultObject(events)
             resultObject.data.each {
@@ -122,15 +124,29 @@ class EventsResource extends Resource {
 
                 ArrayList<String> baseEventRecord =
                         [eventid, baseEvent.title, baseEvent.description,
-                        "DATE_FROM_PLACE_HOLDER", "DATE_TO_PLACE_HOLDER", "START_TIME_PLACE_HOLDER",
-                         "END_TIME_PLACE_HOLDER",
-                        baseEvent.location, baseEvent.address, baseEvent.city, baseEvent.state,
+                         "DATE_FROM_PLACE_HOLDER", "DATE_TO_PLACE_HOLDER",
+                         "START_TIME_PLACE_HOLDER", "END_TIME_PLACE_HOLDER",
+                         baseEvent.location, baseEvent.address, baseEvent.city, baseEvent.state,
                          baseEvent.eventURL, baseEvent.room, baseEvent.keywords, baseEvent.tags,
                          baseEvent.photoURL, baseEvent.ticketURL, baseEvent.cost, baseEvent.hashtag,
                          baseEvent.facebookURL, baseEvent.group, baseEvent.department,
                          "Allow_User_Activity", "USER_ATTENDANCE_FIELD", baseEvent.visibility,
                          "FEATURED_TABS", baseEvent.sponsored, baseEvent.venuePageOnly,
                          baseEvent.excludeFromTrending ]
+
+                def filtersMapping = baseEvent.filters.collectEntries { [it.filter, it.items] }
+                filters.each {
+                    def entry = filtersMapping[it.name]
+                    if(entry != null) {
+                        String entryVal = filtersMapping[it.name].toString()
+                        entryVal = entryVal.substring(1 , entryVal.size() - 1) //Trim '[' ']'
+                        System.out.println("Filter Name: " + it.name + " Filter Items: " + entryVal)
+
+                        baseEventRecord.add(entryVal)
+                    } else {
+                        baseEventRecord.add("")
+                    }
+                }
 
                 def eventCFieldsMap = baseEvent.customFields.collectEntries {[it.field,it.value]}
                 fields.each {
@@ -142,15 +158,14 @@ class EventsResource extends Resource {
                 }
 
                 List<Instance> eventInstances = eventsDAO.getInstances(eventid)
-
                 eventInstances.each {
                     String[] instanceRecord = baseEventRecord.clone()
 
-                    //"DATE_FROM_PLACE_HOLDER"
+                    //Replaces "DATE_FROM_PLACE_HOLDER"
                     instanceRecord[3] = CSVHelperFunctions.getCSVDate(it.start,backendTimezone)
-                    //"DATE_TO_PLACE_HOLDER"
+                    //Replaces "DATE_TO_PLACE_HOLDER"
                     instanceRecord[4] = CSVHelperFunctions.getCSVDate(it.end,backendTimezone)
-                    //"START_TIME_PLACE_HOLDER"
+                    //Replaces "START_TIME_PLACE_HOLDER"
                     instanceRecord[5] = CSVHelperFunctions.getCSVTime(it.start, backendTimezone)
                     //"END_TIME_PLACE_HOLDER"
                     instanceRecord[6] = CSVHelperFunctions.getCSVTime(it.end, backendTimezone)
