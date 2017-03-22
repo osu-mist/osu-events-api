@@ -167,15 +167,20 @@ class EventsResource extends Resource {
                     instanceRecord[4] = CSVHelperFunctions.getCSVDate(it.end,backendTimezone)
                     //Replaces "START_TIME_PLACE_HOLDER"
                     instanceRecord[5] = CSVHelperFunctions.getCSVTime(it.start, backendTimezone)
-                    //"END_TIME_PLACE_HOLDER"
+                    //Replaces "END_TIME_PLACE_HOLDER"
                     instanceRecord[6] = CSVHelperFunctions.getCSVTime(it.end, backendTimezone)
 
                     writer.writeNext(instanceRecord)
                     //TODO Handle "Allow_User_Activity","USER_ATTENDANCE_FIELD", "FEATURED_TABS"
                 }
             }
+
             writer.close()
-            //TODO Add clean up for this file
+            def theFinalCSV = new File(csvfilename)
+            def finalCSVBuf = theFinalCSV.readBytes()
+            theFinalCSV.delete()
+
+            return Response.ok(finalCSVBuf, "text/csv").build()
         } // else if (format == "ics") {
 //
 //        } else {
