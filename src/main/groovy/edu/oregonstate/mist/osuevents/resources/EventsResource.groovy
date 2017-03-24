@@ -134,6 +134,7 @@ class EventsResource extends Resource {
                          "FEATURED_TABS", baseEvent.sponsored, baseEvent.venuePageOnly,
                          baseEvent.excludeFromTrending ]
 
+                //Map over the filter items in the same order as they were added to the header.
                 def filtersMapping = baseEvent.filters.collectEntries { [it.filter, it.items] }
                 filters.each {
                     def entry = filtersMapping[it.name]
@@ -148,6 +149,7 @@ class EventsResource extends Resource {
                     }
                 }
 
+                //Map over the custom field entries in the same order as they were added to the header
                 def eventCFieldsMap = baseEvent.customFields.collectEntries {[it.field,it.value]}
                 fields.each {
                     String entryVal = eventCFieldsMap[it.name]
