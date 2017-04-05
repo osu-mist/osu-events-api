@@ -78,17 +78,9 @@ class EventsResource extends Resource {
     public Response getEvents(@Auth AuthenticatedUser _,
                               @QueryParam('format') String format) {
         List<ResourceObject> events = eventsDAO.getEvents()
-        def resultObject
 
-        if (!format) {
-            events.each {
-                resultObject.data += new ResourceObject(
-                        id: it.eventID,
-                        type: 'event',
-                        attributes: it
-                )
-            }
-        } else if (format == "csv") {
+        //TODO refactor this to CSVHelperFunctions.groovy
+        if (format == "csv") {
             final ArrayList<String> BASECSVHEADER =
                     ["EventID","Title" , "Description" , "Date From" , "Date To" ,
                      "Start Time", "End Time" , "Location" , "Address" , "City" , "State" ,
@@ -116,7 +108,7 @@ class EventsResource extends Resource {
 
             writer.writeNext((String [] ) csvheader.toArray())
 
-            resultObject = getResultObject(events)
+            def resultObject = getResultObject(events)
             resultObject.data.each {
                 String eventid = it.id
                 Event baseEvent = it.attributes as Event
@@ -187,7 +179,7 @@ class EventsResource extends Resource {
 //        } else {
 //            return badRequest("Invalid format value. Valid formats are csv or ics.").build()
 //        }
-        ok(getResultObject(events)).build()
+        ok(getResultObject(events)).type(MediaType.APPLICATION_JSON_TYPE).build()
     }
 /**
  * POST an event
