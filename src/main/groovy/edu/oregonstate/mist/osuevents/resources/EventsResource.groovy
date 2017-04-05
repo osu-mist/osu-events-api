@@ -140,7 +140,7 @@ class EventsResource extends Resource {
                     }
                 }
 
-                //Map over the custom field entries in the same order as they were added to the header
+                //Map over the custom field entries in the same order as they were added
                 def eventCFieldsMap = baseEvent.customFields.collectEntries {[it.field,it.value]}
                 fields.each {
                     String entryVal = eventCFieldsMap[it.name]
