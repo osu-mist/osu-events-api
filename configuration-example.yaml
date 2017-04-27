@@ -60,6 +60,8 @@ cache:
   backendScheme: http
   backendHost: backend.calendar.system.com
   backendPath: /api/example
+  # Use a timezone from this list: http://joda-time.sourceforge.net/timezones.html
+  backendTimezone: America/Los_Angeles
 
 httpClient:
   timeout: 150000ms

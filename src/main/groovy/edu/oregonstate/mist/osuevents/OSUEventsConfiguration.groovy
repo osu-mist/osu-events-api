@@ -18,11 +18,13 @@ public class OSUEventsConfiguration extends Configuration {
     public DataSourceFactory getDataSourceFactory() {
         database
     }
+
     @JsonProperty("database")
     public void setDataSourceFactory(DataSourceFactory dataSourceFactory) {
         this.database = dataSourceFactory
     }
-    @JsonProperty('cache')
+
+    @JsonProperty("cache")
     @NotNull
     @Valid
     Map<String, String> cacheSource

@@ -5,9 +5,13 @@ import edu.oregonstate.mist.api.Error
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.osuevents.core.CacheObject
 import edu.oregonstate.mist.osuevents.core.Event
+import edu.oregonstate.mist.osuevents.core.Instance
 import edu.oregonstate.mist.osuevents.db.EventsDAO
 import edu.oregonstate.mist.osuevents.mapper.InstanceMapper
+import edu.oregonstate.mist.osuevents.resources.CSVHelperFunctions
+import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 import io.dropwizard.auth.Auth
 import edu.oregonstate.mist.api.PATCH
@@ -25,9 +29,11 @@ import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import java.time.ZoneId
 import java.time.format.DateTimeParseException
 
 import static java.util.UUID.randomUUID
+import com.opencsv.CSVWriter
 
 @Path('/events/')
 @Produces(MediaType.APPLICATION_JSON)
@@ -36,9 +42,11 @@ class EventsResource extends Resource {
     Logger logger = LoggerFactory.getLogger(EventsResource.class)
 
     private final EventsDAO eventsDAO
+    private final ZoneId backendTimezone
 
-    EventsResource(EventsDAO eventsDAO) {
+    EventsResource(EventsDAO eventsDAO, String backendTimezone = "UTC") {
         this.eventsDAO = eventsDAO
+        this.backendTimezone = ZoneId.of(backendTimezone)
     }
 
     //used to check if client-generated id is a valid UUID
@@ -66,19 +74,27 @@ class EventsResource extends Resource {
  * GET all events
  */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces([MediaType.APPLICATION_JSON, "text/csv"])
     public Response getEvents(@Auth AuthenticatedUser _,
                               @QueryParam('format') String format) {
-        def events = eventsDAO.getEvents()
-//@TODO add methods for returning csv and ics formats
-//        else if (format == "csv") {
-//
-//        } else if (format == "ics") {
+        List<ResourceObject> events = eventsDAO.getEvents()
+
+        //TODO refactor this to CSVHelperFunctions.groovy
+        if (format == "csv") {
+            def fields = eventsDAO.getCustomFields()
+            def filters = eventsDAO.getFilters()
+            def eventResults = getResultObject(events)
+
+            byte[] allEventsCsv = CSVHelperFunctions.getCSV(eventResults,
+                    fields, filters, backendTimezone)
+
+            return Response.ok(allEventsCsv, "text/csv").build()
+        } // else if (format == "ics") {
 //
 //        } else {
 //            return badRequest("Invalid format value. Valid formats are csv or ics.").build()
 //        }
-        ok(getResultObject(events)).build()
+        ok(getResultObject(events)).type(MediaType.APPLICATION_JSON_TYPE).build()
     }
 /**
  * POST an event

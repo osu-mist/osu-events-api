@@ -1,7 +1,7 @@
 package edu.oregonstate.mist.osuevents
 
+import edu.oregonstate.mist.osuevents.resources.CSVHelperFunctions
 import edu.oregonstate.mist.api.AuthenticatedUser
-import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.core.Event
@@ -15,6 +15,7 @@ import org.junit.ClassRule
 import org.junit.Test
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 import static java.util.UUID.randomUUID
 
@@ -43,6 +44,24 @@ class EventsResourceTest {
             new DropwizardAppRule<OSUEventsConfiguration>(
                     OSUEvents.class,
                     new File("configuration.yaml").absolutePath)
+
+    @Test
+    public void testCSVDateFormat() {
+        ZoneId csvTimeZone = ZoneId.of("America/Los_Angeles")
+        ZonedDateTime inputDate = ZonedDateTime.of(2012, 11, 20, 12, 0, 0, 0, ZoneId.of("UTC"))
+
+        DateTimeFormatter csvDateFormat = DateTimeFormatter
+                .ofPattern("MM/dd/yyyy hh:mm a")
+                .withZone(csvTimeZone)
+
+        String csvDate = CSVHelperFunctions.getCSVDate(inputDate, csvTimeZone) +
+                " " +
+                CSVHelperFunctions.getCSVTime(inputDate, csvTimeZone)
+        
+        ZonedDateTime csvParsedDate = ZonedDateTime.parse(csvDate, csvDateFormat)
+
+        assert csvParsedDate == inputDate.withZoneSameInstant(csvTimeZone)
+    }
 
     @Test
     public void testGetById() {

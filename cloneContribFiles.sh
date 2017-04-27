@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$2" = "yes" ]
     then
         rm -rf src/main/groovy/edu/oregonstate/mist/contrib/
