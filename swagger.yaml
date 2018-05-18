@@ -1,12 +1,20 @@
 swagger: '2.0'
-
 info:
-  version: "0.0.1"
   title: OSU Events API
-  
+  description: Calendar event management for events.oregonstate.edu
+  version: "1.0.0"
+  license:
+    name: GNU Affero General Public License Version 3
+    url: http://www.gnu.org/licenses/agpl-3.0.en.html
+externalDocs:
+  description: GitHub Repository
+  url: https://github.com/osu-mist/osu-events-api
+host: api.oregonstate.edu
+schemes:
+  - https
+basePath: /v1/calendar
 consumes:
   - application/json  
-
 paths:
   /events:
     get:
@@ -15,30 +23,21 @@ paths:
       description: "Get all events. Can be filtered by parameters to specify format."
       produces:
         - application/json
-        - text/csv
-        - text/calendar
-      parameters:
-        - name: format
-          in: query
-          description: > 
-            Specify format of successful response. Valid options are ics or csv. 
-            The response will be JSON if this parameter isn't used.
-          required: false
-          type: string
+      # TODO: add parameters
+      #parameters:
       responses:
         200:
           description: "Successful response"
           schema:
             $ref: "#/definitions/ResultObjects"
-        404:
-          description: "Not found"
+        400:
+          description: "Bad request"
           schema:
             $ref: "#/definitions/Error"
         500:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
-
     post:
       tags:
         - events
@@ -61,15 +60,10 @@ paths:
           description: "Bad request"
           schema:
             $ref: "#/definitions/Error"
-        409:
-          description: "Conflict: Client generated ID already exists or type is invalid."
-          schema:
-            $ref: "#/definitions/Error"
         500:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
-
   /events/{eventID}:
     get:
       tags:
@@ -97,7 +91,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"        
 
-    patch:
+    put:
       tags:
         - events
       description: "Update an existing event."
@@ -128,10 +122,6 @@ paths:
           description: "Not found"
           schema:
             $ref: "#/definitions/Error"
-        409:
-          description: "Conflict: Type and/or id do not match server's endpoint"
-          schema:
-            $ref: "#/definitions/Error"
         500:
           description: "Internal Server Error"
           schema:
@@ -158,29 +148,47 @@ paths:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
+  /feed:
+    get:
+      tags:
+        - events
+      description: "Events feed for backend calendar vendor event ingress."
+      produces:
+        - text/csv
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: string
+        500:
+          description: "Internal Server Error"
+          schema:
+            type: string
 
 definitions:
   ResultObject:
     properties:
       data:
         $ref: "#/definitions/ResourceObject"
-
   ResultObjects:
     properties:
       data:
         type: array
         items:
           $ref: "#/definitions/ResourceObject"
-        
   ResourceObject:
     properties:
       id:
         type: string
+        example: 93f76811-adde-475f-90a2-e8a9c9aac680
+        description: Version 4 UUID
       type:
         type: string
+        example: events
       attributes:
         $ref: "#/definitions/Attributes"
-
+      links:
+        $ref: "#/definitions/SelfLink"
   Attributes:
     properties:
       title:
@@ -195,17 +203,19 @@ definitions:
         type: string        
       city:
         type: string
+      county:
+        type: string
       state:
         type: string
-      url:
+      eventUrl:
         type: string
       photoURL:
         type: string
-      ticketURL:
-        type: string
       facebookURL:
         type: string
-      cost:
+      ticketURL:
+        type: string
+      ticketCost:
         type: string
       hashtag:
         type: string
@@ -227,50 +237,46 @@ definitions:
         type: boolean
       excludeFromTrending:
         type: boolean
+      allowUserActivity:
+        type: boolean
+      allowUserInterest:
+        type: boolean
       visibility:
         type: string
       department:
         type: string
-      filters:
-        type: array
-        items:
-          $ref: "#/definitions/Filters"
-      customFields:
-        type: array
-        items:
-          $ref: "#/definitions/CustomFields"
+      contactName:
+        type: string
+      contactEmail:
+        type: string
+      contactPhone:
+        type: string
+      eventType:
+        type: string
+      eventTopic:
+        type: string
+      audience:
+        type: string
+      organization:
+        type: string
       instances:
         type: array
         items:
           $ref: "#/definitions/EventInstance"
-    
-  CustomFields:
-    properties:
-      field:
-        type: string
-      value:
-        type: string
-        
-  Filters:
-    properties:
-      filter:
-        type: string
-      values:
-        type: array
-        items:
-          type: string
-
   EventInstance:
     properties:
-      id:
-        type: string
       startTime:
         type: string
         format: date-time
       endTime:
         type: string
         format: date-time
-
+  SelfLink:
+    properties:
+      self:
+        type: string
+        format: url
+        description: Self link of resource
   Error:
     type: object
     properties:
