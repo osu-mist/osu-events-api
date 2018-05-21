@@ -29,7 +29,6 @@ CREATE TABLE apismgr.EVENTS_EVENTS
   CONTACT_NAME          VARCHAR2(256),
   CONTACT_EMAIL         VARCHAR2(256),
   CONTACT_PHONE         VARCHAR2(256),
-  INSTANCES             CLOB,
   EVENT_TYPE_ID         NUMBER,
   EVENT_TOPIC_ID        NUMBER,
   AUDIENCE_ID           NUMBER,
@@ -75,7 +74,6 @@ COMMENT ON COLUMN apismgr.EVENTS_EVENTS.DEPARTMENT_ID IS 'Foreign key for DEPART
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CONTACT_NAME IS 'Contact name of event organizer.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CONTACT_EMAIL IS 'Email of event organizer.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CONTACT_PHONE IS 'Phone number of event organizer.';
-COMMENT ON COLUMN apismgr.EVENTS_EVENTS.INSTANCES IS 'JSON object with event instance.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.EVENT_TYPE_ID IS 'Event type ID.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.EVENT_TOPIC_ID IS 'Event topic ID.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.AUDIENCE_ID IS 'Event audience ID.';
@@ -83,6 +81,22 @@ COMMENT ON COLUMN apismgr.EVENTS_EVENTS.ORGANIZATION_ID IS 'Event organization I
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CREATED_AT IS 'Stores SYSDATE when event was created.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.UPDATED_AT IS 'Stores SYSDATE when event was updated.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.DELETED_AT IS 'Stores SYSDATE when event was deleted.';
+
+CREATE TABLE apismgr.EVENTS_INSTANCES
+(
+  EVENT_ID           VARCHAR2(36) NOT NULL,
+  START_TIME         TIMESTAMP,
+  END_TIME           TIMESTAMP,
+  CREATED_AT         DATE NOT NULL
+  USING INDEX TABLESPACE INDX)
+    TABLESPACE DATA
+/
+
+COMMENT ON TABLE apismgr.EVENTS_INSTANCES IS 'Contains instances for events. One event can have multiple instances.';
+COMMENT ON COLUMN apismgr.INSTANCES.EVENT_ID IS 'Foreign key for EVENTS table.';
+COMMENT ON COLUMN apismgr.INSTANCES.START_TIME IS 'Start date/time of instance.';
+COMMENT ON COLUMN apismgr.INSTANCES.END_TIME IS 'End date/time of instance.';
+COMMENT ON COLUMN apismgr.INSTANCES.CREATED_AT IS 'Stores SYSDATE when instance was created.';
 
 CREATE TABLE apismgr.EVENTS_GROUPS 
 (
