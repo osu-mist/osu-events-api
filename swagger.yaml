@@ -272,6 +272,158 @@ paths:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
+  /event-types:
+    get:
+      tags:
+        - events
+      description: "Get event types."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/EventTypesResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /event-types/{eventTypeID}:
+    get:
+      tags:
+        - events
+      description: "Get a event type by ID."
+      parameters:
+        - name: eventTypeID
+          in: path
+          description: "ID of an event type"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/EventTypeResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /event-topics:
+    get:
+      tags:
+        - events
+      description: "Get event types."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/EventTopicsResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /event-topics/{eventTopicID}:
+    get:
+      tags:
+        - events
+      description: "Get a event topic by ID."
+      parameters:
+        - name: eventTopicID
+          in: path
+          description: "ID of an event topic"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/EventTopicResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /audiences:
+    get:
+      tags:
+        - audiences
+      description: "Get audiences."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/AudiencesResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /audiences/{audienceID}:
+    get:
+      tags:
+        - audiences
+      description: "Get an audience by ID."
+      parameters:
+        - name: audienceID
+          in: path
+          description: "ID of an audience"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/AudienceResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /organizations:
+    get:
+      tags:
+        - organizations
+      description: "Get organizations."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/OrganizationsResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /organizations/{organizationID}:
+    get:
+      tags:
+        - organizations
+      description: "Get an organization by ID."
+      parameters:
+        - name: organizationID
+          in: path
+          description: "ID of an organization"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/OrganizationResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
 
 definitions:
   EventResultObject:
@@ -450,6 +602,110 @@ definitions:
           name:
             type: string
             description: Name of department
+          #TODO: Add more fields
+      links:
+        $ref: "#/definitions/SelfLink"
+  EventTypeResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/EventTypeResourceObject"
+  EventTypesResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/EventTypeResourceObject"
+  EventTypeResourceObject:
+    properties:
+      id:
+        type: string
+        description: Event type ID
+      type:
+        type: string
+        example: event-types
+      attributes:
+        properties:
+          name:
+            type: string
+            description: Name of event type
+          #TODO: Add more fields
+      links:
+        $ref: "#/definitions/SelfLink"
+  EventTopicResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/EventTopicResourceObject"
+  EventTopicsResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/EventTopicResourceObject"
+  EventTopicResourceObject:
+    properties:
+      id:
+        type: string
+        description: Event topic ID
+      type:
+        type: string
+        example: event-topics
+      attributes:
+        properties:
+          name:
+            type: string
+            description: Name of event topic
+          #TODO: Add more fields
+      links:
+        $ref: "#/definitions/SelfLink"
+  AudienceResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/AudienceResourceObject"
+  AudiencesResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/AudienceResourceObject"
+  AudienceResourceObject:
+    properties:
+      id:
+        type: string
+        description: Audience ID
+      type:
+        type: string
+        example: audiences
+      attributes:
+        properties:
+          name:
+            type: string
+            description: Name of audience
+          #TODO: Add more fields
+      links:
+        $ref: "#/definitions/SelfLink"
+  OrganizationResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/OrganizationResourceObject"
+  OrganizationsResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/OrganizationResourceObject"
+  OrganizationResourceObject:
+    properties:
+      id:
+        type: string
+        description: Organization ID
+      type:
+        type: string
+        example: organizations
+      attributes:
+        properties:
+          name:
+            type: string
+            description: Name of organization
           #TODO: Add more fields
       links:
         $ref: "#/definitions/SelfLink"
