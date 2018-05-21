@@ -235,7 +235,7 @@ CREATE TABLE apismgr.EVENTS_AUDIENCES
     TABLESPACE DATA
 /
 
-COMMENT ON TABLE apismgr.EVENTS_AUDIENCES IS 'Contains audeinces used in vendor calendar system.';
+COMMENT ON TABLE apismgr.EVENTS_AUDIENCES IS 'Contains audiences used in vendor calendar system.';
 COMMENT ON COLUMN apismgr.EVENTS_AUDIENCES.AUDIENCE_ID IS 'Primary key.';
 COMMENT ON COLUMN apismgr.EVENTS_AUDIENCES.NAME IS 'Plain name of audience.';
 COMMENT ON COLUMN apismgr.EVENTS_AUDIENCES.CREATED_AT IS 'Stores SYSDATE when audience was created.';
