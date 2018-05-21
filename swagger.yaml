@@ -14,22 +14,22 @@ schemes:
   - https
 basePath: /v1/calendar
 consumes:
-  - application/json  
+  - application/json
+produces:
+  - application/json
 paths:
   /events:
     get:
       tags:
         - events
       description: "Get all events. Can be filtered by parameters to specify format."
-      produces:
-        - application/json
       # TODO: add parameters
       #parameters:
       responses:
         200:
           description: "Successful response"
           schema:
-            $ref: "#/definitions/ResultObjects"
+            $ref: "#/definitions/EventsResultObject"
         400:
           description: "Bad request"
           schema:
@@ -42,20 +42,18 @@ paths:
       tags:
         - events
       description: "Add a new event"
-      produces:
-        - application/json
       parameters:
         - name: event
           in: body
           description: "JSON Representation of an event."
           required: true
           schema:
-            $ref: "#/definitions/ResultObject"
+            $ref: "#/definitions/EventResultObject"
       responses:
         201:
           description: "Event successfully created."
           schema:
-            $ref: "#/definitions/ResultObject"
+            $ref: "#/definitions/EventResultObject"
         400:
           description: "Bad request"
           schema:
@@ -69,19 +67,17 @@ paths:
       tags:
         - events
       description: "Get a single event by ID"
-      produces:
-        - application/json
       parameters:
         - name: eventID
           in: path
           description: "ID of an event"
           required: true
-          type: integer
+          type: string
       responses:
         200:
           description: "Successful response"
           schema:
-            $ref: "#/definitions/ResultObject"
+            $ref: "#/definitions/EventResultObject"
         404:
           description: "Not found"
           schema:
@@ -89,14 +85,12 @@ paths:
         500:
           description: "Internal Server Error"
           schema:
-            $ref: "#/definitions/Error"        
+            $ref: "#/definitions/Error"
 
     put:
       tags:
         - events
       description: "Update an existing event."
-      produces:
-        - application/json
       parameters:
         - name: eventID
           in: path
@@ -108,12 +102,12 @@ paths:
           description: "JSON Representation of an event."
           required: true
           schema:
-            $ref: "#/definitions/ResultObject"
+            $ref: "#/definitions/EventResultObject"
       responses:
         200:
           description: "Event successfully updated."
           schema:
-            $ref: "#/definitions/ResultObject"
+            $ref: "#/definitions/EventResultObject"
         400:
           description: "Bad request"
           schema:
@@ -164,19 +158,133 @@ paths:
           description: "Internal Server Error"
           schema:
             type: string
+  /locations:
+    get:
+      tags:
+        - locations
+      description: "Get locations that an event can be assigned to."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/LocationsResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /locations/{locationID}:
+    get:
+      tags:
+        - locations
+      description: "Get a location by ID."
+      parameters:
+        - name: locationID
+          in: path
+          description: "ID of an location"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/LocationResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /groups:
+    get:
+      tags:
+        - groups
+      description: "Get groups."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/GroupsResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /groups/{groupID}:
+    get:
+      tags:
+        - groups
+      description: "Get a group by ID."
+      parameters:
+        - name: groupID
+          in: path
+          description: "ID of an group"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/GroupResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /departments:
+    get:
+      tags:
+        - departments
+      description: "Get departments."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/DepartmentsResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /departments/{departmentID}:
+    get:
+      tags:
+        - departments
+      description: "Get a department by ID."
+      parameters:
+        - name: departmentID
+          in: path
+          description: "ID of an department"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/DepartmentResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
 
 definitions:
-  ResultObject:
+  EventResultObject:
     properties:
       data:
-        $ref: "#/definitions/ResourceObject"
-  ResultObjects:
+        $ref: "#/definitions/EventResourceObject"
+  EventsResultObject:
     properties:
       data:
         type: array
         items:
-          $ref: "#/definitions/ResourceObject"
-  ResourceObject:
+          $ref: "#/definitions/EventResourceObject"
+  EventResourceObject:
     properties:
       id:
         type: string
@@ -186,91 +294,165 @@ definitions:
         type: string
         example: events
       attributes:
-        $ref: "#/definitions/Attributes"
+        properties:
+          title:
+            type: string
+          description:
+            type: string
+          locationID:
+            type: string
+          room:
+            type: string
+          address:
+            type: string
+          city:
+            type: string
+          county:
+            type: string
+          state:
+            type: string
+          eventUrl:
+            type: string
+          photoURL:
+            type: string
+          facebookURL:
+            type: string
+          ticketURL:
+            type: string
+          ticketCost:
+            type: string
+          hashtag:
+            type: string
+          keywords:
+            type: array
+            items:
+              type: string
+          tags:
+            type: array
+            items:
+              type: string
+          groupID:
+            type: string
+          allowsReviews:
+            type: boolean
+          sponsored:
+            type: boolean
+          venuePageOnly:
+            type: boolean
+          excludeFromTrending:
+            type: boolean
+          allowUserActivity:
+            type: boolean
+          allowUserInterest:
+            type: boolean
+          visibility:
+            type: string
+          departmentID:
+            type: string
+          contactName:
+            type: string
+          contactEmail:
+            type: string
+          contactPhone:
+            type: string
+          eventTypeID:
+            type: string
+          eventTopicID:
+            type: string
+          audienceID:
+            type: string
+          organizationID:
+            type: string
+          instances:
+            type: array
+            items:
+              properties:
+                startTime:
+                  type: string
+                  format: date-time
+                endTime:
+                  type: string
+                  format: date-time
       links:
         $ref: "#/definitions/SelfLink"
-  Attributes:
+  LocationResultObject:
     properties:
-      title:
-        type: string
-      description:
-        type: string
-      location:
-        type: string
-      room:
-        type: string
-      address:
-        type: string        
-      city:
-        type: string
-      county:
-        type: string
-      state:
-        type: string
-      eventUrl:
-        type: string
-      photoURL:
-        type: string
-      facebookURL:
-        type: string
-      ticketURL:
-        type: string
-      ticketCost:
-        type: string
-      hashtag:
-        type: string
-      keywords:
-        type: array
-        items:
-          type: string
-      tags:
-        type: array
-        items:
-          type: string
-      group:
-        type: string
-      allowsReviews:
-        type: boolean
-      sponsored:
-        type: boolean
-      venuePageOnly:
-        type: boolean
-      excludeFromTrending:
-        type: boolean
-      allowUserActivity:
-        type: boolean
-      allowUserInterest:
-        type: boolean
-      visibility:
-        type: string
-      department:
-        type: string
-      contactName:
-        type: string
-      contactEmail:
-        type: string
-      contactPhone:
-        type: string
-      eventType:
-        type: string
-      eventTopic:
-        type: string
-      audience:
-        type: string
-      organization:
-        type: string
-      instances:
-        type: array
-        items:
-          $ref: "#/definitions/EventInstance"
-  EventInstance:
+      data:
+        $ref: "#/definitions/LocationResourceObject"
+  LocationsResultObject:
     properties:
-      startTime:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/LocationResourceObject"
+  LocationResourceObject:
+    properties:
+      id:
         type: string
-        format: date-time
-      endTime:
+        description: Location ID
+      type:
         type: string
-        format: date-time
+        example: locations
+      attributes:
+        properties:
+          name:
+            type: string
+            description: Name of location
+          #TODO: Add more fields
+      links:
+        $ref: "#/definitions/SelfLink"
+  GroupResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/GroupResourceObject"
+  GroupsResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/GroupResourceObject"
+  GroupResourceObject:
+    properties:
+      id:
+        type: string
+        description: Group ID
+      type:
+        type: string
+        example: groups
+      attributes:
+        properties:
+          name:
+            type: string
+            description: Name of group
+          #TODO: Add more fields
+      links:
+        $ref: "#/definitions/SelfLink"
+  DepartmentResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/DepartmentResourceObject"
+  DepartmentsResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/DepartmentResourceObject"
+  DepartmentResourceObject:
+    properties:
+      id:
+        type: string
+        description: Department ID
+      type:
+        type: string
+        example: departments
+      attributes:
+        properties:
+          name:
+            type: string
+            description: Name of department
+          #TODO: Add more fields
+      links:
+        $ref: "#/definitions/SelfLink"
   SelfLink:
     properties:
       self:
