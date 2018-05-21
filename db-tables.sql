@@ -3,7 +3,7 @@ CREATE TABLE apismgr.EVENTS_EVENTS
   EVENT_ID              VARCHAR2(36) NOT NULL,
   TITLE                 VARCHAR2(256),
   DESCRIPTION           CLOB,
-  PLACE_ID              NUMBER,
+  LOCATION_ID           NUMBER,
   ROOM                  VARCHAR2(256),
   ADDRESS               VARCHAR2(256),
   CITY                  VARCHAR2(256),
@@ -49,7 +49,7 @@ COMMENT ON TABLE apismgr.EVENTS_EVENTS  IS 'Contains event data with EVENT_ID as
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.EVENT_ID IS 'Primary key. 128 bit UUID.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.TITLE IS 'Title of event.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.DESCRIPTION IS 'Description for an event.';
-COMMENT ON COLUMN apismgr.EVENTS_EVENTS.PLACE_ID IS 'Foreign key for PLACES table.';
+COMMENT ON COLUMN apismgr.EVENTS_EVENTS.LOCATION_ID IS 'Foreign key for LOCATIONS table.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.ROOM IS 'Specific location of event within a place.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.ADDRESS IS 'Address of event'.;
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CITY IS 'City of event.';
@@ -130,27 +130,27 @@ COMMENT ON COLUMN apismgr.EVENTS_ORGANIZATIONS.CREATED_AT IS 'Stores SYSDATE whe
 COMMENT ON COLUMN apismgr.EVENTS_ORGANIZATIONS.UPDATED_AT IS 'Stores SYSDATE when organization was updated.';
 COMMENT ON COLUMN apismgr.EVENTS_ORGANIZATIONS.DELETED_AT IS 'Stores SYSDATE when organization was deleted.';
 
-CREATE TABLE apismgr.EVENTS_PLACES 
+CREATE TABLE apismgr.EVENTS_LOCATIONS
 (
-  PLACE_ID   VARCHAR2(36 CHAR) NOT NULL,
-  NAME       VARCHAR2(256) NOT NULL,
-  CREATED_AT DATE NOT NULL,
-  UPDATED_AT DATE,
-  DELETED_AT DATE,
+  LOCATION_ID VARCHAR2(36 CHAR) NOT NULL,
+  NAME        VARCHAR2(256) NOT NULL,
+  CREATED_AT  DATE NOT NULL,
+  UPDATED_AT  DATE,
+  DELETED_AT  DATE,
   CONSTRAINT PK_EVENTS_PLACES PRIMARY KEY 
     (
-      PLACE_ID 
+      LOCATION_ID
     )
   USING INDEX TABLESPACE INDX)
     TABLESPACE DATA
 /
 
-COMMENT ON TABLE apismgr.EVENTS_PLACES IS 'Stores places pulled from vendor calendar system.';
-COMMENT ON COLUMN apismgr.EVENTS_PLACES.PLACE_ID IS 'Primary key.';
-COMMENT ON COLUMN apismgr.EVENTS_PLACES.NAME IS 'Name of place/building.';
-COMMENT ON COLUMN apismgr.EVENTS_PLACES.CREATED_AT IS 'Stores SYSDATE when place was created.';
-COMMENT ON COLUMN apismgr.EVENTS_PLACES.UPDATED_AT IS 'Stores SYSDATE when place was updated.';
-COMMENT ON COLUMN apismgr.EVENTS_PLACES.DELETED_AT IS 'Stores SYSDATE when place was deleted.';
+COMMENT ON TABLE apismgr.EVENTS_LOCATIONS IS 'Stores locations pulled from vendor calendar system.';
+COMMENT ON COLUMN apismgr.EVENTS_LOCATIONS.LOCATION_ID IS 'Primary key.';
+COMMENT ON COLUMN apismgr.EVENTS_LOCATIONS.NAME IS 'Name of locations/building.';
+COMMENT ON COLUMN apismgr.EVENTS_LOCATIONS.CREATED_AT IS 'Stores SYSDATE when location was created.';
+COMMENT ON COLUMN apismgr.EVENTS_LOCATIONS.UPDATED_AT IS 'Stores SYSDATE when location was updated.';
+COMMENT ON COLUMN apismgr.EVENTS_LOCATIONS.DELETED_AT IS 'Stores SYSDATE when location was deleted.';
 
 CREATE TABLE apismgr.EVENTS_DEPARTMENTS 
 (
