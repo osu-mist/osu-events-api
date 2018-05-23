@@ -112,6 +112,10 @@ paths:
           description: "Bad request"
           schema:
             $ref: "#/definitions/Error"
+        403:
+          description: "Forbidden - you don't have authorization to update this event because you didn't create it."
+          schema:
+            $ref: "#/definitions/Error"
         404:
           description: "Not found"
           schema:
@@ -134,6 +138,10 @@ paths:
       responses:
         204:
           description: "Event successfully deleted."
+        403:
+          description: "Forbidden - you don't have authorization to delete this event because you didn't create it."
+          schema:
+            $ref: "#/definitions/Error"
         404:
           description: "Not found"
           schema:
@@ -188,44 +196,6 @@ paths:
           description: "Successful response."
           schema:
             $ref: "#/definitions/LocationResultObject"
-        404:
-          description: "Not found"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "Internal Server Error"
-          schema:
-            $ref: "#/definitions/Error"
-  /groups:
-    get:
-      tags:
-        - groups
-      description: "Get groups."
-      responses:
-        200:
-          description: "Successful response."
-          schema:
-            $ref: "#/definitions/GroupsResultObject"
-        500:
-          description: "Internal Server Error"
-          schema:
-            $ref: "#/definitions/Error"
-  /groups/{groupID}:
-    get:
-      tags:
-        - groups
-      description: "Get a group by ID."
-      parameters:
-        - name: groupID
-          in: path
-          description: "ID of an group"
-          required: true
-          type: string
-      responses:
-        200:
-          description: "Successful response."
-          schema:
-            $ref: "#/definitions/GroupResultObject"
         404:
           description: "Not found"
           schema:
@@ -445,8 +415,6 @@ definitions:
             type: array
             items:
               type: string
-          groupID:
-            type: string
           allowsReviews:
             type: boolean
           sponsored:
@@ -516,32 +484,6 @@ definitions:
           name:
             type: string
             description: Name of location
-          #TODO: Add more fields
-      links:
-        $ref: "#/definitions/SelfLink"
-  GroupResultObject:
-    properties:
-      data:
-        $ref: "#/definitions/GroupResourceObject"
-  GroupsResultObject:
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/GroupResourceObject"
-  GroupResourceObject:
-    properties:
-      id:
-        type: string
-        description: Group ID
-      type:
-        type: string
-        example: groups
-      attributes:
-        properties:
-          name:
-            type: string
-            description: Name of group
           #TODO: Add more fields
       links:
         $ref: "#/definitions/SelfLink"
