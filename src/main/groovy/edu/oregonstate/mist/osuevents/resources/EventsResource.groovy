@@ -158,11 +158,31 @@ class EventsResource extends Resource {
             addBadRequest("Hashtag cannot contain '#'.")
         }
 
-        //TODO: validate required fields
-        //TODO: validate ID fields
-        //TODO: validate instances
-        //TODO: validate visibility
+        //required fields gathered from https://events.oregonstate.edu/event/create
+        //start date is also required, but that will be done in the instances validation
+        def requiredFields = [
+                "Event title": event.title,
+                "Description": event.description,
+                "Contact name": event.contactName,
+                "Contact email": event.contactEmail
+        ]
 
+        requiredFields.findAll { key, value -> !value }.each { key, value ->
+            addBadRequest("${key} is required.")
+        }
+
+        //TODO: validate ID fields
+
+        if (!event.instances) {
+            addBadRequest("At least one event instance is required.")
+        } else {
+            if (event.instances.find { !it.start }) {
+                addBadRequest("An instance can not have a null start time.")
+            }
+            if (event.instances.find { it.start && it.end && (it.start >= it.end) }) {
+                addBadRequest("The start time of an instance must occur before the end time.")
+            }
+        }
         errors
     }
 
