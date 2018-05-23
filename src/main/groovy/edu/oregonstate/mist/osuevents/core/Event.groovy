@@ -50,7 +50,6 @@ class Event {
     String eventTypeID
     String eventTopicID
     String audienceID
-    String organizationID
 
     List<Instance> instances = []
 

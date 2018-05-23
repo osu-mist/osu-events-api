@@ -37,15 +37,13 @@ public interface EventsDAO extends Closeable {
             EXCLUDE_FROM_TRENDING,
             ALLOW_USER_ACTIVITY,
             ALLOW_USER_INTEREST,
-            VISIBILITY,
             DEPARTMENT_ID,
             CONTACT_NAME,
             CONTACT_EMAIL,
             CONTACT_PHONE,
             EVENT_TYPE_ID,
             EVENT_TOPIC_ID,
-            AUDIENCE_ID,
-            ORGANIZATION_ID
+            AUDIENCE_ID
         FROM EVENTS_EVENTS
         WHERE (EVENT_ID = :eventID OR :eventID IS NULL)
         AND DELETED_AT IS NULL
@@ -90,15 +88,13 @@ public interface EventsDAO extends Closeable {
             EXCLUDE_FROM_TRENDING,
             ALLOW_USER_ACTIVITY,
             ALLOW_USER_INTEREST,
-            VISIBILITY,
             DEPARTMENT_ID,
             CONTACT_NAME,
             CONTACT_EMAIL,
             CONTACT_PHONE,
             EVENT_TYPE_ID,
             EVENT_TOPIC_ID,
-            AUDIENCE_ID,
-            ORGANIZATION_ID,
+            AUDIENCE_ID
             CREATED_AT)
         VALUES (
             :eventID,
@@ -125,15 +121,13 @@ public interface EventsDAO extends Closeable {
             :excludeFromTrending,
             :allowUserActivity,
             :allowUserInterest,
-            :visibility,
             :departmentID,
             :contactName,
             :contactEmail,
             :contactPhone,
             :eventTypeID,
             :eventTopicID,
-            :audienceID,
-            :organizationID,
+            :audienceID
             SYSDATE)
     """)
     void createEvent(@BindEvent Event event)
@@ -179,7 +173,6 @@ public interface EventsDAO extends Closeable {
             EXCLUDE_FROM_TRENDING = :excludeFromTrending,
             ALLOW_USER_ACTIVITY = :allowUserActivity,
             ALLOW_USER_INTEREST = :allowUserInterest,
-            VISIBILITY = :visibility,
             DEPARTMENT_ID = :departmentID,
             CONTACT_NAME = :contactName,
             CONTACT_EMAIL = :contactEmail,
@@ -187,7 +180,6 @@ public interface EventsDAO extends Closeable {
             EVENT_TYPE_ID = :eventTypeID,
             EVENT_TOPIC_ID = :eventTopicID,
             AUDIENCE_ID = :audienceID,
-            ORGANIZATION_ID = :organizationID,
             UPDATED_AT = SYSDATE
         WHERE EVENT_ID = :eventID
     """)

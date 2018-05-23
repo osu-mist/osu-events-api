@@ -42,8 +42,7 @@ class EventMapper implements ResultSetMapper<Event> {
                 contactPhone: rs.getString("CONTACT_PHONE"),
                 eventTypeID: rs.getString("EVENT_TYPE_ID"),
                 eventTopicID: rs.getString("EVENT_TOPIC_ID"),
-                audienceID: rs.getString("AUDIENCE_ID"),
-                organizationID: rs.getString("ORGANIZATION_ID")
+                audienceID: rs.getString("AUDIENCE_ID")
             )
     }
 
