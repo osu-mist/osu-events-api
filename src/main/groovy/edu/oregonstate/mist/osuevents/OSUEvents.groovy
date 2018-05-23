@@ -1,12 +1,9 @@
 package edu.oregonstate.mist.osuevents
 
 import edu.oregonstate.mist.api.Application
-import edu.oregonstate.mist.osuevents.db.CacheDAO
 import edu.oregonstate.mist.osuevents.db.EventsDAO
 import edu.oregonstate.mist.osuevents.db.EventsDAOWrapper
-import edu.oregonstate.mist.osuevents.db.UtilHttp
 import edu.oregonstate.mist.osuevents.health.EventsHealthCheck
-import edu.oregonstate.mist.osuevents.resources.CacheResource
 import edu.oregonstate.mist.osuevents.resources.EventsResource
 import io.dropwizard.client.HttpClientBuilder
 import org.apache.http.client.HttpClient
@@ -36,17 +33,6 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         String backendTimezone = configuration.cacheSource.get("backendTimezone")
 
         environment.jersey().register(new EventsResource(eventsDAOWrapper, backendTimezone))
-
-        HttpClient httpClient = new HttpClientBuilder(environment)
-                .using(configuration.getHttpClientConfiguration())
-                .build("backend-http-client")
-
-        UtilHttp utilHttp = new UtilHttp(configuration.cacheSource)
-
-        CacheDAO cacheDAO = new CacheDAO(utilHttp, httpClient)
-        CacheResource cacheResource = new CacheResource(cacheDAO, eventsDAO)
-        cacheResource.setEndpointUri(configuration.getApi().getEndpointUri())
-        environment.jersey().register(cacheResource)
 
         EventsHealthCheck healthCheck = new EventsHealthCheck(eventsDAO)
         environment.healthChecks().register("eventsHealthCheck", healthCheck)
