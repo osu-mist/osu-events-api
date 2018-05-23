@@ -17,6 +17,7 @@ import javax.validation.Valid
 import javax.ws.rs.Consumes
 import javax.ws.rs.DELETE
 import javax.ws.rs.GET
+import javax.ws.rs.HeaderParam
 import javax.ws.rs.POST
 import javax.ws.rs.PUT
 import javax.ws.rs.Path
@@ -68,14 +69,16 @@ class EventsResource extends Resource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
-    Response createEvent(@Valid ResultObject resultObject) {
-        List<Error> errors = eventErrors(resultObject)
+    Response createEvent(@Valid ResultObject resultObject,
+                         @HeaderParam("OSU-API-ActAs") String actAs) {
+        List<Error> validationErrors = eventErrors(resultObject)
 
-        if (errors) {
-            return errorArrayResponse(errors)
+        if (validationErrors) {
+            return errorArrayResponse(validationErrors)
         }
 
         Event event = Event.fromResultObject(resultObject)
+        event.owner = actAs
 
         Event createdEvent = eventsDAOWrapper.createEvent(event)
 
@@ -87,17 +90,20 @@ class EventsResource extends Resource {
     @Timed
     @Path('{id: [0-9a-zA-Z-]+}')
     Response updateEvent(@PathParam('id') String eventID,
+                         @HeaderParam("OSU-API-ActAs") String actAs,
                          @Valid ResultObject resultObject) {
-        Event eventExists = eventsDAOWrapper.getEventByID(eventID)
+        // Check that the event exists and the user can update it
+        Response error = updateChecker(eventID, actAs)
 
-        if (!eventExists) {
-            return notFound().build()
+        if (error) {
+            return error
         }
 
-        List<Error> errors = eventErrors(resultObject)
+        // Check the data in the request body is valid
+        List<Error> validationErrors = eventErrors(resultObject)
 
-        if (errors) {
-            return errorArrayResponse(errors)
+        if (validationErrors) {
+            return errorArrayResponse(validationErrors)
         }
 
         Event event = Event.fromResultObject(resultObject)
@@ -111,16 +117,30 @@ class EventsResource extends Resource {
     @DELETE
     @Timed
     @Path('{id: [0-9a-zA-Z-]+}')
-    Response updateEvent(@PathParam('id') String eventID) {
-        Event eventExists = eventsDAOWrapper.getEventByID(eventID)
+    Response updateEvent(@PathParam('id') String eventID,
+                         @HeaderParam("OSU-API-ActAs") String actAs) {
+        // Check that the event exists and the user can update it
+        Response error = updateChecker(eventID, actAs)
 
-        if (!eventExists) {
-            return notFound().build()
+        if (error) {
+            return error
         }
 
         eventsDAOWrapper.deleteEvent(eventID)
 
         noContent().build()
+    }
+
+    private Response updateChecker(String eventID, String actAs) {
+        Event event = eventsDAOWrapper.getEventByID(eventID)
+
+        if (!event) {
+            notFound().build()
+        } else if (event.owner != actAs) {
+            forbidden().build()
+        } else {
+            null
+        }
     }
 
     private Response errorArrayResponse(List<Error> errors) {
