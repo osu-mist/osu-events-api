@@ -36,7 +36,6 @@ class EventMapper implements ResultSetMapper<Event> {
                 excludeFromTrending: rs.getBoolean("EXCLUDE_FROM_TRENDING"),
                 allowUserActivity: rs.getBoolean("ALLOW_USER_ACTIVITY"),
                 allowUserInterest: rs.getBoolean("ALLOW_USER_INTEREST"),
-                visibility: rs.getString("VISIBILITY"),
                 departmentID: rs.getString("DEPARTMENT_ID"),
                 contactName: rs.getString("CONTACT_NAME"),
                 contactEmail: rs.getString("CONTACT_EMAIL"),

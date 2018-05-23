@@ -51,7 +51,6 @@ public @interface BindEvent {
                     q.bind("excludeFromTrending", event.excludeFromTrending)
                     q.bind("allowUserActivity", event.allowUserActivity)
                     q.bind("allowUserInterest", event.allowUserInterest)
-                    q.bind("visibility", event.visibility)
                     q.bind("departmentID", event.departmentID)
                     q.bind("contactName", event.contactName)
                     q.bind("contactEmail", event.contactEmail)

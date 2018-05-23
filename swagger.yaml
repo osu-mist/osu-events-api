@@ -497,8 +497,6 @@ definitions:
             type: boolean
           allowUserInterest:
             type: boolean
-          visibility:
-            type: string
           departmentID:
             type: string
           contactName:

@@ -41,8 +41,6 @@ class Event {
     Boolean excludeFromTrending
     Boolean allowUserActivity
     Boolean allowUserInterest
-
-    String visibility
     String departmentID
 
     String contactName
