@@ -37,13 +37,13 @@ public interface EventsDAO extends Closeable {
             EXCLUDE_FROM_TRENDING,
             ALLOW_USER_ACTIVITY,
             ALLOW_USER_INTEREST,
-            DEPARTMENT_ID,
+            DEPARTMENT_IDS,
             CONTACT_NAME,
             CONTACT_EMAIL,
             CONTACT_PHONE,
-            EVENT_TYPE_ID,
-            EVENT_TOPIC_ID,
-            AUDIENCE_ID,
+            EVENT_TYPE_IDS,
+            EVENT_TOPIC_IDS,
+            AUDIENCE_IDS,
             OWNER
         FROM EVENTS_EVENTS
         WHERE (EVENT_ID = :eventID OR :eventID IS NULL)
@@ -89,13 +89,13 @@ public interface EventsDAO extends Closeable {
             EXCLUDE_FROM_TRENDING,
             ALLOW_USER_ACTIVITY,
             ALLOW_USER_INTEREST,
-            DEPARTMENT_ID,
+            DEPARTMENT_IDS,
             CONTACT_NAME,
             CONTACT_EMAIL,
             CONTACT_PHONE,
-            EVENT_TYPE_ID,
-            EVENT_TOPIC_ID,
-            AUDIENCE_ID,
+            EVENT_TYPE_IDS,
+            EVENT_TOPIC_IDS,
+            AUDIENCE_IDS,
             OWNER,
             CREATED_AT)
         VALUES (
@@ -123,13 +123,13 @@ public interface EventsDAO extends Closeable {
             :excludeFromTrending,
             :allowUserActivity,
             :allowUserInterest,
-            :departmentID,
+            :departmentIDs,
             :contactName,
             :contactEmail,
             :contactPhone,
-            :eventTypeID,
-            :eventTopicID,
-            :audienceID,
+            :eventTypeIDs,
+            :eventTopicIDs,
+            :audienceIDs,
             :owner,
             SYSDATE)
     """)
@@ -176,13 +176,13 @@ public interface EventsDAO extends Closeable {
             EXCLUDE_FROM_TRENDING = :excludeFromTrending,
             ALLOW_USER_ACTIVITY = :allowUserActivity,
             ALLOW_USER_INTEREST = :allowUserInterest,
-            DEPARTMENT_ID = :departmentID,
+            DEPARTMENT_IDS = :departmentIDs,
             CONTACT_NAME = :contactName,
             CONTACT_EMAIL = :contactEmail,
             CONTACT_PHONE = :contactPhone,
-            EVENT_TYPE_ID = :eventTypeID,
-            EVENT_TOPIC_ID = :eventTopicID,
-            AUDIENCE_ID = :audienceID,
+            EVENT_TYPE_IDS = :eventTypeIDs,
+            EVENT_TOPIC_IDS = :eventTopicIDs,
+            AUDIENCE_IDS = :audienceIDs,
             UPDATED_AT = SYSDATE
         WHERE EVENT_ID = :eventID
     """)

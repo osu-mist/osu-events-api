@@ -41,15 +41,15 @@ class Event {
     Boolean excludeFromTrending
     Boolean allowUserActivity
     Boolean allowUserInterest
-    String departmentID
+    List<String> departmentIDs
 
     String contactName
     String contactEmail
     String contactPhone
 
-    String eventTypeID
-    String eventTopicID
-    String audienceID
+    List<String> eventTypeIDs
+    List<String> eventTopicIDs
+    List<String> audienceIDs
 
     @JsonIgnore
     String owner

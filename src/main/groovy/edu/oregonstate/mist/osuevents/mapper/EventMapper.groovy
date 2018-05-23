@@ -36,13 +36,13 @@ class EventMapper implements ResultSetMapper<Event> {
                 excludeFromTrending: rs.getBoolean("EXCLUDE_FROM_TRENDING"),
                 allowUserActivity: rs.getBoolean("ALLOW_USER_ACTIVITY"),
                 allowUserInterest: rs.getBoolean("ALLOW_USER_INTEREST"),
-                departmentID: rs.getString("DEPARTMENT_ID"),
+                departmentIDs: parseJsonList(rs.getString("DEPARTMENT_IDS")),
                 contactName: rs.getString("CONTACT_NAME"),
                 contactEmail: rs.getString("CONTACT_EMAIL"),
                 contactPhone: rs.getString("CONTACT_PHONE"),
-                eventTypeID: rs.getString("EVENT_TYPE_ID"),
-                eventTopicID: rs.getString("EVENT_TOPIC_ID"),
-                audienceID: rs.getString("AUDIENCE_ID"),
+                eventTypeIDs: parseJsonList(rs.getString("EVENT_TYPE_IDS")),
+                eventTopicIDs: parseJsonList(rs.getString("EVENT_TOPIC_IDS")),
+                audienceIDs: parseJsonList(rs.getString("AUDIENCE_IDS")),
                 owner: rs.getString("OWNER")
             )
     }

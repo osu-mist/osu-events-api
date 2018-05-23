@@ -51,13 +51,13 @@ public @interface BindEvent {
                     q.bind("excludeFromTrending", event.excludeFromTrending)
                     q.bind("allowUserActivity", event.allowUserActivity)
                     q.bind("allowUserInterest", event.allowUserInterest)
-                    q.bind("departmentID", event.departmentID)
+                    q.bind("departmentIDs", formatJsonList(event.departmentIDs))
                     q.bind("contactName", event.contactName)
                     q.bind("contactEmail", event.contactEmail)
                     q.bind("contactPhone", event.contactPhone)
-                    q.bind("eventTypeID", event.eventTypeID)
-                    q.bind("eventTopicID", event.eventTopicID)
-                    q.bind("audienceID", event.audienceID)
+                    q.bind("eventTypeIDs", formatJsonList(event.eventTypeIDs))
+                    q.bind("eventTopicIDs", formatJsonList(event.eventTopicIDs))
+                    q.bind("audienceIDs", formatJsonList(event.audienceIDs))
                     q.bind("owner", event.owner)
                 }
             }

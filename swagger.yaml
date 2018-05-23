@@ -459,20 +459,28 @@ definitions:
             type: boolean
           allowUserInterest:
             type: boolean
-          departmentID:
-            type: string
+          departmentIDs:
+            type: array
+            items:
+              type: string
           contactName:
             type: string
           contactEmail:
             type: string
           contactPhone:
             type: string
-          eventTypeID:
-            type: string
-          eventTopicID:
-            type: string
-          audienceID:
-            type: string
+          eventTypeIDs:
+            type: array
+            items:
+              type: string
+          eventTopicIDs:
+            type: array
+            items:
+              type: string
+          audienceIDs:
+            type: array
+            items:
+              type: string
           instances:
             type: array
             items:
