@@ -8,11 +8,11 @@ import edu.oregonstate.mist.api.jsonapi.ResultObject
 import groovy.transform.InheritConstructors
 
 import java.time.ZonedDateTime
-import java.time.format.DateTimeParseException
 
 class Event {
     @JsonIgnore
     String eventID
+
     String title
     String description
 
@@ -50,6 +50,9 @@ class Event {
     String eventTypeID
     String eventTopicID
     String audienceID
+
+    @JsonIgnore
+    String owner
 
     List<Instance> instances = []
 

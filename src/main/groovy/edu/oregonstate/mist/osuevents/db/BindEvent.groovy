@@ -58,6 +58,7 @@ public @interface BindEvent {
                     q.bind("eventTypeID", event.eventTypeID)
                     q.bind("eventTopicID", event.eventTopicID)
                     q.bind("audienceID", event.audienceID)
+                    q.bind("owner", event.owner)
                 }
             }
         }

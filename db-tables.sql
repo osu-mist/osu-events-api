@@ -31,6 +31,7 @@ CREATE TABLE apismgr.EVENTS_EVENTS
   EVENT_TYPE_ID         NUMBER,
   EVENT_TOPIC_ID        NUMBER,
   AUDIENCE_ID           NUMBER,
+  OWNER                 VARCHAR2(256),
   CREATED_AT            DATE NOT NULL,
   UPDATED_AT            DATE,
   DELETED_AT            DATE,

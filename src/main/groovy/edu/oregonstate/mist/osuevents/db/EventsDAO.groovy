@@ -43,7 +43,8 @@ public interface EventsDAO extends Closeable {
             CONTACT_PHONE,
             EVENT_TYPE_ID,
             EVENT_TOPIC_ID,
-            AUDIENCE_ID
+            AUDIENCE_ID,
+            OWNER
         FROM EVENTS_EVENTS
         WHERE (EVENT_ID = :eventID OR :eventID IS NULL)
         AND DELETED_AT IS NULL
@@ -94,7 +95,8 @@ public interface EventsDAO extends Closeable {
             CONTACT_PHONE,
             EVENT_TYPE_ID,
             EVENT_TOPIC_ID,
-            AUDIENCE_ID
+            AUDIENCE_ID,
+            OWNER,
             CREATED_AT)
         VALUES (
             :eventID,
@@ -127,7 +129,8 @@ public interface EventsDAO extends Closeable {
             :contactPhone,
             :eventTypeID,
             :eventTopicID,
-            :audienceID
+            :audienceID,
+            :owner,
             SYSDATE)
     """)
     void createEvent(@BindEvent Event event)
