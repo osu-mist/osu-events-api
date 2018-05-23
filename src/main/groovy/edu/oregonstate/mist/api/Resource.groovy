@@ -107,7 +107,6 @@ abstract class Resource {
         ))
     }
 
-
     /**
      * Returns a builder for an HTTP 403 ("forbidden") response with an error message as body.
      *
