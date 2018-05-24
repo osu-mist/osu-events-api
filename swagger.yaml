@@ -423,6 +423,9 @@ definitions:
             type: string
           locationID:
             type: string
+          otherLocationName:
+            type: string
+            description: Arbitrary location name if locationID is not used.
           room:
             type: string
           address:

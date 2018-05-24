@@ -19,6 +19,7 @@ class Event {
     String description
 
     String locationID
+    String otherLocationName
     String room
     String address
     String city

@@ -16,6 +16,7 @@ class EventMapper implements ResultSetMapper<Event> {
                 title: rs.getString("TITLE"),
                 description: rs.getString("DESCRIPTION"),
                 locationID: rs.getString("LOCATION_ID"),
+                otherLocationName: rs.getString("OTHER_LOCATION_NAME"),
                 room: rs.getString("ROOM"),
                 address: rs.getString("ADDRESS"),
                 city: rs.getString("CITY"),

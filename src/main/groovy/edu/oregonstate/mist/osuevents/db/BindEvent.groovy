@@ -31,6 +31,7 @@ public @interface BindEvent {
                     q.bind("title", event.title)
                     q.bind("description", event.description)
                     q.bind("locationID", event.locationID)
+                    q.bind("otherLocationName", event.otherLocationName)
                     q.bind("room", event.room)
                     q.bind("address", event.address)
                     q.bind("city", event.city)
