@@ -10,6 +10,7 @@ CREATE TABLE apismgr.EVENTS_EVENTS
   CITY                  VARCHAR2(256),
   STATE                 VARCHAR2(256),
   COUNTY_ID             VARCHAR2(256),
+  CAMPUS_ID             VARCHAR2(256),
   EVENT_URL             VARCHAR2(256),
   PHOTO_URL             VARCHAR2(256),
   FACEBOOK_URL          VARCHAR2(256),
@@ -56,6 +57,7 @@ COMMENT ON COLUMN apismgr.EVENTS_EVENTS.ADDRESS IS 'Address of event'.;
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CITY IS 'City of event.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.STATE IS 'State of event within the United States.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.COUNTY_ID IS 'County ID of event.';
+COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CAMPUS_ID IS 'Campus ID of event.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.EVENT_URL IS 'External URL of website related event.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.PHOTO_URL IS 'Direct URL of image to be used in event page.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.FACEBOOK_URL IS 'External URL of Facebook event.';

@@ -37,6 +37,7 @@ public @interface BindEvent {
                     q.bind("city", event.city)
                     q.bind("state", event.state)
                     q.bind("countyID", event.countyID)
+                    q.bind("campusID", event.campusID)
                     q.bind("eventURL", event.eventURL)
                     q.bind("photoURL", event.photoURL)
                     q.bind("facebookURL", event.facebookURL)

@@ -474,6 +474,8 @@ definitions:
             type: string
           state:
             type: string
+          campusID:
+            type: string
           eventURL:
             type: string
           photoURL:
