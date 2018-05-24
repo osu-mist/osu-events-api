@@ -170,12 +170,13 @@ class EventsResource extends Resource {
             return errors
         }
 
+        // hashtag cannot contains a hashtag
         if (event.hashtag && event.hashtag.contains("#")) {
             addBadRequest("Hashtag cannot contain '#'.")
         }
 
-        //required fields gathered from https://events.oregonstate.edu/event/create
-        //start date is also required, but that will be done in the instances validation
+        // required fields gathered from https://events.oregonstate.edu/event/create
+        // start date is also required, but that will be done in the instances validation
         def requiredFields = [
                 "Event title": event.title,
                 "Description": event.description,
@@ -185,6 +186,14 @@ class EventsResource extends Resource {
 
         requiredFields.findAll { key, value -> !value }.each { key, value ->
             addBadRequest("${key} is required.")
+        }
+
+        // don't include information for a location when referencing it by the ID
+        if (event.locationID && event.otherLocationName) {
+            addBadRequest("locationID and otherLocationName cannot be included together.")
+        } else if (event.locationID && (event.address || event.city || event.state || event.campusID)) {
+            addBadRequest("When specifying a locationID, there is no need to specify an address, " +
+                    "city, state, or campus.")
         }
 
         //TODO: validate ID fields
