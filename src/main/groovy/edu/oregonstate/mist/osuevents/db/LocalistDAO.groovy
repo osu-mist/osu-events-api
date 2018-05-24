@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.osuevents.core.Audience
+import edu.oregonstate.mist.osuevents.core.Campus
 import edu.oregonstate.mist.osuevents.core.County
 import edu.oregonstate.mist.osuevents.core.EventTopic
 import edu.oregonstate.mist.osuevents.core.EventType
@@ -19,6 +20,7 @@ import javax.ws.rs.core.UriBuilder
 class LocalistDAO {
     HttpClient httpClient
     URI baseURI
+    String organizationID //this API only handles one organization
 
     String localistApiVersion = "2.1"
 
@@ -26,10 +28,11 @@ class LocalistDAO {
 
     private static Logger logger = LoggerFactory.getLogger(this)
 
-    LocalistDAO(HttpClient httpClient, String baseURL) {
+    LocalistDAO(HttpClient httpClient, String baseURL, String organizationID) {
         this.httpClient = httpClient
         this.baseURI = UriBuilder.fromUri(baseURL.toURI())
                 .path("/api/${localistApiVersion}").build()
+        this.organizationID = organizationID
     }
 
     List<EventTopic> getEventTopics() {
@@ -96,6 +99,14 @@ class LocalistDAO {
         }
     }
 
+    List<Campus> getCampuses() {
+        //todo: implement this
+    }
+
+    Campus getCampusByID(String ID) {
+        //todo: implement this
+    }
+
     private Filters getFilters() {
         HttpResponse response = getResponse("/events/filters")
 
@@ -136,4 +147,11 @@ class Filter {
 
     @JsonProperty("parent_id")
     String parentID
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class Community {
+    String id
+    String name
+    String calendarURL
 }

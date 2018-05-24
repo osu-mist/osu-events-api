@@ -5,6 +5,7 @@ import edu.oregonstate.mist.api.Error
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.EventException
 import edu.oregonstate.mist.osuevents.db.EventsDAOWrapper
@@ -25,11 +26,6 @@ import javax.ws.rs.PathParam
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
-import java.time.ZoneId
-import java.time.format.DateTimeParseException
-
-import static java.util.UUID.randomUUID
-import com.opencsv.CSVWriter
 
 @Path('/calendar/events')
 @Produces(MediaType.APPLICATION_JSON)
@@ -40,9 +36,12 @@ class EventsResource extends Resource {
     Logger logger = LoggerFactory.getLogger(EventsResource.class)
 
     private final EventsDAOWrapper eventsDAOWrapper
+    private ResourceObjectBuilder resourceObjectBuilder
 
-    EventsResource(EventsDAOWrapper eventsDAOWrapper) {
+
+    EventsResource(EventsDAOWrapper eventsDAOWrapper, ResourceObjectBuilder resourceObjectBuilder) {
         this.eventsDAOWrapper = eventsDAOWrapper
+        this.resourceObjectBuilder = resourceObjectBuilder
     }
 
     @GET
@@ -213,11 +212,7 @@ class EventsResource extends Resource {
     }
 
     private ResourceObject eventResourceObject(Event event) {
-        new ResourceObject(
-                id: event.eventID,
-                type: 'events',
-                attributes: event
-        )
+        resourceObjectBuilder.buildResourceObject(event.eventID, "events", event)
     }
 
 }

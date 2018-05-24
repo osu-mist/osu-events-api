@@ -6,6 +6,7 @@ import edu.oregonstate.mist.osuevents.db.EventsDAO
 import edu.oregonstate.mist.osuevents.db.EventsDAOWrapper
 import edu.oregonstate.mist.osuevents.health.EventsHealthCheck
 import edu.oregonstate.mist.osuevents.resources.AudiencesResource
+import edu.oregonstate.mist.osuevents.resources.CampusesResource
 import edu.oregonstate.mist.osuevents.resources.CountiesResource
 import edu.oregonstate.mist.osuevents.resources.EventTopicsResource
 import edu.oregonstate.mist.osuevents.resources.EventTypesResource
@@ -40,20 +41,24 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         EventsDAO eventsDAO = jdbi.onDemand(EventsDAO.class)
         EventsDAOWrapper eventsDAOWrapper = new EventsDAOWrapper(eventsDAO)
 
-        environment.jersey().register(new EventsResource(eventsDAOWrapper))
+        ResourceObjectBuilder resourceObjectBuilder = new ResourceObjectBuilder(
+                configuration.api.endpointUri)
+
+        environment.jersey().register(new EventsResource(eventsDAOWrapper, resourceObjectBuilder))
 
         EventsHealthCheck healthCheck = new EventsHealthCheck(eventsDAO)
         environment.healthChecks().register("eventsHealthCheck", healthCheck)
 
         LocalistDAO localistDAO = new LocalistDAO(
                 httpClientBuilder.build("backend-http-client"),
-                configuration.calendarAPI.baseUrl)
+                configuration.calendarAPI.baseUrl,
+                configuration.calendarAPI.organizationID)
 
-        environment.jersey().register(new EventTopicsResource(localistDAO))
-        environment.jersey().register(new EventTypesResource(localistDAO))
-        environment.jersey().register(new AudiencesResource(localistDAO))
-        environment.jersey().register(new CountiesResource(localistDAO))
-
+        environment.jersey().register(new EventTopicsResource(localistDAO, resourceObjectBuilder))
+        environment.jersey().register(new EventTypesResource(localistDAO, resourceObjectBuilder))
+        environment.jersey().register(new AudiencesResource(localistDAO, resourceObjectBuilder))
+        environment.jersey().register(new CountiesResource(localistDAO, resourceObjectBuilder))
+        environment.jersey().register(new CampusesResource(localistDAO, resourceObjectBuilder))
     }
 
     /**

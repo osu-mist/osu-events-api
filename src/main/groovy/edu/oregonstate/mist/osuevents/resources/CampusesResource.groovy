@@ -5,7 +5,7 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
-import edu.oregonstate.mist.osuevents.core.County
+import edu.oregonstate.mist.osuevents.core.Campus
 import edu.oregonstate.mist.osuevents.db.LocalistDAO
 import groovy.transform.TypeChecked
 
@@ -17,29 +17,30 @@ import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-@Path('/calendar/counties')
+@Path('/calendar/campuses')
 @Produces(MediaType.APPLICATION_JSON)
 @PermitAll
 @TypeChecked
-class CountiesResource extends Resource {
+class CampusesResource extends Resource {
 
     private final LocalistDAO localistDAO
     private ResourceObjectBuilder resourceObjectBuilder
 
-    CountiesResource(LocalistDAO localistDAO, ResourceObjectBuilder resourceObjectBuilder) {
+    CampusesResource(LocalistDAO localistDAO, ResourceObjectBuilder resourceObjectBuilder) {
         this.localistDAO = localistDAO
         this.resourceObjectBuilder = resourceObjectBuilder
+
     }
 
     @GET
     @Timed
     @Path('{id: [0-9a-zA-Z-]+}')
-    Response getCountyByID(@PathParam('id') String countyID) {
-        County county = localistDAO.getCountyByID(countyID)
+    Response getCampusByID(@PathParam('id') String campusID) {
+        Campus campus = localistDAO.getCampusByID(campusID)
 
-        if (county) {
+        if (campus) {
             ResultObject resultObject = new ResultObject(
-                    data: countyResourceObject(county)
+                    data: campusResourceObject(campus)
             )
             ok(resultObject).build()
         } else {
@@ -49,18 +50,18 @@ class CountiesResource extends Resource {
 
     @GET
     @Timed
-    Response getCounties() {
+    Response getCampuses() {
         ResultObject resultObject = new ResultObject(
-                data: localistDAO.getCounties().collect {
-                    countyResourceObject(it)
+                data: localistDAO.getCampuses().collect {
+                    campusResourceObject(it)
                 }
         )
 
         ok(resultObject).build()
     }
 
-    ResourceObject countyResourceObject(County county) {
-        resourceObjectBuilder.buildResourceObject(county.id, "counties", county)
+    ResourceObject campusResourceObject(Campus campus) {
+        resourceObjectBuilder.buildResourceObject(campus.id, "campuses", campus)
     }
 
 }

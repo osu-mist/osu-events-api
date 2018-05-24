@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
 import edu.oregonstate.mist.osuevents.core.Audience
 import edu.oregonstate.mist.osuevents.db.LocalistDAO
 import groovy.transform.TypeChecked
@@ -23,9 +24,11 @@ import javax.ws.rs.core.Response
 class AudiencesResource extends Resource {
 
     private final LocalistDAO localistDAO
+    private ResourceObjectBuilder resourceObjectBuilder
 
-    AudiencesResource(LocalistDAO localistDAO) {
+    AudiencesResource(LocalistDAO localistDAO, ResourceObjectBuilder resourceObjectBuilder) {
         this.localistDAO = localistDAO
+        this.resourceObjectBuilder = resourceObjectBuilder
     }
 
     @GET
@@ -57,11 +60,7 @@ class AudiencesResource extends Resource {
     }
 
     ResourceObject audienceResourceObject(Audience audience) {
-        new ResourceObject(
-                id: audience.id,
-                type: "audiences",
-                attributes: audience
-        )
+        resourceObjectBuilder.buildResourceObject(audience.id, "audiences", audience)
     }
 
 }

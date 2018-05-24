@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
 import edu.oregonstate.mist.osuevents.core.EventTopic
 import edu.oregonstate.mist.osuevents.db.LocalistDAO
 import groovy.transform.TypeChecked
@@ -23,9 +24,11 @@ import javax.ws.rs.core.Response
 class EventTopicsResource extends Resource {
 
     private final LocalistDAO localistDAO
+    private ResourceObjectBuilder resourceObjectBuilder
 
-    EventTopicsResource(LocalistDAO localistDAO) {
+    EventTopicsResource(LocalistDAO localistDAO, ResourceObjectBuilder resourceObjectBuilder) {
         this.localistDAO = localistDAO
+        this.resourceObjectBuilder = resourceObjectBuilder
     }
 
     @GET
@@ -57,11 +60,7 @@ class EventTopicsResource extends Resource {
     }
 
     ResourceObject eventTopicResourceObject(EventTopic eventTopic) {
-        new ResourceObject(
-                id: eventTopic.id,
-                type: "event-topics",
-                attributes: eventTopic
-        )
+        resourceObjectBuilder.buildResourceObject(eventTopic.id, "event-topics", eventTopic)
     }
 
 }
