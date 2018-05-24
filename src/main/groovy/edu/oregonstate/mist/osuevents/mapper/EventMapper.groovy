@@ -30,7 +30,6 @@ class EventMapper implements ResultSetMapper<Event> {
                 hashtag: rs.getString("HASHTAG"),
                 keywords: parseJsonList(rs.getString("KEYWORDS")),
                 tags: parseJsonList(rs.getString("TAGS")),
-                groupID: rs.getString("GROUP_ID"),
                 allowsReviews: rs.getBoolean("ALLOWS_REVIEWS"),
                 sponsored: rs.getBoolean("SPONSORED"),
                 venuePageOnly: rs.getBoolean("VENUE_PAGE_ONLY"),

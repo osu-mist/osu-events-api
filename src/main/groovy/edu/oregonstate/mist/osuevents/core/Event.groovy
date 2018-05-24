@@ -37,7 +37,6 @@ class Event {
     List<String> keywords
     List<String> tags
 
-    String groupID
     Boolean allowsReviews
     Boolean sponsored
     Boolean venuePageOnly

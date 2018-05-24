@@ -45,7 +45,6 @@ public @interface BindEvent {
                     q.bind("hashtag", event.hashtag)
                     q.bind("keywords", formatJsonList(event.keywords))
                     q.bind("tags", formatJsonList(event.tags))
-                    q.bind("groupID", event.groupID)
                     q.bind("allowsReviews", event.allowsReviews)
                     q.bind("sponsored", event.sponsored)
                     q.bind("venuePageOnly", event.venuePageOnly)
