@@ -570,7 +570,7 @@ definitions:
         type: string
         example: event-types
       attributes:
-        $ref: "#/definitions/SimpleObject"
+        $ref: "#/definitions/SimpleFilterObject"
       links:
         $ref: "#/definitions/SelfLink"
   EventTopicResultObject:
@@ -592,7 +592,7 @@ definitions:
         type: string
         example: event-topics
       attributes:
-        $ref: "#/definitions/SimpleObject"
+        $ref: "#/definitions/SimpleFilterObject"
       links:
         $ref: "#/definitions/SelfLink"
   AudienceResultObject:
@@ -614,7 +614,7 @@ definitions:
         type: string
         example: audiences
       attributes:
-        $ref: "#/definitions/SimpleObject"
+        $ref: "#/definitions/SimpleFilterObject"
       links:
         $ref: "#/definitions/SelfLink"
   CountyResultObject:
@@ -636,13 +636,16 @@ definitions:
         type: string
         example: counties
       attributes:
-        $ref: "#/definitions/SimpleObject"
+        $ref: "#/definitions/SimpleFilterObject"
       links:
         $ref: "#/definitions/SelfLink"
-  SimpleObject:
+  SimpleFilterObject:
     properties:
       name:
         type: string
+      parentID:
+        type: string
+        description: ID of the parent object, if applicable.
   SelfLink:
     properties:
       self:
