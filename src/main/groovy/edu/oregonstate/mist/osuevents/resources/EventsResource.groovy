@@ -37,7 +37,7 @@ class EventsResource extends Resource {
 
     private final EventsDAOWrapper eventsDAOWrapper
     private ResourceObjectBuilder resourceObjectBuilder
-    
+
     EventsResource(EventsDAOWrapper eventsDAOWrapper, ResourceObjectBuilder resourceObjectBuilder) {
         this.eventsDAOWrapper = eventsDAOWrapper
         this.resourceObjectBuilder = resourceObjectBuilder
