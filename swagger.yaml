@@ -470,7 +470,7 @@ definitions:
             type: string
           city:
             type: string
-          county:
+          countyID:
             type: string
           state:
             type: string
@@ -589,7 +589,12 @@ definitions:
           name:
             type: string
             description: Name of department
-          #TODO: Add more fields
+          campusID:
+            type: string
+            description: ID of campus associated with this department.
+          url:
+            type: string
+            description: URL of department
       links:
         $ref: "#/definitions/SelfLink"
   EventTypeResultObject:

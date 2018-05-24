@@ -24,7 +24,7 @@ class Event {
     String address
     String city
     String state
-    String county
+    String countyID
 
     String eventURL
     String photoURL
