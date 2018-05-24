@@ -24,22 +24,11 @@ public class OSUEventsConfiguration extends Configuration {
         this.database = dataSourceFactory
     }
 
-    @JsonProperty("cache")
-    @NotNull
     @Valid
-    Map<String, String> cacheSource
-
     @NotNull
+    Map<String, String> calendarAPI
+
     @Valid
-    private HttpClientConfiguration httpClient = new HttpClientConfiguration()
-
-    @JsonProperty("httpClient")
-    public HttpClientConfiguration getHttpClientConfiguration() {
-        httpClient
-    }
-
-    @JsonProperty("httpClient")
-    public void setHttpClientConfiguration(HttpClientConfiguration httpClient) {
-        this.httpClient = httpClient
-    }
+    @NotNull
+    HttpClientConfiguration httpClientConfiguration
 }

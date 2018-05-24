@@ -2,6 +2,7 @@ package edu.oregonstate.mist.osuevents.core
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import edu.oregonstate.mist.api.jsonapi.ResultObject
@@ -9,6 +10,7 @@ import groovy.transform.InheritConstructors
 
 import java.time.ZonedDateTime
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 class Event {
     @JsonIgnore
     String eventID

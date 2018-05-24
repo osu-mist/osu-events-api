@@ -40,11 +40,9 @@ class EventsResource extends Resource {
     Logger logger = LoggerFactory.getLogger(EventsResource.class)
 
     private final EventsDAOWrapper eventsDAOWrapper
-    private final ZoneId backendTimezone
 
-    EventsResource(EventsDAOWrapper eventsDAOWrapper, String backendTimezone = "UTC") {
+    EventsResource(EventsDAOWrapper eventsDAOWrapper) {
         this.eventsDAOWrapper = eventsDAOWrapper
-        this.backendTimezone = ZoneId.of(backendTimezone)
     }
 
     @GET
