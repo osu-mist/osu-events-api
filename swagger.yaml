@@ -394,6 +394,44 @@ paths:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
+  /campuses:
+    get:
+      tags:
+        - locations
+      description: "Get campuses."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/CampusesResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /campuses/{campusID}:
+    get:
+      tags:
+        - locations
+      description: "Get a campus by ID."
+      parameters:
+        - name: campusID
+          in: path
+          description: "ID of a campus"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/CampusResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
 
 definitions:
   EventResultObject:
@@ -436,7 +474,7 @@ definitions:
             type: string
           state:
             type: string
-          eventUrl:
+          eventURL:
             type: string
           photoURL:
             type: string
@@ -640,6 +678,34 @@ definitions:
         example: counties
       attributes:
         $ref: "#/definitions/SimpleFilterObject"
+      links:
+        $ref: "#/definitions/SelfLink"
+  CampusResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/CampusResourceObject"
+  CampusesResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/CampusResourceObject"
+  CampusResourceObject:
+    properties:
+      id:
+        type: string
+        description: Campus ID
+      type:
+        type: string
+        example: campuses
+      attributes:
+        properties:
+          name:
+            type: string
+          timeZone:
+            type: string
+          calendarURL:
+            type: string
       links:
         $ref: "#/definitions/SelfLink"
   SimpleFilterObject:
