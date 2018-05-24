@@ -356,6 +356,44 @@ paths:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
+  /counties:
+    get:
+      tags:
+        - locations
+      description: "Get counties."
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/CountiesResultObject"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+  /counties/{countyID}:
+    get:
+      tags:
+        - locations
+      description: "Get a county by ID."
+      parameters:
+        - name: countyID
+          in: path
+          description: "ID of a county"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful response."
+          schema:
+            $ref: "#/definitions/CountyResultObject"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
 
 definitions:
   EventResultObject:
@@ -532,11 +570,7 @@ definitions:
         type: string
         example: event-types
       attributes:
-        properties:
-          name:
-            type: string
-            description: Name of event type
-          #TODO: Add more fields
+        $ref: "#/definitions/SimpleObject"
       links:
         $ref: "#/definitions/SelfLink"
   EventTopicResultObject:
@@ -558,11 +592,7 @@ definitions:
         type: string
         example: event-topics
       attributes:
-        properties:
-          name:
-            type: string
-            description: Name of event topic
-          #TODO: Add more fields
+        $ref: "#/definitions/SimpleObject"
       links:
         $ref: "#/definitions/SelfLink"
   AudienceResultObject:
@@ -584,13 +614,35 @@ definitions:
         type: string
         example: audiences
       attributes:
-        properties:
-          name:
-            type: string
-            description: Name of audience
-          #TODO: Add more fields
+        $ref: "#/definitions/SimpleObject"
       links:
         $ref: "#/definitions/SelfLink"
+  CountyResultObject:
+    properties:
+      data:
+        $ref: "#/definitions/CountyResourceObject"
+  CountiesResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/CountyResourceObject"
+  CountyResourceObject:
+    properties:
+      id:
+        type: string
+        description: County ID
+      type:
+        type: string
+        example: counties
+      attributes:
+        $ref: "#/definitions/SimpleObject"
+      links:
+        $ref: "#/definitions/SelfLink"
+  SimpleObject:
+    properties:
+      name:
+        type: string
   SelfLink:
     properties:
       self:
