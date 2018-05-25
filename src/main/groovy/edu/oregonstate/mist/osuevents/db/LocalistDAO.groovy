@@ -9,6 +9,7 @@ import edu.oregonstate.mist.osuevents.core.County
 import edu.oregonstate.mist.osuevents.core.EventTopic
 import edu.oregonstate.mist.osuevents.core.EventType
 import org.apache.http.HttpResponse
+import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.util.EntityUtils
@@ -20,9 +21,11 @@ import javax.ws.rs.core.UriBuilder
 class LocalistDAO {
     HttpClient httpClient
     URI baseURI
-    String organizationID //this API only handles one organization
 
-    String localistApiVersion = "2.1"
+    static String localistApiVersion = "2.1"
+
+    static String filtersEndpoint = "/events/filters"
+    String communitiesEndpoint // set in constructor as config param, depends on organizationID
 
     ObjectMapper objectMapper = new ObjectMapper()
 
@@ -32,7 +35,7 @@ class LocalistDAO {
         this.httpClient = httpClient
         this.baseURI = UriBuilder.fromUri(baseURL.toURI())
                 .path("/api/${localistApiVersion}").build()
-        this.organizationID = organizationID
+        this.communitiesEndpoint = "/organizations/${organizationID}/communities"
     }
 
     List<EventTopic> getEventTopics() {
@@ -100,15 +103,33 @@ class LocalistDAO {
     }
 
     List<Campus> getCampuses() {
-        //todo: implement this
+        HttpResponse response = getResponse(communitiesEndpoint)
+
+        String responseEntity = EntityUtils.toString(response.entity)
+
+        MultipleCommunitiesResponse communities = objectMapper.readValue(
+                responseEntity, MultipleCommunitiesResponse)
+
+        communities.communities.collect { Campus.fromCommunity(it.community)}
     }
 
-    Campus getCampusByID(String ID) {
-        //todo: implement this
+    Campus getCampusByID(String id) {
+        HttpResponse response = getResponse("${communitiesEndpoint}/${id}")
+
+        if (response.statusLine.statusCode == HttpStatus.SC_NOT_FOUND) {
+            null
+        } else {
+            String responseEntity = EntityUtils.toString(response.entity)
+
+            SingleCommunityResponse community = objectMapper.readValue(
+                    responseEntity, SingleCommunityResponse)
+
+            Campus.fromCommunity(community.community)
+        }
     }
 
     private Filters getFilters() {
-        HttpResponse response = getResponse("/events/filters")
+        HttpResponse response = getResponse(filtersEndpoint)
 
         String responseEntity = EntityUtils.toString(response.entity)
 
@@ -117,6 +138,7 @@ class LocalistDAO {
 
     private HttpResponse getResponse(String endpoint) {
         URI requestURI = UriBuilder.fromUri(baseURI).path(endpoint).build()
+        logger.info("Making a request to ${requestURI}")
 
         httpClient.execute(new HttpGet(requestURI))
     }
@@ -150,8 +172,23 @@ class Filter {
 }
 
 @JsonIgnoreProperties(ignoreUnknown=true)
+class MultipleCommunitiesResponse {
+    List<SingleCommunityResponse> communities
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class SingleCommunityResponse {
+    Community community
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 class Community {
     String id
     String name
+
+    @JsonProperty("time_zone")
+    String timeZone
+
+    @JsonProperty("localist_url")
     String calendarURL
 }

@@ -61,7 +61,7 @@ class CampusesResource extends Resource {
     }
 
     ResourceObject campusResourceObject(Campus campus) {
-        resourceObjectBuilder.buildResourceObject(campus.id, "campuses", campus)
+        resourceObjectBuilder.buildResourceObject(campus.campusID, "campuses", campus)
     }
 
 }

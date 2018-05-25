@@ -191,7 +191,8 @@ class EventsResource extends Resource {
         // don't include information for a location when referencing it by the ID
         if (event.locationID && event.otherLocationName) {
             addBadRequest("locationID and otherLocationName cannot be included together.")
-        } else if (event.locationID && (event.address || event.city || event.state || event.campusID)) {
+        } else if (event.locationID &&
+                (event.address || event.city || event.state || event.campusID)) {
             addBadRequest("When specifying a locationID, there is no need to specify an address, " +
                     "city, state, or campus.")
         }

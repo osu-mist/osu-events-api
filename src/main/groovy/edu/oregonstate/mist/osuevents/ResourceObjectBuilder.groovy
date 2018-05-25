@@ -22,7 +22,7 @@ class ResourceObjectBuilder {
 
     private URI selfLink(String id, String resource) {
         UriBuilder.fromUri(this.endpointUri)
-                .path("/${resource}/{id}")
+                .path("/calendar/${resource}/{id}")
                 .build(id)
     }
 }
