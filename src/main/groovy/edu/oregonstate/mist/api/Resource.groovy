@@ -181,6 +181,38 @@ abstract class Resource {
         uriBuilder.build().toString()
     }
 
+    protected Map getPagniationLinkMap(String resource, Integer totalPages) {
+        def links = [:]
+
+        links['self'] = getPaginationUrl(['pageNumber': getPageNumber(), 'pageSize': getPageSize()],
+                resource)
+
+        links['first'] = getPaginationUrl(['pageNumber': 1, 'pageSize': getPageSize()],
+                resource)
+
+        links['last'] = getPaginationUrl(['pageNumber': totalPages,
+                                          'pageSize': getPageSize()],
+                resource)
+
+        if (getPageNumber() <= 1) {
+            links['prev'] = null
+        } else {
+            links['prev'] = getPaginationUrl(['pageNumber': getPageNumber() - 1,
+                                              'pageSize': getPageSize()],
+                    resource)
+        }
+
+        if (getPageNumber() >= totalPages) {
+            links['next'] = null
+        } else {
+            links['next'] = getPaginationUrl(['pageNumber': getPageNumber() + 1,
+                                              'pageSize': getPageSize()],
+                    resource)
+        }
+
+        links
+    }
+
     /**
      *  Returns the page number used by pagination. The value of: page[number] in the url.
      *
