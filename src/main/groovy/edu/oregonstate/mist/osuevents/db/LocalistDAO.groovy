@@ -11,6 +11,7 @@ import edu.oregonstate.mist.osuevents.core.EventType
 import edu.oregonstate.mist.osuevents.core.Location
 import edu.oregonstate.mist.osuevents.core.PaginatedCampuses
 import edu.oregonstate.mist.osuevents.core.PaginatedLocations
+import edu.oregonstate.mist.osuevents.core.PagniatedDepartments
 import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
@@ -29,6 +30,7 @@ class LocalistDAO {
 
     static String filtersEndpoint = "/events/filters"
     static String placesEndpoint = "/places"
+    static String departmentsEndpoint = "/departments"
     String communitiesEndpoint // set in constructor as config param, depends on organizationID
 
     ObjectMapper objectMapper = new ObjectMapper()
@@ -168,6 +170,39 @@ class LocalistDAO {
         }
     }
 
+    PagniatedDepartments getDepartments(Integer pageNumber, Integer pageSize) {
+        HttpResponse response = getResponse(departmentsEndpoint, pageNumber, pageSize)
+
+        String responseEntity = EntityUtils.toString(response.entity)
+
+        MultipleDepartmentsResponse departments = objectMapper.readValue(
+                responseEntity, MultipleDepartmentsResponse)
+
+        new PagniatedDepartments(
+                departments: departments.departments.collect {
+                    edu.oregonstate.mist.osuevents.core.Department.fromLocalistDepartment(
+                            it.department)
+                },
+                paginationObject: departments.paginationObject
+        )
+    }
+
+    edu.oregonstate.mist.osuevents.core.Department getDepartmentByID(String id) {
+        HttpResponse response = getResponse("${departmentsEndpoint}/${id}")
+
+        if (response.statusLine.statusCode == HttpStatus.SC_NOT_FOUND) {
+            null
+        } else {
+            String responseEntity = EntityUtils.toString(response.entity)
+
+            SingleDepartmentResponse department = objectMapper.readValue(
+                    responseEntity, SingleDepartmentResponse)
+
+            edu.oregonstate.mist.osuevents.core.Department.fromLocalistDepartment(
+                    department.department)
+        }
+    }
+
     private Filters getFilters() {
         HttpResponse response = getResponse(filtersEndpoint)
 
@@ -294,6 +329,35 @@ class Place {
         this.state = geo.get("state")
         this.zip = geo.get("zip")
     }
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class MultipleDepartmentsResponse {
+    List<SingleDepartmentResponse> departments
+
+    @JsonProperty("page")
+    PaginationObject paginationObject
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class SingleDepartmentResponse {
+    Department department
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class Department {
+    String id
+    String name
+
+    @JsonProperty("campus_id")
+    String campusID
+
+    @JsonProperty("localist_url")
+    String calendarURL
+    String url
+
+    @JsonProperty("description_text")
+    String description
 }
 
 @JsonIgnoreProperties(ignoreUnknown=true)

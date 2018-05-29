@@ -614,9 +614,14 @@ definitions:
           campusID:
             type: string
             description: ID of campus associated with this department.
+          calendarURL:
+            type: string
+            description: URL of department in events calendar.
           url:
             type: string
             description: URL of department
+          description:
+            type: string
       links:
         $ref: "#/definitions/SelfLink"
   EventTypeResultObject:

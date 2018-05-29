@@ -8,6 +8,7 @@ import edu.oregonstate.mist.osuevents.health.EventsHealthCheck
 import edu.oregonstate.mist.osuevents.resources.AudiencesResource
 import edu.oregonstate.mist.osuevents.resources.CampusesResource
 import edu.oregonstate.mist.osuevents.resources.CountiesResource
+import edu.oregonstate.mist.osuevents.resources.DepartmentsResource
 import edu.oregonstate.mist.osuevents.resources.EventTopicsResource
 import edu.oregonstate.mist.osuevents.resources.EventTypesResource
 import edu.oregonstate.mist.osuevents.resources.EventsResource
@@ -68,6 +69,11 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
                 resourceObjectBuilder)
         locationsResource.setEndpointUri(configuration.api.endpointUri)
         environment.jersey().register(locationsResource)
+
+        DepartmentsResource departmentsResource = new DepartmentsResource(localistDAO,
+                resourceObjectBuilder)
+        departmentsResource.setEndpointUri(configuration.api.endpointUri)
+        environment.jersey().register(departmentsResource)
     }
 
     /**
