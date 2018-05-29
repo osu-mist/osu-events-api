@@ -8,6 +8,7 @@ import edu.oregonstate.mist.osuevents.core.Campus
 import edu.oregonstate.mist.osuevents.core.County
 import edu.oregonstate.mist.osuevents.core.EventTopic
 import edu.oregonstate.mist.osuevents.core.EventType
+import edu.oregonstate.mist.osuevents.core.PaginatedCampuses
 import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
@@ -22,7 +23,7 @@ class LocalistDAO {
     HttpClient httpClient
     URI baseURI
 
-    static String localistApiVersion = "2.1"
+    static String localistApiVersion = "2.2"
 
     static String filtersEndpoint = "/events/filters"
     String communitiesEndpoint // set in constructor as config param, depends on organizationID
@@ -102,15 +103,20 @@ class LocalistDAO {
         }
     }
 
-    List<Campus> getCampuses() {
-        HttpResponse response = getResponse(communitiesEndpoint)
+    PaginatedCampuses getCampuses(Integer pageNumber, Integer pageSize) {
+        HttpResponse response = getResponse(communitiesEndpoint, pageNumber, pageSize)
 
         String responseEntity = EntityUtils.toString(response.entity)
 
         MultipleCommunitiesResponse communities = objectMapper.readValue(
                 responseEntity, MultipleCommunitiesResponse)
 
-        communities.communities.collect { Campus.fromCommunity(it.community)}
+        new PaginatedCampuses(
+                campuses: communities.communities.collect {
+                    Campus.fromCommunity(it.community)
+                },
+                paginationObject: communities.paginationObject
+        )
     }
 
     Campus getCampusByID(String id) {
@@ -136,8 +142,22 @@ class LocalistDAO {
         objectMapper.readValue(responseEntity, Filters)
     }
 
-    private HttpResponse getResponse(String endpoint) {
-        URI requestURI = UriBuilder.fromUri(baseURI).path(endpoint).build()
+    private HttpResponse getResponse(String endpoint,
+                                     Integer pageNumber = null,
+                                     Integer pageSize = null) {
+        UriBuilder uriBuilder = UriBuilder.fromUri(baseURI)
+        uriBuilder.path(endpoint)
+
+        if (pageNumber != null) {
+            uriBuilder.queryParam("page", pageNumber)
+        }
+
+        if (pageSize != null) {
+            uriBuilder.queryParam("pp", pageSize)
+        }
+
+        URI requestURI = uriBuilder.build()
+
         logger.info("Making a request to ${requestURI}")
 
         httpClient.execute(new HttpGet(requestURI))
@@ -174,6 +194,9 @@ class Filter {
 @JsonIgnoreProperties(ignoreUnknown=true)
 class MultipleCommunitiesResponse {
     List<SingleCommunityResponse> communities
+
+    @JsonProperty("page")
+    PaginationObject paginationObject
 }
 
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -191,4 +214,11 @@ class Community {
 
     @JsonProperty("localist_url")
     String calendarURL
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class PaginationObject {
+    Integer current
+    Integer size
+    Integer total
 }

@@ -58,7 +58,11 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         environment.jersey().register(new EventTypesResource(localistDAO, resourceObjectBuilder))
         environment.jersey().register(new AudiencesResource(localistDAO, resourceObjectBuilder))
         environment.jersey().register(new CountiesResource(localistDAO, resourceObjectBuilder))
-        environment.jersey().register(new CampusesResource(localistDAO, resourceObjectBuilder))
+        //environment.jersey().register(new CampusesResource(localistDAO, resourceObjectBuilder))
+
+        CampusesResource campusesResource = new CampusesResource(localistDAO, resourceObjectBuilder)
+        campusesResource.setEndpointUri(configuration.api.endpointUri)
+        environment.jersey().register(campusesResource)
     }
 
     /**

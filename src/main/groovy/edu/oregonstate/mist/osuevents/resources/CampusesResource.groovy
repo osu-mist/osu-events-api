@@ -6,7 +6,9 @@ import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
 import edu.oregonstate.mist.osuevents.core.Campus
+import edu.oregonstate.mist.osuevents.core.PaginatedCampuses
 import edu.oregonstate.mist.osuevents.db.LocalistDAO
+import edu.oregonstate.mist.osuevents.db.PaginationObject
 import groovy.transform.TypeChecked
 
 import javax.annotation.security.PermitAll
@@ -25,6 +27,9 @@ class CampusesResource extends Resource {
 
     private final LocalistDAO localistDAO
     private ResourceObjectBuilder resourceObjectBuilder
+
+    private static final String resource = "campuses"
+    private static final String resourcePath = "/${ResourceObjectBuilder.baseResource}/${resource}"
 
     CampusesResource(LocalistDAO localistDAO, ResourceObjectBuilder resourceObjectBuilder) {
         this.localistDAO = localistDAO
@@ -51,10 +56,14 @@ class CampusesResource extends Resource {
     @GET
     @Timed
     Response getCampuses() {
+        PaginatedCampuses paginatedCampuses = localistDAO.getCampuses(
+                getPageNumber(), getPageSize())
+
         ResultObject resultObject = new ResultObject(
-                data: localistDAO.getCampuses().collect {
+                data: paginatedCampuses.campuses.collect {
                     campusResourceObject(it)
-                }
+                },
+                links: getPagiationLinks(paginatedCampuses.paginationObject)
         )
 
         ok(resultObject).build()
@@ -64,4 +73,35 @@ class CampusesResource extends Resource {
         resourceObjectBuilder.buildResourceObject(campus.campusID, "campuses", campus)
     }
 
+    private Map getPagiationLinks(PaginationObject paginationObject) {
+        def links = [:]
+
+        links['self'] = getPaginationUrl(['pageNumber': getPageNumber(), 'pageSize': getPageSize()],
+                resourcePath)
+
+        links['first'] = getPaginationUrl(['pageNumber': 1, 'pageSize': getPageSize()],
+                resourcePath)
+
+        links['last'] = getPaginationUrl(['pageNumber': paginationObject.total,
+                                          'pageSize': getPageSize()],
+                resourcePath)
+
+        if (getPageNumber() <= 1) {
+            links['prev'] = null
+        } else {
+            links['prev'] = getPaginationUrl(['pageNumber': getPageNumber() - 1,
+                                              'pageSize': getPageSize()],
+                    resourcePath)
+        }
+
+        if (getPageNumber() >= paginationObject.total) {
+            links['next'] = null
+        } else {
+            links['next'] = getPaginationUrl(['pageNumber': getPageNumber() + 1,
+                                              'pageSize': getPageSize()],
+                    resourcePath)
+        }
+
+        links
+    }
 }

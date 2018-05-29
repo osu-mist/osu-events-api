@@ -2,6 +2,7 @@ package edu.oregonstate.mist.osuevents.core
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import edu.oregonstate.mist.osuevents.db.Community
+import edu.oregonstate.mist.osuevents.db.PaginationObject
 
 class Campus {
     @JsonIgnore
@@ -19,4 +20,9 @@ class Campus {
 
         )
     }
+}
+
+class PaginatedCampuses {
+    List<Campus> campuses
+    PaginationObject paginationObject
 }

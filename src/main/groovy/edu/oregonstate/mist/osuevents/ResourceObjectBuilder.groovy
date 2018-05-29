@@ -7,6 +7,8 @@ import javax.ws.rs.core.UriBuilder
 class ResourceObjectBuilder {
     URI endpointUri
 
+    public static final String baseResource = "calendar"
+
     ResourceObjectBuilder(URI endpointUri) {
         this.endpointUri = endpointUri
     }
@@ -22,7 +24,7 @@ class ResourceObjectBuilder {
 
     private URI selfLink(String id, String resource) {
         UriBuilder.fromUri(this.endpointUri)
-                .path("/calendar/${resource}/{id}")
+                .path("/${baseResource}/${resource}/{id}")
                 .build(id)
     }
 }
