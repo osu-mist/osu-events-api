@@ -565,7 +565,27 @@ definitions:
           name:
             type: string
             description: Name of location
-          #TODO: Add more fields
+          campusID:
+            type: string
+            description: Campus associated with location.
+          latitude:
+            type: string
+          longitude:
+            type: string
+          street:
+            type: string
+          city:
+            type: string
+          state:
+            type: string
+          zip:
+            type: string
+          calendarURL:
+            type: string
+          url:
+            type: string
+          photoURL:
+            type: string
       links:
         $ref: "#/definitions/SelfLink"
   DepartmentResultObject:

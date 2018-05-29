@@ -8,7 +8,9 @@ import edu.oregonstate.mist.osuevents.core.Campus
 import edu.oregonstate.mist.osuevents.core.County
 import edu.oregonstate.mist.osuevents.core.EventTopic
 import edu.oregonstate.mist.osuevents.core.EventType
+import edu.oregonstate.mist.osuevents.core.Location
 import edu.oregonstate.mist.osuevents.core.PaginatedCampuses
+import edu.oregonstate.mist.osuevents.core.PaginatedLocations
 import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
@@ -26,6 +28,7 @@ class LocalistDAO {
     static String localistApiVersion = "2.2"
 
     static String filtersEndpoint = "/events/filters"
+    static String placesEndpoint = "/places"
     String communitiesEndpoint // set in constructor as config param, depends on organizationID
 
     ObjectMapper objectMapper = new ObjectMapper()
@@ -134,6 +137,21 @@ class LocalistDAO {
         }
     }
 
+    PaginatedLocations getLocations(Integer pageNumber, Integer pageSize) {
+        HttpResponse response = getResponse(placesEndpoint, pageNumber, pageSize)
+
+        String responseEntity = EntityUtils.toString(response.entity)
+
+        MultiplePlacesResponse places = objectMapper.readValue(
+                responseEntity, MultiplePlacesResponse)
+
+        new PaginatedLocations(
+                locations: places.places.collect {
+                    Location.fromPlace(it.place)
+                },
+                paginationObject: places.paginationObject
+        )
+    }
     private Filters getFilters() {
         HttpResponse response = getResponse(filtersEndpoint)
 
@@ -214,6 +232,52 @@ class Community {
 
     @JsonProperty("localist_url")
     String calendarURL
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class MultiplePlacesResponse {
+    List<SinglePlaceResponse> places
+
+    @JsonProperty("page")
+    PaginationObject paginationObject
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class SinglePlaceResponse {
+    Place place
+}
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+class Place {
+    String id
+    String name
+
+    @JsonProperty("campus_id")
+    String campusID
+
+    String latitude
+    String longitude
+    String street
+    String city
+    String state
+    String zip
+
+    @JsonProperty("localist_url")
+    String calendarURL
+    String url
+
+    @JsonProperty("photo_url")
+    String photoURL
+
+    @JsonProperty("geo")
+    private void unpackGeo(Map<String, String> geo) {
+        this.latitude = geo.get("latitude")
+        this.longitude = geo.get("longitude")
+        this.street = geo.get("street")
+        this.city = geo.get("city")
+        this.state = geo.get("state")
+        this.zip = geo.get("zip")
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown=true)

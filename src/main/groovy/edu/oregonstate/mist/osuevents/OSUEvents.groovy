@@ -11,6 +11,7 @@ import edu.oregonstate.mist.osuevents.resources.CountiesResource
 import edu.oregonstate.mist.osuevents.resources.EventTopicsResource
 import edu.oregonstate.mist.osuevents.resources.EventTypesResource
 import edu.oregonstate.mist.osuevents.resources.EventsResource
+import edu.oregonstate.mist.osuevents.resources.LocationsResource
 import io.dropwizard.client.HttpClientBuilder
 import org.skife.jdbi.v2.DBI
 import io.dropwizard.jdbi.DBIFactory
@@ -58,11 +59,15 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         environment.jersey().register(new EventTypesResource(localistDAO, resourceObjectBuilder))
         environment.jersey().register(new AudiencesResource(localistDAO, resourceObjectBuilder))
         environment.jersey().register(new CountiesResource(localistDAO, resourceObjectBuilder))
-        //environment.jersey().register(new CampusesResource(localistDAO, resourceObjectBuilder))
 
         CampusesResource campusesResource = new CampusesResource(localistDAO, resourceObjectBuilder)
         campusesResource.setEndpointUri(configuration.api.endpointUri)
         environment.jersey().register(campusesResource)
+
+        LocationsResource locationsResource = new LocationsResource(localistDAO,
+                resourceObjectBuilder)
+        locationsResource.setEndpointUri(configuration.api.endpointUri)
+        environment.jersey().register(locationsResource)
     }
 
     /**
