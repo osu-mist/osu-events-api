@@ -128,6 +128,7 @@ class LocalistDAO {
         HttpResponse response = getResponse("${communitiesEndpoint}/${id}")
 
         if (response.statusLine.statusCode == HttpStatus.SC_NOT_FOUND) {
+            EntityUtils.consumeQuietly(response.entity)
             null
         } else {
             String responseEntity = EntityUtils.toString(response.entity)
@@ -159,6 +160,7 @@ class LocalistDAO {
         HttpResponse response = getResponse("${placesEndpoint}/${id}")
 
         if (response.statusLine.statusCode == HttpStatus.SC_NOT_FOUND) {
+            EntityUtils.consumeQuietly(response.entity)
             null
         } else {
             String responseEntity = EntityUtils.toString(response.entity)
@@ -191,6 +193,7 @@ class LocalistDAO {
         HttpResponse response = getResponse("${departmentsEndpoint}/${id}")
 
         if (response.statusLine.statusCode == HttpStatus.SC_NOT_FOUND) {
+            EntityUtils.consumeQuietly(response.entity)
             null
         } else {
             String responseEntity = EntityUtils.toString(response.entity)
