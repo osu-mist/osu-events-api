@@ -33,6 +33,7 @@ class EventTest {
             eventTypeIDs: ["2", "1"],
             eventTopicIDs: ["2", "3"],
             audienceIDs: ["3", "4"],
+            visibility: "Hidden",
             instances: [
                     new Instance(
                             start: ZonedDateTime.now(),
