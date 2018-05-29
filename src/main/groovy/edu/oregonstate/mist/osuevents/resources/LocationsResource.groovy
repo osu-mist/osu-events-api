@@ -5,7 +5,6 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
-import edu.oregonstate.mist.osuevents.core.Campus
 import edu.oregonstate.mist.osuevents.core.Location
 import edu.oregonstate.mist.osuevents.core.PaginatedLocations
 import edu.oregonstate.mist.osuevents.db.LocalistDAO
@@ -37,21 +36,21 @@ class LocationsResource extends Resource {
 
     }
 
-//    @GET
-//    @Timed
-//    @Path('{id: [0-9a-zA-Z-]+}')
-//    Response getCampusByID(@PathParam('id') String campusID) {
-//        Campus campus = localistDAO.getCampusByID(campusID)
-//
-//        if (campus) {
-//            ResultObject resultObject = new ResultObject(
-//                    data: locationResourceObject(campus)
-//            )
-//            ok(resultObject).build()
-//        } else {
-//            notFound().build()
-//        }
-//    }
+    @GET
+    @Timed
+    @Path('{id: [0-9a-zA-Z-]+}')
+    Response getLocationByID(@PathParam('id') String locationID) {
+        Location location = localistDAO.getlocationByID(locationID)
+
+        if (location) {
+            ResultObject resultObject = new ResultObject(
+                    data: locationResourceObject(location)
+            )
+            ok(resultObject).build()
+        } else {
+            notFound().build()
+        }
+    }
 
     @GET
     @Timed

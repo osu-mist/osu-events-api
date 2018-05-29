@@ -152,6 +152,22 @@ class LocalistDAO {
                 paginationObject: places.paginationObject
         )
     }
+
+    Location getlocationByID(String id) {
+        HttpResponse response = getResponse("${placesEndpoint}/${id}")
+
+        if (response.statusLine.statusCode == HttpStatus.SC_NOT_FOUND) {
+            null
+        } else {
+            String responseEntity = EntityUtils.toString(response.entity)
+
+            SinglePlaceResponse place = objectMapper.readValue(
+                    responseEntity, SinglePlaceResponse)
+
+            Location.fromPlace(place.place)
+        }
+    }
+
     private Filters getFilters() {
         HttpResponse response = getResponse(filtersEndpoint)
 
