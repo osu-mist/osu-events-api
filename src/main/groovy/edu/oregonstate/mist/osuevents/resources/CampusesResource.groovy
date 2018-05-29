@@ -55,6 +55,10 @@ class CampusesResource extends Resource {
     @GET
     @Timed
     Response getCampuses() {
+        if (maxPageSizeExceeded()) {
+            return badRequest("page[size] parameter must not exceed ${MAX_PAGE_SIZE}").build()
+        }
+
         PaginatedCampuses paginatedCampuses = localistDAO.getCampuses(
                 getPageNumber(), getPageSize())
 

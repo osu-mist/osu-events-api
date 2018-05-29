@@ -171,11 +171,18 @@ paths:
       tags:
         - locations
       description: "Get locations that an event can be assigned to."
+      parameters:
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/pageNumber'
       responses:
         200:
           description: "Successful response."
           schema:
             $ref: "#/definitions/LocationsResultObject"
+        400:
+          description: "Bad request."
+          schema:
+            $ref: "#/definitions/Error"
         500:
           description: "Internal Server Error"
           schema:
@@ -209,11 +216,18 @@ paths:
       tags:
         - departments
       description: "Get departments."
+      parameters:
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/pageNumber'
       responses:
         200:
           description: "Successful response."
           schema:
             $ref: "#/definitions/DepartmentsResultObject"
+        400:
+          description: "Bad request."
+          schema:
+            $ref: "#/definitions/Error"
         500:
           description: "Internal Server Error"
           schema:
@@ -399,11 +413,18 @@ paths:
       tags:
         - locations
       description: "Get campuses."
+      parameters:
+        - $ref: '#/parameters/pageSize'
+        - $ref: '#/parameters/pageNumber'
       responses:
         200:
           description: "Successful response."
           schema:
             $ref: "#/definitions/CampusesResultObject"
+        400:
+          description: "Bad request."
+          schema:
+            $ref: "#/definitions/Error"
         500:
           description: "Internal Server Error"
           schema:
@@ -432,6 +453,25 @@ paths:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
+
+parameters:
+  pageSize:
+    name: page[size]
+    in: query
+    type: integer
+    description: Amount of objects to return in the response.
+    maximum: 100
+    minimum: 1
+    default: 10
+    required: false
+  pageNumber:
+    name: page[number]
+    in: query
+    type: integer
+    description: Page number of results to return.
+    minimum: 1
+    default: 1
+    required: false
 
 definitions:
   EventResultObject:
@@ -548,6 +588,8 @@ definitions:
         $ref: "#/definitions/LocationResourceObject"
   LocationsResultObject:
     properties:
+      links:
+        $ref: "#/definitions/PaginationObject"
       data:
         type: array
         items:
@@ -594,6 +636,8 @@ definitions:
         $ref: "#/definitions/DepartmentResourceObject"
   DepartmentsResultObject:
     properties:
+      links:
+        $ref: "#/definitions/PaginationObject"
       data:
         type: array
         items:
@@ -718,6 +762,8 @@ definitions:
         $ref: "#/definitions/CampusResourceObject"
   CampusesResultObject:
     properties:
+      links:
+        $ref: "#/definitions/PaginationObject"
       data:
         type: array
         items:
@@ -753,6 +799,28 @@ definitions:
         type: string
         format: url
         description: Self link of resource
+  PaginationObject:
+    properties:
+      self:
+        type: string
+        format: url
+        description: Current page of results
+      first:
+        type: string
+        format: url
+        description: First page of results
+      last:
+        type: string
+        format: url
+        description: Last page of results
+      prev:
+        type: string
+        format: url
+        description: Previous page of results
+      next:
+        type: string
+        format: url
+        description: Next page of results
   Error:
     type: object
     properties:

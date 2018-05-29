@@ -55,6 +55,10 @@ class LocationsResource extends Resource {
     @GET
     @Timed
     Response getLocations() {
+        if (maxPageSizeExceeded()) {
+            return badRequest("page[size] parameter must not exceed ${MAX_PAGE_SIZE}").build()
+        }
+
         PaginatedLocations paginatedLocations = localistDAO.getLocations(
                 getPageNumber(), getPageSize())
 

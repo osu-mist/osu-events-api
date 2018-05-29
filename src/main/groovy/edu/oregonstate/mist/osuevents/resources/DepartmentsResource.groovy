@@ -55,6 +55,10 @@ class DepartmentsResource extends Resource {
     @GET
     @Timed
     Response getDepartments() {
+        if (maxPageSizeExceeded()) {
+            return badRequest("page[size] parameter must not exceed ${MAX_PAGE_SIZE}").build()
+        }
+
         PagniatedDepartments pagniatedDepartments = localistDAO.getDepartments(
                 getPageNumber(), getPageSize())
 

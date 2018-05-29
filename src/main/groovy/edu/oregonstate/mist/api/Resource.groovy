@@ -25,7 +25,7 @@ abstract class Resource {
     /**
      * Default max page size used in pagination.
      */
-    public static Integer MAX_PAGE_SIZE = 10000
+    public static Integer MAX_PAGE_SIZE = 100
 
     @Context
     UriInfo uriInfo
