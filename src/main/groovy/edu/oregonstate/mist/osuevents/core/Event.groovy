@@ -29,7 +29,6 @@ class Event {
 
     String eventURL
     String photoURL
-    String facebookURL
 
     String ticketURL
     String ticketCost
@@ -39,11 +38,7 @@ class Event {
     List<String> tags
 
     Boolean allowsReviews
-    Boolean sponsored
-    Boolean venuePageOnly
-    Boolean excludeFromTrending
     Boolean allowUserActivity
-    Boolean allowUserInterest
     List<String> departmentIDs
 
     String contactName

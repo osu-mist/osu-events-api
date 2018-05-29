@@ -520,8 +520,6 @@ definitions:
             type: string
           photoURL:
             type: string
-          facebookURL:
-            type: string
           ticketURL:
             type: string
           ticketCost:
@@ -538,15 +536,7 @@ definitions:
               type: string
           allowsReviews:
             type: boolean
-          sponsored:
-            type: boolean
-          venuePageOnly:
-            type: boolean
-          excludeFromTrending:
-            type: boolean
           allowUserActivity:
-            type: boolean
-          allowUserInterest:
             type: boolean
           departmentIDs:
             type: array
