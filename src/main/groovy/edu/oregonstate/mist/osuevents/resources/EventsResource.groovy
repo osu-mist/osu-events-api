@@ -197,6 +197,10 @@ class EventsResource extends Resource {
                     "city, state, or campus.")
         }
 
+        if (!event.locationID && (!event.address || !event.city || !event.state)) {
+            addBadRequest("Address, city, and state is required if no location ID is provided.")
+        }
+
         //TODO: validate ID fields
 
         if (!event.instances) {
