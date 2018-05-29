@@ -39,6 +39,7 @@ class EventMapper implements ResultSetMapper<Event> {
                 eventTypeIDs: parseJsonList(rs.getString("EVENT_TYPE_IDS")),
                 eventTopicIDs: parseJsonList(rs.getString("EVENT_TOPIC_IDS")),
                 audienceIDs: parseJsonList(rs.getString("AUDIENCE_IDS")),
+                visibility: rs.getString("VISIBILITY"),
                 owner: rs.getString("OWNER")
             )
     }

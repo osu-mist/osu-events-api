@@ -54,6 +54,7 @@ public @interface BindEvent {
                     q.bind("eventTypeIDs", formatJsonList(event.eventTypeIDs))
                     q.bind("eventTopicIDs", formatJsonList(event.eventTopicIDs))
                     q.bind("audienceIDs", formatJsonList(event.audienceIDs))
+                    q.bind("visibility", event.visibility)
                     q.bind("owner", event.owner)
                 }
             }

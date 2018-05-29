@@ -40,6 +40,7 @@ public interface EventsDAO extends Closeable {
             EVENT_TYPE_IDS,
             EVENT_TOPIC_IDS,
             AUDIENCE_IDS,
+            VISIBILITY,
             OWNER
         FROM EVENTS_EVENTS
         WHERE (EVENT_ID = :eventID OR :eventID IS NULL)
@@ -88,6 +89,7 @@ public interface EventsDAO extends Closeable {
             EVENT_TYPE_IDS,
             EVENT_TOPIC_IDS,
             AUDIENCE_IDS,
+            VISIBILITY,
             OWNER,
             CREATED_AT)
         VALUES (
@@ -118,6 +120,7 @@ public interface EventsDAO extends Closeable {
             :eventTypeIDs,
             :eventTopicIDs,
             :audienceIDs,
+            :visibility,
             :owner,
             SYSDATE)
     """)
@@ -167,6 +170,7 @@ public interface EventsDAO extends Closeable {
             EVENT_TYPE_IDS = :eventTypeIDs,
             EVENT_TOPIC_IDS = :eventTopicIDs,
             AUDIENCE_IDS = :audienceIDs,
+            VISIBILITY = :visibility,
             UPDATED_AT = SYSDATE
         WHERE EVENT_ID = :eventID
     """)

@@ -562,6 +562,14 @@ definitions:
             type: array
             items:
               type: string
+          visibility:
+            type: string
+            enum:
+              - Unlisted
+              - Place Pages
+              - Widgets
+              - Logged-In Users Only
+              - Channels
           instances:
             type: array
             items:

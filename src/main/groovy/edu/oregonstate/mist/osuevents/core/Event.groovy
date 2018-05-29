@@ -49,6 +49,8 @@ class Event {
     List<String> eventTopicIDs
     List<String> audienceIDs
 
+    String visibility
+
     @JsonIgnore
     String owner
 
@@ -65,6 +67,19 @@ class Event {
         } catch (NullPointerException e) {
             throw new EventException("Could not parse result object.")
         }
+    }
+
+    public static List<String> validVisibilityValues = [
+            "Unlisted",
+            "Place Pages",
+            "Widgets",
+            "Logged-In Users Only",
+            "Channels"
+    ]
+
+    @JsonIgnore
+    public Boolean isValidVisibility() {
+        !this.visibility || validVisibilityValues.contains(this.visibility)
     }
 }
 

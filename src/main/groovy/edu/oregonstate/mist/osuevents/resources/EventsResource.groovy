@@ -201,6 +201,11 @@ class EventsResource extends Resource {
             addBadRequest("Address, city, and state is required if no location ID is provided.")
         }
 
+        if (!event.isValidVisibility()) {
+            addBadRequest("If visibility is given, it must be one of these values: " +
+                    Event.validVisibilityValues.join(", "))
+        }
+
         //TODO: validate ID fields
 
         if (!event.instances) {

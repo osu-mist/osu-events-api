@@ -27,6 +27,7 @@ CREATE TABLE apismgr.EVENTS_EVENTS
   EVENT_TYPE_IDS        CLOB,
   EVENT_TOPIC_IDS       CLOB,
   AUDIENCE_IDS          CLOB,
+  VISIBILITY            VARCHAR2(256),
   OWNER                 VARCHAR2(256),
   CREATED_AT            DATE NOT NULL,
   UPDATED_AT            DATE,
@@ -69,6 +70,7 @@ COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CONTACT_PHONE IS 'Phone number of event 
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.EVENT_TYPE_IDS IS 'JSON array of event type IDs';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.EVENT_TOPIC_IDS IS 'JSON array of event topic IDs';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.AUDIENCE_IDS IS 'JSON array of audience IDs';
+COMMENT ON COLUMN apismgr.EVENTS_EVENTS.VISIBILITY IS 'Visibility of event.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.CREATED_AT IS 'Stores SYSDATE when event was created.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.UPDATED_AT IS 'Stores SYSDATE when event was updated.';
 COMMENT ON COLUMN apismgr.EVENTS_EVENTS.DELETED_AT IS 'Stores SYSDATE when event was deleted.';
