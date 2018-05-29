@@ -510,8 +510,10 @@ definitions:
             type: string
           city:
             type: string
-          countyID:
-            type: string
+          countyIDs:
+            type: array
+            items:
+              type: string
           state:
             type: string
           campusID:

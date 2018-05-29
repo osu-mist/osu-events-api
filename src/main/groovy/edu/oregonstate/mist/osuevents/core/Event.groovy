@@ -24,7 +24,7 @@ class Event {
     String address
     String city
     String state
-    String countyID
+    List<String> countyIDs
     String campusID
 
     String eventURL

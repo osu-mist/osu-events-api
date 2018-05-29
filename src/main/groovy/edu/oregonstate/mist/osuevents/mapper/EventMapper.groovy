@@ -21,7 +21,7 @@ class EventMapper implements ResultSetMapper<Event> {
                 address: rs.getString("ADDRESS"),
                 city: rs.getString("CITY"),
                 state: rs.getString("STATE"),
-                countyID: rs.getString("COUNTY_ID"),
+                countyIDs: parseJsonList(rs.getString("COUNTY_IDS")),
                 campusID: rs.getString("CAMPUS_ID"),
                 eventURL: rs.getString("EVENT_URL"),
                 photoURL: rs.getString("PHOTO_URL"),

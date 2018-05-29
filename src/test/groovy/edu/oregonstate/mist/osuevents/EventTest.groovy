@@ -16,7 +16,7 @@ class EventTest {
             address: null, //if a location ID is used, this field should be null
             city: null, //if a location ID is used, this field should be null
             state: null, //if a location ID is used, this field should be null
-            countyID: "Benton", //this technically doesn't need to be null if a locationID is given
+            countyIDs: ["Benton"], //this doesn't need to be null if a locationID is given
             eventURL: "https://example.com/foo",
             photoURL: "https://example.com/foo.jpg",
             ticketURL: "https://someticketplace.com/foo",
