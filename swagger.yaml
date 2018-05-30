@@ -57,7 +57,7 @@ paths:
         400:
           description: "Bad request"
           schema:
-            $ref: "#/definitions/Error"
+            $ref: "#/definitions/ErrorArray"
         500:
           description: "Internal Server Error"
           schema:
@@ -125,31 +125,32 @@ paths:
           schema:
             $ref: "#/definitions/Error"
 
-    delete:
-      tags:
-        - events
-      description: "Delete an existing event."
-      parameters:
-        - name: eventID
-          in: path
-          description: "ID of an event"
-          required: true
-          type: integer
-      responses:
-        204:
-          description: "Event successfully deleted."
-        403:
-          description: "Forbidden - you don't have authorization to delete this event because you didn't create it."
-          schema:
-            $ref: "#/definitions/Error"
-        404:
-          description: "Not found"
-          schema:
-            $ref: "#/definitions/Error"
-        500:
-          description: "Internal Server Error"
-          schema:
-            $ref: "#/definitions/Error"
+    # This is commented out until we have a process for deleting events in localist
+    # delete:
+    #   tags:
+    #     - events
+    #   description: "Delete an existing event."
+    #   parameters:
+    #     - name: eventID
+    #       in: path
+    #       description: "ID of an event"
+    #       required: true
+    #       type: integer
+    #   responses:
+    #     204:
+    #       description: "Event successfully deleted."
+    #     403:
+    #       description: "Forbidden - you don't have authorization to delete this event because you didn't create it."
+    #       schema:
+    #         $ref: "#/definitions/Error"
+    #     404:
+    #       description: "Not found"
+    #       schema:
+    #         $ref: "#/definitions/Error"
+    #     500:
+    #       description: "Internal Server Error"
+    #       schema:
+    #         $ref: "#/definitions/Error"
   /feed:
     get:
       tags:
@@ -821,6 +822,10 @@ definitions:
         type: string
         format: url
         description: Next page of results
+  ErrorArray:
+    type: array
+    items:
+      $ref: "#/definitions/Error"
   Error:
     type: object
     properties:
