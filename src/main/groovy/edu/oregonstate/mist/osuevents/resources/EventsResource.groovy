@@ -122,6 +122,8 @@ class EventsResource extends Resource {
     @Path('{id: [0-9a-zA-Z-]+}')
     Response updateEvent(@PathParam('id') String eventID,
                          @HeaderParam("OSU-API-ActAs") String actAs) {
+        return Response.status(Response.Status.NOT_IMPLEMENTED).build()
+
         // Check that the event exists and the user can update it
         Response error = updateChecker(eventID, actAs)
 
