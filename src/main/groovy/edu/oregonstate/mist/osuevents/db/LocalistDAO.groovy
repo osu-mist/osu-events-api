@@ -206,7 +206,7 @@ class LocalistDAO {
         }
     }
 
-    private Filters getFilters() {
+    Filters getFilters() {
         HttpResponse response = getResponse(filtersEndpoint)
 
         String responseEntity = EntityUtils.toString(response.entity)

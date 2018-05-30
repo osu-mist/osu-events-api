@@ -26,7 +26,7 @@ class EventsResourceTest {
         notFoundEventsDAOWrapper.demand.getEventByID() { String eventID -> null }
 
         EventsResource eventsResource = new EventsResource(notFoundEventsDAOWrapper.proxyInstance(),
-                resourceObjectBuilder)
+                null, resourceObjectBuilder)
 
         Response notFoundResponse = eventsResource.getEventByID("something")
         assertEquals(404, notFoundResponse.status)
@@ -35,7 +35,7 @@ class EventsResourceTest {
         def foundEventsDAOWrapper = new MockFor(EventsDAOWrapper)
         foundEventsDAOWrapper.demand.getEventByID() { String eventID -> EventTest.validSampleEvent }
         eventsResource = new EventsResource(foundEventsDAOWrapper.proxyInstance(),
-                resourceObjectBuilder)
+                null, resourceObjectBuilder)
 
         Response goodResponse = eventsResource.getEventByID("something")
         assertEquals(200, goodResponse.status)

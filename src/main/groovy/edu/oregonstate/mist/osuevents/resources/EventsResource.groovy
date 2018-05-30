@@ -9,6 +9,9 @@ import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.EventException
 import edu.oregonstate.mist.osuevents.db.EventsDAOWrapper
+import edu.oregonstate.mist.osuevents.db.Filter
+import edu.oregonstate.mist.osuevents.db.Filters
+import edu.oregonstate.mist.osuevents.db.LocalistDAO
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -36,10 +39,14 @@ class EventsResource extends Resource {
     Logger logger = LoggerFactory.getLogger(EventsResource.class)
 
     private final EventsDAOWrapper eventsDAOWrapper
+    private final LocalistDAO localistDAO
     private ResourceObjectBuilder resourceObjectBuilder
 
-    EventsResource(EventsDAOWrapper eventsDAOWrapper, ResourceObjectBuilder resourceObjectBuilder) {
+    EventsResource(EventsDAOWrapper eventsDAOWrapper,
+                   LocalistDAO localistDAO,
+                   ResourceObjectBuilder resourceObjectBuilder) {
         this.eventsDAOWrapper = eventsDAOWrapper
+        this.localistDAO = localistDAO
         this.resourceObjectBuilder = resourceObjectBuilder
     }
 
@@ -203,10 +210,68 @@ class EventsResource extends Resource {
 
         if (!event.isValidVisibility()) {
             addBadRequest("If visibility is given, it must be one of these values: " +
-                    Event.validVisibilityValues.join(", "))
+                    joinListWithCommas(Event.validVisibilityValues))
         }
 
-        //TODO: validate ID fields
+        if (event.locationID && !localistDAO.getlocationByID(event.locationID)) {
+            addBadRequest("locationID is not a valid location ID.")
+        }
+
+        def invalidDepartmentIDs = event.departmentIDs.unique().findAll {
+            !localistDAO.getDepartmentByID(it)
+        }
+
+        if (invalidDepartmentIDs) {
+            addBadRequest("These departmentIDs are invalid: " +
+                    joinListWithCommas(invalidDepartmentIDs))
+        }
+
+        if (event.campusID && !localistDAO.getCampusByID(event.campusID)) {
+            addBadRequest("campusID is not a valid campus ID.")
+        }
+
+        if (event.countyIDs || event.eventTopicIDs || event.eventTypeIDs || event.audienceIDs) {
+            Filters filters = localistDAO.getFilters()
+
+            if (event.countyIDs) {
+                def invalidCountyIDs = getInvalidFilterIDs(filters.counties, event.countyIDs)
+
+                if (invalidCountyIDs) {
+                    addBadRequest("These countyIDs are invalid: " +
+                            joinListWithCommas(invalidCountyIDs))
+                }
+            }
+
+            if (event.eventTopicIDs) {
+                def invalidEventTopicIDs = getInvalidFilterIDs(filters.eventTopics,
+                        event.eventTopicIDs)
+
+                if (invalidEventTopicIDs) {
+                    addBadRequest("These eventTopicIDs are invalid: " +
+                            joinListWithCommas(invalidEventTopicIDs))
+                }
+            }
+
+            if (event.eventTypeIDs) {
+                def invalidEventTypeIDs = getInvalidFilterIDs(filters.eventTypes,
+                        event.eventTypeIDs)
+
+                if (invalidEventTypeIDs) {
+                    addBadRequest("These eventTypeIDs are invalid: " +
+                            joinListWithCommas(invalidEventTypeIDs))
+                }
+            }
+
+            if (event.audienceIDs) {
+                def invalidAudienceIDs = getInvalidFilterIDs(filters.audiences,
+                        event.audienceIDs)
+
+                if (invalidAudienceIDs) {
+                    addBadRequest("These audienceIDs are invalid: " +
+                            joinListWithCommas(invalidAudienceIDs))
+                }
+            }
+        }
 
         if (!event.instances) {
             addBadRequest("At least one event instance is required.")
@@ -219,6 +284,15 @@ class EventsResource extends Resource {
             }
         }
         errors
+    }
+
+    private List<String> getInvalidFilterIDs(List<Filter> validFilters,
+                                                List<String> requestedIDs) {
+        requestedIDs - validFilters.collect { it.filterID }
+    }
+
+    private String joinListWithCommas(List<String> list) {
+        list.join(", ")
     }
 
     private ResultObject eventResultObject(List<Event> events) {

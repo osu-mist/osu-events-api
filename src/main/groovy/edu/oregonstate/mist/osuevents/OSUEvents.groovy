@@ -40,21 +40,24 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
 
         DBIFactory factory = new DBIFactory()
         DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "jdbi")
+
+        LocalistDAO localistDAO = new LocalistDAO(
+                httpClientBuilder.build("backend-http-client"),
+                configuration.calendarAPI.baseUrl,
+                configuration.calendarAPI.organizationID)
+
         EventsDAO eventsDAO = jdbi.onDemand(EventsDAO.class)
         EventsDAOWrapper eventsDAOWrapper = new EventsDAOWrapper(eventsDAO)
 
         ResourceObjectBuilder resourceObjectBuilder = new ResourceObjectBuilder(
                 configuration.api.endpointUri)
 
-        environment.jersey().register(new EventsResource(eventsDAOWrapper, resourceObjectBuilder))
+        environment.jersey().register(new EventsResource(eventsDAOWrapper,
+                localistDAO,
+                resourceObjectBuilder))
 
         EventsHealthCheck healthCheck = new EventsHealthCheck(eventsDAO)
         environment.healthChecks().register("eventsHealthCheck", healthCheck)
-
-        LocalistDAO localistDAO = new LocalistDAO(
-                httpClientBuilder.build("backend-http-client"),
-                configuration.calendarAPI.baseUrl,
-                configuration.calendarAPI.organizationID)
 
         environment.jersey().register(new EventTopicsResource(localistDAO, resourceObjectBuilder))
         environment.jersey().register(new EventTypesResource(localistDAO, resourceObjectBuilder))
