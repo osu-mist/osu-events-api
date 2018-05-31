@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import edu.oregonstate.mist.api.Resource
+import edu.oregonstate.mist.osuevents.core.Campus
 import edu.oregonstate.mist.osuevents.core.Event
+import edu.oregonstate.mist.osuevents.core.Location
 import edu.oregonstate.mist.osuevents.db.EventsDAOWrapper
 import edu.oregonstate.mist.osuevents.db.Filter
 import edu.oregonstate.mist.osuevents.db.Filters
@@ -92,6 +94,42 @@ class FeedResource extends Resource {
                         event.eventTopicIDs, filters.eventTopics))
                 feedEvent.setAudiences(getFilterNameListFromIDList(
                         event.audienceIDs, filters.audiences))
+
+                if (event.locationID) {
+                    if (locations[event.locationID]) {
+                        feedEvent.location = locations[event.locationID]
+                    } else {
+                        Location location = localistDAO.getlocationByID(event.locationID)
+
+                        if (location) {
+                            locations[event.locationID] = location.name
+                            feedEvent.location = location.name
+                        } else {
+                            // if we can't find the location name,
+                            // use the ID as a backup/for debugging
+                            feedEvent.location = event.locationID
+                        }
+                    }
+                } else if (event.otherLocationName) {
+                    feedEvent.location = event.otherLocationName
+                }
+
+                if (event.campusID) {
+                    if (campuses[event.campusID]) {
+                        feedEvent.campus = campuses[event.campusID]
+                    } else {
+                        Campus campus = localistDAO.getCampusByID(event.campusID)
+
+                        if (campus) {
+                            campuses[event.campusID] = campus.name
+                            feedEvent.campus = campus.name
+                        } else {
+                            // if we can't find the location name,
+                            // use the ID as a backup/for debugging
+                            feedEvent.campus = event.campusID
+                        }
+                    }
+                }
 
                 feedEvents.add(feedEvent)
             }
