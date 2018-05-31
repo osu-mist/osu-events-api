@@ -207,7 +207,7 @@ class EventsResource extends Resource {
         }
 
         if (!event.locationID && (!event.address || !event.city || !event.state)) {
-            addBadRequest("Address, city, and state is required if no location ID is provided.")
+            addBadRequest("Address, city, and state are required if no location ID is provided.")
         }
 
         if (!event.isValidVisibility()) {
