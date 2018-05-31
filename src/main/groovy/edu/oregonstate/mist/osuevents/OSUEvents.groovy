@@ -12,6 +12,7 @@ import edu.oregonstate.mist.osuevents.resources.DepartmentsResource
 import edu.oregonstate.mist.osuevents.resources.EventTopicsResource
 import edu.oregonstate.mist.osuevents.resources.EventTypesResource
 import edu.oregonstate.mist.osuevents.resources.EventsResource
+import edu.oregonstate.mist.osuevents.resources.FeedResource
 import edu.oregonstate.mist.osuevents.resources.LocationsResource
 import io.dropwizard.client.HttpClientBuilder
 import org.skife.jdbi.v2.DBI
@@ -77,6 +78,9 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
                 resourceObjectBuilder)
         departmentsResource.setEndpointUri(configuration.api.endpointUri)
         environment.jersey().register(departmentsResource)
+
+        //environment.jersey().register(new CSVMessageBodyWriter())
+        environment.jersey().register(new FeedResource(eventsDAOWrapper, localistDAO))
     }
 
     /**
