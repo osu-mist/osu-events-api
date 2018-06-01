@@ -80,7 +80,13 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         environment.jersey().register(departmentsResource)
 
         //environment.jersey().register(new CSVMessageBodyWriter())
-        environment.jersey().register(new FeedResource(eventsDAOWrapper, localistDAO))
+        environment.jersey().register(new FeedResource(
+                eventsDAOWrapper,
+                localistDAO,
+                configuration.calendarAPI.defaultTimezone,
+                configuration.calendarAPI.exceptionTimezone,
+                configuration.calendarAPI.exceptionTimezoneCampusID
+        ))
     }
 
     /**

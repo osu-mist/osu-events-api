@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Path('/calendar/feed')
@@ -37,9 +38,21 @@ class FeedResource extends Resource {
     private final EventsDAOWrapper eventsDAOWrapper
     private final LocalistDAO localistDAO
 
-    FeedResource(EventsDAOWrapper eventsDAOWrapper, LocalistDAO localistDAO) {
+    private final String defaultTimezone
+    private final String exceptionTimezone
+    private final String exceptionTimezoneCampusID
+
+    FeedResource(EventsDAOWrapper eventsDAOWrapper,
+                 LocalistDAO localistDAO,
+                 String defaultTimezone,
+                 String exceptionTimezone,
+                 String exceptionTimezoneCampusID) {
         this.eventsDAOWrapper = eventsDAOWrapper
         this.localistDAO = localistDAO
+        this.defaultTimezone = defaultTimezone
+        this.exceptionTimezone = exceptionTimezone
+        this.exceptionTimezoneCampusID = exceptionTimezoneCampusID
+
     }
 
     @GET
@@ -63,10 +76,6 @@ class FeedResource extends Resource {
                         eventID: event.eventID,
                         title: event.title,
                         description: event.description,
-                        startDate: instance.start.format(FeedEvent.dateFormat),
-                        endDate: instance.end.format(FeedEvent.dateFormat),
-                        startTime: instance.start.format(FeedEvent.timeFormat),
-                        endTime: instance.end.format(FeedEvent.timeFormat),
                         room: event.room,
                         address: event.address,
                         city: event.city,
@@ -96,11 +105,12 @@ class FeedResource extends Resource {
                 feedEvent.setAudiences(getFilterNameListFromIDList(
                         event.audienceIDs, filters.audiences))
 
+                Location location
                 if (event.locationID) {
                     if (locations[event.locationID]) {
                         feedEvent.location = locations[event.locationID]
                     } else {
-                        Location location = localistDAO.getlocationByID(event.locationID)
+                        location = localistDAO.getlocationByID(event.locationID)
 
                         if (location) {
                             locations[event.locationID] = location.name
@@ -114,6 +124,19 @@ class FeedResource extends Resource {
                 } else if (event.otherLocationName) {
                     feedEvent.location = event.otherLocationName
                 }
+
+                if (location && (location.campusID == exceptionTimezoneCampusID)) {
+                    feedEvent.timeZone = exceptionTimezone
+                } else if (event.campusID == exceptionTimezoneCampusID) {
+                    feedEvent.timeZone = exceptionTimezone
+                } else {
+                    feedEvent.timeZone = defaultTimezone
+                }
+
+                feedEvent.setStartDate(instance.start)
+                feedEvent.setStartTime(instance.start)
+                feedEvent.setEndDate(instance.end)
+                feedEvent.setEndTime(instance.end)
 
                 if (event.departmentIDs) {
                     List<String> departmentNames = []
@@ -152,7 +175,6 @@ class FeedResource extends Resource {
                         }
                     }
                 }
-
                 feedEvents.add(feedEvent)
             }
         }
@@ -186,10 +208,8 @@ class FeedResource extends Resource {
 }
 
 class FeedEvent {
-    static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy")
-            .withZone(ZoneId.of("America/Los_Angeles"))
-    static final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm")
-            .withZone(ZoneId.of("America/Los_Angeles"))
+    @JsonIgnore
+    String timeZone
 
     //Fields and names gathered from https://support.localist.com/bulk-add/
 
@@ -202,12 +222,41 @@ class FeedEvent {
 
     @JsonProperty("Date From")
     String startDate
+    @JsonIgnore
+    void setStartDate(ZonedDateTime zonedStartDate) {
+        this.startDate = zonedStartDate.format(dateFormat())
+    }
+
     @JsonProperty("Date To")
     String endDate
+    @JsonIgnore
+    void setEndDate(ZonedDateTime zonedEndDate) {
+        this.endDate = zonedEndDate.format(dateFormat())
+    }
+
     @JsonProperty("Start Time")
     String startTime
+    @JsonIgnore
+    void setStartTime(ZonedDateTime zonedStartDate) {
+        this.startTime = zonedStartDate.format(timeFormat())
+    }
+
     @JsonProperty("End Time")
     String endTime
+    @JsonIgnore
+    void setEndTime(ZonedDateTime zonedEndDate) {
+        this.endTime = zonedEndDate.format(timeFormat())
+    }
+
+    private DateTimeFormatter dateFormat() {
+        DateTimeFormatter.ofPattern("MM/dd/yyyy")
+                .withZone(ZoneId.of(this.timeZone))
+    }
+
+    private DateTimeFormatter timeFormat() {
+        DateTimeFormatter.ofPattern("HH:mm")
+                .withZone(ZoneId.of(this.timeZone))
+    }
 
     @JsonProperty("Location")
     String location
