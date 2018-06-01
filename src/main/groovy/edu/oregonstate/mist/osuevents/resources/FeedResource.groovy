@@ -9,6 +9,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.osuevents.core.Campus
+import edu.oregonstate.mist.osuevents.core.Department
 import edu.oregonstate.mist.osuevents.core.Event
 import edu.oregonstate.mist.osuevents.core.Location
 import edu.oregonstate.mist.osuevents.db.EventsDAOWrapper
@@ -112,6 +113,27 @@ class FeedResource extends Resource {
                     }
                 } else if (event.otherLocationName) {
                     feedEvent.location = event.otherLocationName
+                }
+
+                if (event.departmentIDs) {
+                    List<String> departmentNames = []
+
+                    event.departmentIDs.each { departmentID ->
+                        if (departments[departmentID]) {
+                            departmentNames.add((String)departments[departmentID])
+                        } else {
+                            Department department = localistDAO.getDepartmentByID(departmentID)
+                            if (department) {
+                                departments[departmentID] = department.name
+                                departmentNames.add(department.name)
+                            } else {
+                                // if we can't find the department name,
+                                // use the ID as a backup/for debugging
+                                departmentNames.add(departmentID)
+                            }
+                        }
+                    }
+                    feedEvent.setDepartments(departmentNames)
                 }
 
                 if (event.campusID) {
@@ -236,6 +258,10 @@ class FeedEvent {
 
     @JsonProperty("Department")
     String departments
+    @JsonIgnore
+    void setDepartments(List<String> departments) {
+        this.departments = joinList(departments)
+    }
 
     @JsonProperty("Allows Reviews")
     String allowsReviews

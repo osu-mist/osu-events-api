@@ -219,13 +219,15 @@ class EventsResource extends Resource {
             addBadRequest("locationID is not a valid location ID.")
         }
 
-        def invalidDepartmentIDs = event.departmentIDs.unique().findAll {
-            !localistDAO.getDepartmentByID(it)
-        }
+        if (event.departmentIDs) {
+            def invalidDepartmentIDs = event.departmentIDs.unique().findAll {
+                !localistDAO.getDepartmentByID(it)
+            }
 
-        if (invalidDepartmentIDs) {
-            addBadRequest("These departmentIDs are invalid: " +
-                    joinListWithCommas(invalidDepartmentIDs))
+            if (invalidDepartmentIDs) {
+                addBadRequest("These departmentIDs are invalid: " +
+                        joinListWithCommas(invalidDepartmentIDs))
+            }
         }
 
         if (event.campusID && !localistDAO.getCampusByID(event.campusID)) {
