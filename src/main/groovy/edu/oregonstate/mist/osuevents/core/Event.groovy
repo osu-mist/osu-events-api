@@ -56,10 +56,14 @@ class Event {
 
     List<Instance> instances = []
 
-    public static Event fromResultObject(ResultObject resultObject) {
-        ObjectMapper objectMapper = new ObjectMapper()
-        objectMapper.registerModule(new JavaTimeModule())
+    static ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule())
 
+    /**
+     * Create new event from a ResultObject.
+     * @param resultObject
+     * @return
+     */
+    public static Event fromResultObject(ResultObject resultObject) {
         try {
             objectMapper.convertValue(resultObject.data['attributes'], Event.class)
         } catch (IllegalArgumentException e) {
