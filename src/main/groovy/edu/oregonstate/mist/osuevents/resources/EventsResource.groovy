@@ -85,7 +85,7 @@ class EventsResource extends Resource {
 
         Event createdEvent = eventsDAOWrapper.createEvent(event)
 
-        created(eventResultObject(createdEvent)).build()
+        accepted(eventResultObject(createdEvent)).build()
     }
 
     @PUT

@@ -50,8 +50,8 @@ paths:
           schema:
             $ref: "#/definitions/EventResultObject"
       responses:
-        201:
-          description: "Event successfully created."
+        202:
+          description: "Event successfully accepted."
           schema:
             $ref: "#/definitions/EventResultObject"
         400:
@@ -124,33 +124,31 @@ paths:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
-
-    # This is commented out until we have a process for deleting events in localist
-    # delete:
-    #   tags:
-    #     - events
-    #   description: "Delete an existing event."
-    #   parameters:
-    #     - name: eventID
-    #       in: path
-    #       description: "ID of an event"
-    #       required: true
-    #       type: integer
-    #   responses:
-    #     204:
-    #       description: "Event successfully deleted."
-    #     403:
-    #       description: "Forbidden - you don't have authorization to delete this event because you didn't create it."
-    #       schema:
-    #         $ref: "#/definitions/Error"
-    #     404:
-    #       description: "Not found"
-    #       schema:
-    #         $ref: "#/definitions/Error"
-    #     500:
-    #       description: "Internal Server Error"
-    #       schema:
-    #         $ref: "#/definitions/Error"
+    delete:
+       tags:
+         - events
+       description: "Delete an existing event."
+       parameters:
+         - name: eventID
+           in: path
+           description: "ID of an event"
+           required: true
+           type: integer
+       responses:
+         204:
+           description: "Event successfully deleted."
+         403:
+           description: "Forbidden - you don't have authorization to delete this event because you didn't create it."
+           schema:
+             $ref: "#/definitions/Error"
+         404:
+           description: "Not found"
+           schema:
+             $ref: "#/definitions/Error"
+         500:
+           description: "Internal Server Error"
+           schema:
+             $ref: "#/definitions/Error"
   /locations:
     get:
       tags:
