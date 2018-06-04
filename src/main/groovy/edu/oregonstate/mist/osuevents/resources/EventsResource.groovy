@@ -122,8 +122,6 @@ class EventsResource extends Resource {
     @Path('{id: [0-9a-zA-Z-]+}')
     Response updateEvent(@PathParam('id') String eventID,
                          @HeaderParam("OSU-API-ActAs") String actAs) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build()
-
         // Check that the event exists and the user can update it
         Response error = updateChecker(eventID, actAs)
 
@@ -136,6 +134,13 @@ class EventsResource extends Resource {
         noContent().build()
     }
 
+    /**
+     * Helper method to see if a 404 or 403 should be returned.
+     * Events can only be updated or deleted by the person that created it.
+     * @param eventID
+     * @param actAs
+     * @return
+     */
     private Response updateChecker(String eventID, String actAs) {
         Event event = eventsDAOWrapper.getEventByID(eventID)
 
@@ -153,6 +158,11 @@ class EventsResource extends Resource {
         responseBuilder.entity(errors).build()
     }
 
+    /**
+     * Validate the content of an event when creating or updating one
+     * @param resultObject
+     * @return
+     */
     private List<Error> eventErrors(ResultObject resultObject) {
         List<Error> errors = []
 
@@ -290,11 +300,22 @@ class EventsResource extends Resource {
         errors
     }
 
+    /**
+     * Find filters used that aren't valid.
+     * @param validFilters
+     * @param requestedIDs
+     * @return
+     */
     private List<String> getInvalidFilterIDs(List<Filter> validFilters,
                                                 List<String> requestedIDs) {
         requestedIDs - validFilters.collect { it.filterID }
     }
 
+    /**
+     * Join list for error messages.
+     * @param list
+     * @return
+     */
     private String joinListWithCommas(List<String> list) {
         list.join(", ")
     }

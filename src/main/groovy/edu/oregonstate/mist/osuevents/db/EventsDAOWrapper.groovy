@@ -13,6 +13,10 @@ class EventsDAOWrapper {
         this.eventsDAO = eventsDAO
     }
 
+    /**
+     * Get all events.
+     * @return
+     */
     List<Event> getEvents() {
         List<Event> events = eventsDAO.getEvents(null)
 
@@ -21,6 +25,11 @@ class EventsDAOWrapper {
         }
     }
 
+    /**
+     * Get single event by ID.
+     * @param eventID
+     * @return
+     */
     Event getEventByID(String eventID) {
         if (!eventID) {
             throw new EventsDAOWrapperException("Cannot get an event with a null eventID.")
@@ -38,6 +47,11 @@ class EventsDAOWrapper {
         }
     }
 
+    /**
+     * Create event, assigns a random UUID.
+     * @param event
+     * @return
+     */
     Event createEvent(Event event) {
         event.eventID = randomUUID() as String
 
@@ -48,6 +62,11 @@ class EventsDAOWrapper {
         getEventByID(event.eventID)
     }
 
+    /**
+     * Update event. Event object must include ID.
+     * @param event
+     * @return
+     */
     Event updateEvent(Event event) {
         if (!event.eventID) {
             throw new EventsDAOWrapperException(
@@ -61,10 +80,18 @@ class EventsDAOWrapper {
         getEventByID(event.eventID)
     }
 
+    /**
+     * Delete an event by its ID.
+     * @param eventID
+     */
     void deleteEvent(String eventID) {
         eventsDAO.deleteEvent(eventID)
     }
 
+    /**
+     * Helper method to create instances during event creation or updating.
+     * @param event
+     */
     private void createInstances(Event event) {
         event.instances.each {
             eventsDAO.createInstance(it, event.eventID)

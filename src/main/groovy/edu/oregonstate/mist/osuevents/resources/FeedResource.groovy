@@ -1,7 +1,6 @@
 package edu.oregonstate.mist.osuevents.resources
 
 import com.codahale.metrics.annotation.Timed
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonMappingException
@@ -23,8 +22,6 @@ import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.Response
-import java.time.LocalDate
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -55,6 +52,10 @@ class FeedResource extends Resource {
 
     }
 
+    /**
+     * Get a CSV list of events formatted for localist.
+     * @return
+     */
     @GET
     @Timed
     Response getFeed() {
@@ -189,6 +190,12 @@ class FeedResource extends Resource {
         Response.ok(csv).build()
     }
 
+    /**
+     * Helper method to return a list of filter names given their ID's.
+     * @param idList
+     * @param filters
+     * @return
+     */
     private List<String> getFilterNameListFromIDList(List<String> idList, List<Filter> filters) {
         idList.collect { id ->
             Filter filter

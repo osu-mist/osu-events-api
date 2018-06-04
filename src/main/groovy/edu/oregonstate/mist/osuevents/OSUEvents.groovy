@@ -79,7 +79,6 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
         departmentsResource.setEndpointUri(configuration.api.endpointUri)
         environment.jersey().register(departmentsResource)
 
-        //environment.jersey().register(new CSVMessageBodyWriter())
         environment.jersey().register(new FeedResource(
                 eventsDAOWrapper,
                 localistDAO,

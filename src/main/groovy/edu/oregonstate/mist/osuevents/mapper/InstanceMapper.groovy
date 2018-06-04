@@ -17,6 +17,11 @@ class InstanceMapper implements ResultSetMapper<Instance> {
         )
     }
 
+    /**
+     * Helper method to convert timestamp to ZonedDateTime
+     * @param timestamp
+     * @return
+     */
     private ZonedDateTime parseTimestamp(Timestamp timestamp) {
         if (timestamp) {
             ZonedDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("UTC"))

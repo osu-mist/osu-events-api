@@ -13,6 +13,9 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
 
+/**
+ * Custom binder for event object to handle formatting lists as json arrays.
+ */
 @BindingAnnotation(BindEvent.EventBinderFactor.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target([ElementType.PARAMETER])
@@ -20,6 +23,11 @@ public @interface BindEvent {
     public static class EventBinderFactor implements BinderFactory {
         private static ObjectMapper objectMapper = new ObjectMapper()
 
+        /**
+         * Format a list of strings as a json array of strings.
+         * @param list
+         * @return
+         */
         private static String formatJsonList(List<String> list) {
             objectMapper.writeValueAsString(list)
         }

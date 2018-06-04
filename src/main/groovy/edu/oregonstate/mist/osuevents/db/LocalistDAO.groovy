@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory
 
 import javax.ws.rs.core.UriBuilder
 
+/**
+ * DAO layer for interacting with localist via its REST API
+ */
 class LocalistDAO {
     HttpClient httpClient
     URI baseURI
@@ -44,12 +47,21 @@ class LocalistDAO {
         this.communitiesEndpoint = "/organizations/${organizationID}/communities"
     }
 
+    /**
+     * Get event topics from filters.
+     * @return
+     */
     List<EventTopic> getEventTopics() {
         Filters filters = getFilters()
 
         filters.eventTopics.collect { EventTopic.fromFilter(it) }
     }
 
+    /**
+     * Get single event topic by ID.
+     * @param id
+     * @return
+     */
     EventTopic getEventTopicByID(String id) {
         Filter filter = getFilters().eventTopics.find { it.filterID == id }
 
@@ -60,12 +72,21 @@ class LocalistDAO {
         }
     }
 
+    /**
+     * Get event types from filters.
+     * @return
+     */
     List<EventType> getEventTypes() {
         Filters filters = getFilters()
 
         filters.eventTypes.collect { EventType.fromFilter(it) }
     }
 
+    /**
+     * Get single event type by ID.
+     * @param id
+     * @return
+     */
     EventType getEventTypeByID(String id) {
         Filter filter = getFilters().eventTypes.find { it.filterID == id }
 
@@ -76,12 +97,21 @@ class LocalistDAO {
         }
     }
 
+    /**
+     * Get audiences from filters.
+     * @return
+     */
     List<Audience> getAudiences() {
         Filters filters = getFilters()
 
         filters.audiences.collect { Audience.fromFilter(it) }
     }
 
+    /**
+     * Get single audience by ID.
+     * @param id
+     * @return
+     */
     Audience getAudienceByID(String id) {
         Filter filter = getFilters().audiences.find { it.filterID == id }
 
@@ -92,12 +122,21 @@ class LocalistDAO {
         }
     }
 
+    /**
+     * Get counties from filters.
+     * @return
+     */
     List<County> getCounties() {
         Filters filters = getFilters()
 
         filters.counties.collect { County.fromFilter(it) }
     }
 
+    /**
+     * Get single county by ID.
+     * @param id
+     * @return
+     */
     County getCountyByID(String id) {
         Filter filter = getFilters().counties.find { it.filterID == id }
 
@@ -108,6 +147,12 @@ class LocalistDAO {
         }
     }
 
+    /**
+     * Get multiple campuses as well as pagination information.
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
     PaginatedCampuses getCampuses(Integer pageNumber, Integer pageSize) {
         HttpResponse response = getResponse(communitiesEndpoint, pageNumber, pageSize)
 
@@ -124,6 +169,11 @@ class LocalistDAO {
         )
     }
 
+    /**
+     * Get single campus by ID.
+     * @param id
+     * @return
+     */
     Campus getCampusByID(String id) {
         HttpResponse response = getResponse("${communitiesEndpoint}/${id}")
 
@@ -140,6 +190,12 @@ class LocalistDAO {
         }
     }
 
+    /**
+     * Get multiple locations as well as pagination information.
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
     PaginatedLocations getLocations(Integer pageNumber, Integer pageSize) {
         HttpResponse response = getResponse(placesEndpoint, pageNumber, pageSize)
 
@@ -156,6 +212,11 @@ class LocalistDAO {
         )
     }
 
+    /**
+     * Get single location by ID.
+     * @param id
+     * @return
+     */
     Location getlocationByID(String id) {
         HttpResponse response = getResponse("${placesEndpoint}/${id}")
 
@@ -172,6 +233,12 @@ class LocalistDAO {
         }
     }
 
+    /**
+     * Get multiple departments as well as pagination information.
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
     PagniatedDepartments getDepartments(Integer pageNumber, Integer pageSize) {
         HttpResponse response = getResponse(departmentsEndpoint, pageNumber, pageSize)
 
@@ -189,6 +256,12 @@ class LocalistDAO {
         )
     }
 
+    /**
+     * Get multiple departments as well as pagination information.
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
     edu.oregonstate.mist.osuevents.core.Department getDepartmentByID(String id) {
         HttpResponse response = getResponse("${departmentsEndpoint}/${id}")
 
@@ -206,6 +279,10 @@ class LocalistDAO {
         }
     }
 
+    /**
+     * Get all filters, including event types, event topics, audiences, and counties.
+     * @return
+     */
     Filters getFilters() {
         HttpResponse response = getResponse(filtersEndpoint)
 
@@ -214,6 +291,13 @@ class LocalistDAO {
         objectMapper.readValue(responseEntity, Filters)
     }
 
+    /**
+     * Sends HTTP GET request. Accepts pagination parameters.
+     * @param endpoint
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
     private HttpResponse getResponse(String endpoint,
                                      Integer pageNumber = null,
                                      Integer pageSize = null) {

@@ -44,6 +44,11 @@ class EventMapper implements ResultSetMapper<Event> {
             )
     }
 
+    /**
+     * Parse json array string as List<String>
+     * @param rawJson
+     * @return
+     */
     private List<String> parseJsonList(String rawJson) {
         objectMapper.readValue(rawJson, List)
     }
