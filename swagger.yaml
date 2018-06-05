@@ -477,74 +477,109 @@ definitions:
         type: string
         example: events
       attributes:
+        required:
+          - title
+          - description
+          - contactName
+          - contactEmail
+          - intances
         properties:
           title:
             type: string
+            description: Title of event
           description:
             type: string
+            description: Long description of event
           locationID:
             type: string
+            description: Location ID from locations resource
           otherLocationName:
             type: string
-            description: Arbitrary location name if locationID is not used.
+            description: Arbitrary location name if locationID is not used
           room:
             type: string
+            description: Arbitrary description of room location
           address:
             type: string
+            description: Address of event if locationID is not used
           city:
             type: string
+            description: City of even if locationID is not used
           countyIDs:
             type: array
             items:
               type: string
+              description: County ID, from counties resource
+            description: County's associated with event
           state:
             type: string
+            description: US state of event if locationID is not used
           campusID:
             type: string
+            description: Campus ID of event if locationID is not used
           eventURL:
             type: string
+            description: External URL of event to get more information
           photoURL:
             type: string
+            description: Should point to a single photo to be imported with the event
           ticketURL:
             type: string
+            description: Website where tickets can be purchased
           ticketCost:
             type: string
+            description: Arbitrary description of ticket cost
           hashtag:
             type: string
+            description: Hashtag of event for social media purposes
           keywords:
             type: array
             items:
               type: string
+            description: Keywords associated with event for search purposes
           tags:
             type: array
             items:
               type: string
+            description: Tags associated with event for filtering and organization
           allowsReviews:
             type: boolean
+            description: If true, a user can review the event
           allowUserActivity:
             type: boolean
+            description: If true, a user can indicate interest, attendance or follow the event
           departmentIDs:
             type: array
             items:
               type: string
+            description: Department IDs from departments resource that are associated with the event
           contactName:
             type: string
+            description: Public facing contact name of person that can reached for questions or information
           contactEmail:
             type: string
+            description: Public facing contact email of person that can reached for questions or information
           contactPhone:
             type: string
+            description: Public facing contact phone number of person that can reached for questions or information
           eventTypeIDs:
             type: array
             items:
               type: string
+              description: Event type ID, from event-types resource
+            description: Event types associated with event
           eventTopicIDs:
             type: array
             items:
               type: string
+              description: Event topic ID, from event-topics resource
+            description: Event topics associated with event
           audienceIDs:
             type: array
             items:
               type: string
+              description: Audience ID, from audiences resource
+            description: Audiences associated with event
           visibility:
             type: string
             enum:
@@ -556,13 +591,18 @@ definitions:
           instances:
             type: array
             items:
+              required:
+                - startTime
               properties:
                 startTime:
                   type: string
                   format: date-time
+                  description: ISO8601 formatted full-date
                 endTime:
                   type: string
                   format: date-time
+                  description: ISO8601 formatted full-date
+
       links:
         $ref: "#/definitions/SelfLink"
   LocationResultObject:
