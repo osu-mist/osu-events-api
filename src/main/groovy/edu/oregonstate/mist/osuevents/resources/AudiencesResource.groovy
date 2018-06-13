@@ -5,7 +5,7 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
-import edu.oregonstate.mist.osuevents.core.Audience
+import edu.oregonstate.mist.osuevents.core.SimpleFilterObject
 import edu.oregonstate.mist.osuevents.db.LocalistDAO
 import groovy.transform.TypeChecked
 
@@ -35,7 +35,7 @@ class AudiencesResource extends Resource {
     @Timed
     @Path('{id: [0-9a-zA-Z-]+}')
     Response getAudienceByID(@PathParam('id') String audienceID) {
-        Audience audience = localistDAO.getAudienceByID(audienceID)
+        SimpleFilterObject audience = localistDAO.getAudienceByID(audienceID)
 
         if (audience) {
             ResultObject resultObject = new ResultObject(
@@ -59,7 +59,7 @@ class AudiencesResource extends Resource {
         ok(resultObject).build()
     }
 
-    ResourceObject audienceResourceObject(Audience audience) {
+    ResourceObject audienceResourceObject(SimpleFilterObject audience) {
         resourceObjectBuilder.buildResourceObject(audience.id, "audiences", audience)
     }
 

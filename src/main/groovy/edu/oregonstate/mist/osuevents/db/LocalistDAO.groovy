@@ -3,15 +3,12 @@ package edu.oregonstate.mist.osuevents.db
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.oregonstate.mist.osuevents.core.Audience
 import edu.oregonstate.mist.osuevents.core.Campus
-import edu.oregonstate.mist.osuevents.core.County
-import edu.oregonstate.mist.osuevents.core.EventTopic
-import edu.oregonstate.mist.osuevents.core.EventType
 import edu.oregonstate.mist.osuevents.core.Location
 import edu.oregonstate.mist.osuevents.core.PaginatedCampuses
 import edu.oregonstate.mist.osuevents.core.PaginatedLocations
 import edu.oregonstate.mist.osuevents.core.PagniatedDepartments
+import edu.oregonstate.mist.osuevents.core.SimpleFilterObject
 import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
 import org.apache.http.client.HttpClient
@@ -51,10 +48,8 @@ class LocalistDAO {
      * Get event topics from filters.
      * @return
      */
-    List<EventTopic> getEventTopics() {
-        Filters filters = getFilters()
-
-        filters.eventTopics.collect { EventTopic.fromFilter(it) }
+    List<SimpleFilterObject> getEventTopics() {
+        getFilters().eventTopics.collect { createSimpleFilterObjectIfExists(it) }
     }
 
     /**
@@ -62,24 +57,17 @@ class LocalistDAO {
      * @param id
      * @return
      */
-    EventTopic getEventTopicByID(String id) {
+    SimpleFilterObject getEventTopicByID(String id) {
         Filter filter = getFilters().eventTopics.find { it.filterID == id }
-
-        if (filter) {
-            EventTopic.fromFilter(filter)
-        } else {
-            null
-        }
+        createSimpleFilterObjectIfExists(filter)
     }
 
     /**
      * Get event types from filters.
      * @return
      */
-    List<EventType> getEventTypes() {
-        Filters filters = getFilters()
-
-        filters.eventTypes.collect { EventType.fromFilter(it) }
+    List<SimpleFilterObject> getEventTypes() {
+        getFilters().eventTypes.collect { createSimpleFilterObjectIfExists(it) }
     }
 
     /**
@@ -87,24 +75,17 @@ class LocalistDAO {
      * @param id
      * @return
      */
-    EventType getEventTypeByID(String id) {
+    SimpleFilterObject getEventTypeByID(String id) {
         Filter filter = getFilters().eventTypes.find { it.filterID == id }
-
-        if (filter) {
-            EventType.fromFilter(filter)
-        } else {
-            null
-        }
+        createSimpleFilterObjectIfExists(filter)
     }
 
     /**
      * Get audiences from filters.
      * @return
      */
-    List<Audience> getAudiences() {
-        Filters filters = getFilters()
-
-        filters.audiences.collect { Audience.fromFilter(it) }
+    List<SimpleFilterObject> getAudiences() {
+        getFilters().audiences.collect { createSimpleFilterObjectIfExists(it) }
     }
 
     /**
@@ -112,24 +93,17 @@ class LocalistDAO {
      * @param id
      * @return
      */
-    Audience getAudienceByID(String id) {
+    SimpleFilterObject getAudienceByID(String id) {
         Filter filter = getFilters().audiences.find { it.filterID == id }
-
-        if (filter) {
-            Audience.fromFilter(filter)
-        } else {
-            null
-        }
+        createSimpleFilterObjectIfExists(filter)
     }
 
     /**
      * Get counties from filters.
      * @return
      */
-    List<County> getCounties() {
-        Filters filters = getFilters()
-
-        filters.counties.collect { County.fromFilter(it) }
+    List<SimpleFilterObject> getCounties() {
+        getFilters().counties.collect { createSimpleFilterObjectIfExists(it) }
     }
 
     /**
@@ -137,11 +111,15 @@ class LocalistDAO {
      * @param id
      * @return
      */
-    County getCountyByID(String id) {
+    SimpleFilterObject getCountyByID(String id) {
         Filter filter = getFilters().counties.find { it.filterID == id }
+        createSimpleFilterObjectIfExists(filter)
 
+    }
+
+    private SimpleFilterObject createSimpleFilterObjectIfExists(Filter filter) {
         if (filter) {
-            County.fromFilter(filter)
+            SimpleFilterObject.fromFilter(filter)
         } else {
             null
         }

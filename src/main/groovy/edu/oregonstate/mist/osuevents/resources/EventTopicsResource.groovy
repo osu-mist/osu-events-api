@@ -5,7 +5,7 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.ResourceObjectBuilder
-import edu.oregonstate.mist.osuevents.core.EventTopic
+import edu.oregonstate.mist.osuevents.core.SimpleFilterObject
 import edu.oregonstate.mist.osuevents.db.LocalistDAO
 import groovy.transform.TypeChecked
 
@@ -35,7 +35,7 @@ class EventTopicsResource extends Resource {
     @Timed
     @Path('{id: [0-9a-zA-Z-]+}')
     Response getEventTopicByID(@PathParam('id') String eventTopicID) {
-        EventTopic eventTopic = localistDAO.getEventTopicByID(eventTopicID)
+        SimpleFilterObject eventTopic = localistDAO.getEventTopicByID(eventTopicID)
 
         if (eventTopic) {
             ResultObject resultObject = new ResultObject(
@@ -59,7 +59,7 @@ class EventTopicsResource extends Resource {
         ok(resultObject).build()
     }
 
-    ResourceObject eventTopicResourceObject(EventTopic eventTopic) {
+    ResourceObject eventTopicResourceObject(SimpleFilterObject eventTopic) {
         resourceObjectBuilder.buildResourceObject(eventTopic.id, "event-topics", eventTopic)
     }
 
