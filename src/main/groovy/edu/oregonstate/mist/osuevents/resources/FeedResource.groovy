@@ -92,87 +92,89 @@ class FeedResource extends Resource {
                         visibility: event.visibility
                 )
 
-                feedEvent.setAllowsReviews(event.allowsReviews)
-                feedEvent.setAllowUserActivity(event.allowUserActivity)
-                feedEvent.setKeywords(event.keywords)
-                feedEvent.setTags(event.tags)
+                feedEvent.with {
+                    setAllowsReviews(event.allowsReviews)
+                    setAllowUserActivity(event.allowUserActivity)
+                    setKeywords(event.keywords)
+                    setTags(event.tags)
 
-                feedEvent.setCounties(getFilterNameListFromIDList(
-                        event.countyIDs, filters.counties))
-                feedEvent.setEventTypes(getFilterNameListFromIDList(
-                        event.eventTypeIDs, filters.eventTypes))
-                feedEvent.setEventTopics(getFilterNameListFromIDList(
-                        event.eventTopicIDs, filters.eventTopics))
-                feedEvent.setAudiences(getFilterNameListFromIDList(
-                        event.audienceIDs, filters.audiences))
+                    setCounties(getFilterNameListFromIDList(
+                            event.countyIDs, filters.counties))
+                    setEventTypes(getFilterNameListFromIDList(
+                            event.eventTypeIDs, filters.eventTypes))
+                    setEventTopics(getFilterNameListFromIDList(
+                            event.eventTopicIDs, filters.eventTopics))
+                    setAudiences(getFilterNameListFromIDList(
+                            event.audienceIDs, filters.audiences))
 
-                Location location
-                if (event.locationID) {
-                    if (locations[event.locationID]) {
-                        feedEvent.location = locations[event.locationID]
-                    } else {
-                        location = localistDAO.getlocationByID(event.locationID)
-
-                        if (location) {
-                            locations[event.locationID] = location.name
-                            feedEvent.location = location.name
+                    Location location
+                    if (event.locationID) {
+                        if (locations[event.locationID]) {
+                            feedEvent.location = locations[event.locationID]
                         } else {
-                            // if we can't find the location name,
-                            // use the ID as a backup/for debugging
-                            feedEvent.location = event.locationID
-                        }
-                    }
-                } else if (event.otherLocationName) {
-                    feedEvent.location = event.otherLocationName
-                }
+                            location = localistDAO.getlocationByID(event.locationID)
 
-                if (location && (location.campusID == exceptionTimezoneCampusID)) {
-                    feedEvent.timeZone = exceptionTimezone
-                } else if (event.campusID == exceptionTimezoneCampusID) {
-                    feedEvent.timeZone = exceptionTimezone
-                } else {
-                    feedEvent.timeZone = defaultTimezone
-                }
-
-                feedEvent.setStartDate(instance.start)
-                feedEvent.setStartTime(instance.start)
-                feedEvent.setEndDate(instance.end)
-                feedEvent.setEndTime(instance.end)
-
-                if (event.departmentIDs) {
-                    List<String> departmentNames = []
-
-                    event.departmentIDs.each { departmentID ->
-                        if (departments[departmentID]) {
-                            departmentNames.add((String)departments[departmentID])
-                        } else {
-                            Department department = localistDAO.getDepartmentByID(departmentID)
-                            if (department) {
-                                departments[departmentID] = department.name
-                                departmentNames.add(department.name)
+                            if (location) {
+                                locations[event.locationID] = location.name
+                                feedEvent.location = location.name
                             } else {
-                                // if we can't find the department name,
+                                // if we can't find the location name,
                                 // use the ID as a backup/for debugging
-                                departmentNames.add(departmentID)
+                                feedEvent.location = event.locationID
                             }
                         }
+                    } else if (event.otherLocationName) {
+                        feedEvent.location = event.otherLocationName
                     }
-                    feedEvent.setDepartments(departmentNames)
-                }
 
-                if (event.campusID) {
-                    if (campuses[event.campusID]) {
-                        feedEvent.campus = campuses[event.campusID]
+                    if (location && (location.campusID == exceptionTimezoneCampusID)) {
+                        timeZone = exceptionTimezone
+                    } else if (event.campusID == exceptionTimezoneCampusID) {
+                        timeZone = exceptionTimezone
                     } else {
-                        Campus campus = localistDAO.getCampusByID(event.campusID)
+                        timeZone = defaultTimezone
+                    }
 
-                        if (campus) {
-                            campuses[event.campusID] = campus.name
-                            feedEvent.campus = campus.name
+                    setStartDate(instance.start)
+                    setStartTime(instance.start)
+                    setEndDate(instance.end)
+                    setEndTime(instance.end)
+
+                    if (event.departmentIDs) {
+                        List<String> departmentNames = []
+
+                        event.departmentIDs.each { departmentID ->
+                            if (departments[departmentID]) {
+                                departmentNames.add((String) departments[departmentID])
+                            } else {
+                                Department department = localistDAO.getDepartmentByID(departmentID)
+                                if (department) {
+                                    departments[departmentID] = department.name
+                                    departmentNames.add(department.name)
+                                } else {
+                                    // if we can't find the department name,
+                                    // use the ID as a backup/for debugging
+                                    departmentNames.add(departmentID)
+                                }
+                            }
+                        }
+                        setDepartments(departmentNames)
+                    }
+
+                    if (event.campusID) {
+                        if (campuses[event.campusID]) {
+                            campus = campuses[event.campusID]
                         } else {
-                            // if we can't find the location name,
-                            // use the ID as a backup/for debugging
-                            feedEvent.campus = event.campusID
+                            Campus campus = localistDAO.getCampusByID(event.campusID)
+
+                            if (campus) {
+                                campuses[event.campusID] = campus.name
+                                feedEvent.campus = campus.name
+                            } else {
+                                // if we can't find the location name,
+                                // use the ID as a backup/for debugging
+                                feedEvent.campus = event.campusID
+                            }
                         }
                     }
                 }

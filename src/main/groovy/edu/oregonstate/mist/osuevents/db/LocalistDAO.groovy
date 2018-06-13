@@ -117,12 +117,13 @@ class LocalistDAO {
 
     }
 
+    /**
+     * Helper method to return a SimpleFilterObject if the filter is non-null
+     * @param filter
+     * @return
+     */
     private SimpleFilterObject createSimpleFilterObjectIfExists(Filter filter) {
-        if (filter) {
-            SimpleFilterObject.fromFilter(filter)
-        } else {
-            null
-        }
+        filter ? SimpleFilterObject.fromFilter(filter) : null
     }
 
     /**
@@ -387,12 +388,14 @@ class Place {
 
     @JsonProperty("geo")
     private void unpackGeo(Map<String, String> geo) {
-        this.latitude = geo.get("latitude")
-        this.longitude = geo.get("longitude")
-        this.street = geo.get("street")
-        this.city = geo.get("city")
-        this.state = geo.get("state")
-        this.zip = geo.get("zip")
+        geo.with {
+            this.latitude = get("latitude")
+            this.longitude = get("longitude")
+            this.street = get("street")
+            this.city = get("city")
+            this.state = get("state")
+            this.zip = get("zip")
+        }
     }
 }
 
