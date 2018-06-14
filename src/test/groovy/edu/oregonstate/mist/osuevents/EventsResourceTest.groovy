@@ -1,184 +1,84 @@
 package edu.oregonstate.mist.osuevents
 
-import edu.oregonstate.mist.osuevents.resources.CSVHelperFunctions
-import edu.oregonstate.mist.api.AuthenticatedUser
+import edu.oregonstate.mist.api.Error
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.osuevents.core.Event
-import edu.oregonstate.mist.osuevents.core.Instance
-import edu.oregonstate.mist.osuevents.db.EventsDAO
-import edu.oregonstate.mist.osuevents.resources.ErrorMessages
+import edu.oregonstate.mist.osuevents.db.EventsDAOWrapper
 import edu.oregonstate.mist.osuevents.resources.EventsResource
 import groovy.mock.interceptor.MockFor
-import io.dropwizard.testing.junit.DropwizardAppRule
-import org.junit.ClassRule
+import org.junit.Before
 import org.junit.Test
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
-import static java.util.UUID.randomUUID
+import javax.ws.rs.core.Response
+
+import static org.junit.Assert.assertEquals
 
 class EventsResourceTest {
-    static def user = new AuthenticatedUser('nobody')
+    ResourceObjectBuilder resourceObjectBuilder
 
-    static ResultObject basicEvent(String id = randomUUID() as String) {
-        new ResultObject(
-                data: new ResourceObject(
-                        id: id,
-                        attributes: new Event (
-                                title: 'Unit Test Event',
-                                description: 'Come enjoy some structured unit testing.',
-                                room: 'Some Place in Memory',
-                                cost: 'Some CPU threads',
-                                allowsReviews: true,
-                                sponsored: false,
-                                visibility: 'Developers'
-                        )
-                )
-        )
-    }
-
-    @ClassRule
-    public static final DropwizardAppRule<OSUEventsConfiguration> APPLICATION =
-            new DropwizardAppRule<OSUEventsConfiguration>(
-                    OSUEvents.class,
-                    new File("configuration.yaml").absolutePath)
-
-    @Test
-    public void testCSVDateFormat() {
-        ZoneId csvTimeZone = ZoneId.of("America/Los_Angeles")
-        ZonedDateTime inputDate = ZonedDateTime.of(2012, 11, 20, 12, 0, 0, 0, ZoneId.of("UTC"))
-
-        DateTimeFormatter csvDateFormat = DateTimeFormatter
-                .ofPattern("MM/dd/yyyy hh:mm a")
-                .withZone(csvTimeZone)
-
-        String csvDate = CSVHelperFunctions.getCSVDate(inputDate, csvTimeZone) +
-                " " +
-                CSVHelperFunctions.getCSVTime(inputDate, csvTimeZone)
-        
-        ZonedDateTime csvParsedDate = ZonedDateTime.parse(csvDate, csvDateFormat)
-
-        assert csvParsedDate == inputDate.withZoneSameInstant(csvTimeZone)
+    @Before
+    void setResourceObjectBuilder() {
+        resourceObjectBuilder = new ResourceObjectBuilder(new URI("http://example.com/foo"))
     }
 
     @Test
-    public void testGetById() {
-        def mock = new MockFor(EventsDAO)
+    void testGetEventByID() {
+        def notFoundEventsDAOWrapper = getMockEventsDAOWrapper()
+        notFoundEventsDAOWrapper.demand.getEventByID() { String eventID -> null }
 
-        ResourceObject event = basicEvent().data
-        mock.demand.getById() { event }
+        EventsResource eventsResource = getEventsResource(notFoundEventsDAOWrapper,
+                null)
 
-        ZonedDateTime start = ZonedDateTime.of(2012, 11, 20, 12, 0, 0, 0, ZoneId.of("UTC"))
-        ZonedDateTime end = ZonedDateTime.of(2012, 11, 20, 13, 0, 0, 0, ZoneId.of("UTC"))
+        Response notFoundResponse = eventsResource.getEventByID("something")
+        assertEquals(404, notFoundResponse.status)
+        assertEquals(Error.class, notFoundResponse.entity.class)
 
-        mock.demand.getInstances() {
-            List<Instance> instances = []
-            instances.add(new Instance(
-                    id: 'instanceid',
-                    start: start,
-                    end: end
-            ))
-            instances
-        }
+        def foundEventsDAOWrapper = getMockEventsDAOWrapper()
+        foundEventsDAOWrapper.demand.getEventByID() { String eventID -> sampleEvent() }
+        eventsResource = getEventsResource(foundEventsDAOWrapper, null)
 
-        def dao = mock.proxyInstance()
-        def resource = new EventsResource(dao)
-        def getByIdResponse = resource.getByID(user, null)
+        Response goodResponse = eventsResource.getEventByID("something")
+        assertEquals(200, goodResponse.status)
 
-        // test overall response
-        assert getByIdResponse.status == 200
-        assert getByIdResponse.entity.data == [event]
-
-        // test instances
-        getByIdResponse.entity.data.attributes.instances.each {
-            assert it.start == [start]
-            assert it.start.zone == [ZoneId.of("UTC")]
-            assert it.end == [end]
-            assert it.end.zone == [ZoneId.of("UTC")]
-        }
+        def event = goodResponse.entity["data"]["attributes"]
+        assertEquals(Event.class, event.class)
+        assertEquals(EventTest.validSampleEvent, event)
     }
 
     @Test
-    public void testDeleteById() {
-        def mock = new MockFor(EventsDAO)
-        mock.demand.getById() { true }
-        mock.demand.deleteEvent() {}
+    void testGetEvents() {
+        def eventsDAOWrapper = getMockEventsDAOWrapper()
 
-        def dao = mock.proxyInstance()
-        def resource = new EventsResource(dao)
-        def deleteEventResponse = resource.deleteEvent(user, null)
+        List<Event> events = [sampleEvent(), sampleEvent()]
 
-        assert deleteEventResponse.entity == null
-        assert deleteEventResponse.status == 204
+        eventsDAOWrapper.demand.getEvents() { events }
+
+        EventsResource eventsResource = getEventsResource(eventsDAOWrapper, null)
+        Response goodResponse = eventsResource.getEvents()
+
+        assertEquals(200, goodResponse.status)
+        List<ResourceObject> returnedEvents = goodResponse.entity["data"]
+        assertEquals(2, returnedEvents.size())
     }
 
     @Test
-    public void testBadUUID() {
-        def mock = new MockFor(EventsDAO)
-        mock.demand.getById() { false }
-
-        ResultObject event = basicEvent("badID1234")
-
-        def dao = mock.proxyInstance()
-        def resource = new EventsResource(dao)
-        def createEventResponse = resource.createEvent(user, event)
-
-        assert createEventResponse.status == 400
-        assert createEventResponse.entity.size() == 1
-        assert createEventResponse.entity.developerMessage == [ErrorMessages.invalidUUID]
-
+    void testCreateEvent() {
+        def eventsDAOWrapper = getMockEventsDAOWrapper()
+        eventsDAOWrapper.demand.createEvent() { Event event -> sampleEvent() }
+        eventsDAOWrapper.demand.getEventByID() { String eventID -> sampleEvent() }
+        getEventsResource(eventsDAOWrapper, null)
     }
 
-    @Test
-    public void testExistingID() {
-        def mock = new MockFor(EventsDAO)
-        mock.demand.getById() { true }
-
-        ResultObject event = basicEvent()
-
-        def dao = mock.proxyInstance()
-        def resource = new EventsResource(dao)
-        def createEventResponse = resource.createEvent(user, event)
-
-        assert createEventResponse.status == 400
-        assert createEventResponse.entity.size() == 1
-        assert createEventResponse.entity.developerMessage == [ErrorMessages.idExists]
+    private Event sampleEvent() {
+        EventTest.validSampleEvent
     }
 
-    @Test
-    public void testNonMatchingIDs() {
-        def mock = new MockFor(EventsDAO)
-        mock.demand.getById() { true }
-
-        String pathID = "eventID"
-        ResultObject event = basicEvent()
-
-        def dao = mock.proxyInstance()
-        def resource = new EventsResource(dao)
-        def updateEventResponse = resource.updateEvent(user, pathID, event)
-
-        assert updateEventResponse.status == 400
-        assert updateEventResponse.entity.size() == 1
-        assert updateEventResponse.entity.developerMessage == [ErrorMessages.mismatchID]
+    private MockFor getMockEventsDAOWrapper() {
+        new MockFor(EventsDAOWrapper)
     }
 
-    @Test
-    public void testBadFields() {
-        def mock = new MockFor(EventsDAO)
-        mock.demand.getById() { false }
-
-        ResultObject badEvent = basicEvent()
-        def badData = [badField: 'bad data', badNumberField: 3453]
-        badEvent.data = badData
-
-        def dao = mock.proxyInstance()
-        def resource = new EventsResource(dao)
-        def createEventResponse = resource.createEvent(user, badEvent)
-
-        assert createEventResponse.status == 400
-        assert createEventResponse.entity.size() == 1
-        assert createEventResponse.entity.developerMessage == [ErrorMessages.unknownFields]
+    private EventsResource getEventsResource(MockFor eventsDAOWrapper, MockFor localistDAO) {
+        new EventsResource(eventsDAOWrapper?.proxyInstance(),
+                localistDAO?.proxyInstance(), resourceObjectBuilder)
     }
 }

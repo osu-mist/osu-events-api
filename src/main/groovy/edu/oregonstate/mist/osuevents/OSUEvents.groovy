@@ -1,66 +1,28 @@
 package edu.oregonstate.mist.osuevents
 
-import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle
-import edu.oregonstate.mist.api.BuildInfoManager
-import edu.oregonstate.mist.api.Configuration
-import edu.oregonstate.mist.api.Resource
-import edu.oregonstate.mist.api.InfoResource
-import edu.oregonstate.mist.api.AuthenticatedUser
-import edu.oregonstate.mist.api.BasicAuthenticator
-import edu.oregonstate.mist.api.PrettyPrintResponseFilter
-import edu.oregonstate.mist.api.jsonapi.GenericExceptionMapper
-import edu.oregonstate.mist.api.jsonapi.NotFoundExceptionMapper
-import edu.oregonstate.mist.osuevents.db.CacheDAO
+import edu.oregonstate.mist.api.Application
+import edu.oregonstate.mist.osuevents.db.LocalistDAO
 import edu.oregonstate.mist.osuevents.db.EventsDAO
-import edu.oregonstate.mist.osuevents.db.UtilHttp
+import edu.oregonstate.mist.osuevents.db.EventsDAOWrapper
 import edu.oregonstate.mist.osuevents.health.EventsHealthCheck
-import edu.oregonstate.mist.osuevents.resources.CacheResource
+import edu.oregonstate.mist.osuevents.resources.AudiencesResource
+import edu.oregonstate.mist.osuevents.resources.CampusesResource
+import edu.oregonstate.mist.osuevents.resources.CountiesResource
+import edu.oregonstate.mist.osuevents.resources.DepartmentsResource
+import edu.oregonstate.mist.osuevents.resources.EventTopicsResource
+import edu.oregonstate.mist.osuevents.resources.EventTypesResource
 import edu.oregonstate.mist.osuevents.resources.EventsResource
-import io.dropwizard.Application
-import io.dropwizard.auth.AuthDynamicFeature
-import io.dropwizard.auth.AuthValueFactoryProvider
-import io.dropwizard.auth.basic.BasicCredentialAuthFilter
+import edu.oregonstate.mist.osuevents.resources.FeedResource
+import edu.oregonstate.mist.osuevents.resources.LocationsResource
 import io.dropwizard.client.HttpClientBuilder
-import org.apache.http.client.HttpClient
 import org.skife.jdbi.v2.DBI
 import io.dropwizard.jdbi.DBIFactory
-import io.dropwizard.jersey.errors.LoggingExceptionMapper
-import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
-import javax.ws.rs.WebApplicationException
 
 /**
  * Main application class.
  */
 class OSUEvents extends Application<OSUEventsConfiguration> {
-    /**
-     * Initializes application bootstrap.
-     *
-     * @param bootstrap
-     */
-    @Override
-    public void initialize(Bootstrap<Configuration> bootstrap) {
-        bootstrap.addBundle(new TemplateConfigBundle())
-    }
-
-    /**
-     * Registers lifecycle managers and Jersey exception mappers
-     * and container response filters
-     *
-     * @param environment
-     * @param buildInfoManager
-     */
-    protected void registerAppManagerLogic(Environment environment,
-                                           BuildInfoManager buildInfoManager) {
-
-        environment.lifecycle().manage(buildInfoManager)
-
-        environment.jersey().register(new NotFoundExceptionMapper())
-        environment.jersey().register(new GenericExceptionMapper())
-        environment.jersey().register(new LoggingExceptionMapper<WebApplicationException>(){})
-        environment.jersey().register(new PrettyPrintResponseFilter())
-    }
-
     /**
      * Parses command-line arguments and runs the application.
      *
@@ -69,40 +31,61 @@ class OSUEvents extends Application<OSUEventsConfiguration> {
      */
     @Override
     public void run(OSUEventsConfiguration configuration, Environment environment) {
-        Resource.loadProperties()
-        BuildInfoManager buildInfoManager = new BuildInfoManager()
-        registerAppManagerLogic(environment, buildInfoManager)
+        this.setup(configuration, environment)
 
-        environment.jersey().register(new InfoResource(buildInfoManager.getInfo()))
-        environment.jersey().register(new AuthDynamicFeature(
-                new BasicCredentialAuthFilter.Builder<AuthenticatedUser>()
-                        .setAuthenticator(new BasicAuthenticator(
-                            configuration.getCredentialsList()))
-                        .setRealm('OSUEvents')
-                        .buildAuthFilter()
-        ))
-        environment.jersey().register(new AuthValueFactoryProvider.Binder
-                <AuthenticatedUser>(AuthenticatedUser.class))
+        def httpClientBuilder = new HttpClientBuilder(environment)
+
+        if (configuration.httpClientConfiguration != null) {
+            httpClientBuilder.using(configuration.httpClientConfiguration)
+        }
 
         DBIFactory factory = new DBIFactory()
         DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "jdbi")
+
+        LocalistDAO localistDAO = new LocalistDAO(
+                httpClientBuilder.build("backend-http-client"),
+                configuration.calendarAPI.baseUrl,
+                configuration.calendarAPI.organizationID)
+
         EventsDAO eventsDAO = jdbi.onDemand(EventsDAO.class)
-        String backendTimezone = configuration.cacheSource.get("backendTimezone")
-        environment.jersey().register(new EventsResource(eventsDAO, backendTimezone))
+        EventsDAOWrapper eventsDAOWrapper = new EventsDAOWrapper(eventsDAO)
 
-        HttpClient httpClient = new HttpClientBuilder(environment)
-                .using(configuration.getHttpClientConfiguration())
-                .build("backend-http-client")
+        ResourceObjectBuilder resourceObjectBuilder = new ResourceObjectBuilder(
+                configuration.api.endpointUri)
 
-        UtilHttp utilHttp = new UtilHttp(configuration.cacheSource)
-
-        CacheDAO cacheDAO = new CacheDAO(utilHttp, httpClient)
-        def cacheResource = new CacheResource(cacheDAO, eventsDAO)
-        cacheResource.setEndpointUri(configuration.getApi().getEndpointUri())
-        environment.jersey().register(cacheResource)
+        environment.jersey().register(new EventsResource(eventsDAOWrapper,
+                localistDAO,
+                resourceObjectBuilder))
 
         EventsHealthCheck healthCheck = new EventsHealthCheck(eventsDAO)
         environment.healthChecks().register("eventsHealthCheck", healthCheck)
+
+        environment.jersey().register(new EventTopicsResource(localistDAO, resourceObjectBuilder))
+        environment.jersey().register(new EventTypesResource(localistDAO, resourceObjectBuilder))
+        environment.jersey().register(new AudiencesResource(localistDAO, resourceObjectBuilder))
+        environment.jersey().register(new CountiesResource(localistDAO, resourceObjectBuilder))
+
+        CampusesResource campusesResource = new CampusesResource(localistDAO, resourceObjectBuilder)
+        campusesResource.setEndpointUri(configuration.api.endpointUri)
+        environment.jersey().register(campusesResource)
+
+        LocationsResource locationsResource = new LocationsResource(localistDAO,
+                resourceObjectBuilder)
+        locationsResource.setEndpointUri(configuration.api.endpointUri)
+        environment.jersey().register(locationsResource)
+
+        DepartmentsResource departmentsResource = new DepartmentsResource(localistDAO,
+                resourceObjectBuilder)
+        departmentsResource.setEndpointUri(configuration.api.endpointUri)
+        environment.jersey().register(departmentsResource)
+
+        environment.jersey().register(new FeedResource(
+                eventsDAOWrapper,
+                localistDAO,
+                configuration.calendarAPI.defaultTimezone,
+                configuration.calendarAPI.exceptionTimezone,
+                configuration.calendarAPI.exceptionTimezoneCampusID
+        ))
     }
 
     /**

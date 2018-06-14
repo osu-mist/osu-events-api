@@ -3,7 +3,7 @@
 ## Do not commit changes that contain credentials or sensitive data!
 
 server:
-  allowedMethods: [GET, POST, PATCH, DELETE, PUT]
+  allowedMethods: [GET, POST, DELETE, PUT]
   rootPath: /api/v0/*
   applicationConnectors:
     - type: https
@@ -56,12 +56,15 @@ database:
   minSize: 1
   validationQuery: "SELECT 1 FROM dual"
 
-cache:
-  backendScheme: http
-  backendHost: backend.calendar.system.com
-  backendPath: /api/example
+# Configuration related to backend calendar vendor
+calendarAPI:
+  baseUrl: http://domain.localist.com #base url for API calls
+  organizationID: 188 #organization ID to set context for campuses
+
   # Use a timezone from this list: http://joda-time.sourceforge.net/timezones.html
-  backendTimezone: America/Los_Angeles
+  defaultTimezone: America/Los_Angeles #default timezone of calendar vendor
+  exceptionTimezone: America/Boise #for certain campuses or locations, a different timezone is used
+  exceptionTimezoneCampusID: 110 #campus ID that uses the exception timezone
 
 httpClient:
   timeout: 150000ms

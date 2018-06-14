@@ -4,14 +4,14 @@ import javax.ws.rs.core.Context
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.Response.ResponseBuilder
 import org.apache.http.client.utils.URIBuilder
+
+import javax.ws.rs.core.UriBuilder
 import javax.ws.rs.core.UriInfo
 
 /**
  * Abstract class for reusing common response messages.
  */
 abstract class Resource {
-    protected static Properties properties = new Properties()
-
     /**
      * Default page number used in pagination
      */
@@ -22,6 +22,11 @@ abstract class Resource {
      */
     public static final Integer DEFAULT_PAGE_SIZE = 10
 
+    /**
+     * Default max page size used in pagination.
+     */
+    public static Integer MAX_PAGE_SIZE = 100
+
     @Context
     UriInfo uriInfo
 
@@ -30,12 +35,13 @@ abstract class Resource {
      */
     private URI endpointUri
 
-    public static loadProperties() {
-        def stream = this.getResourceAsStream('resource.properties')
-        if (stream == null) {
-            throw new Exception("couldn't open resource.properties")
-        }
-        properties.load(stream)
+    /**
+     * Set the base URI used to provide JSON-API pagination links.
+     *
+     * @param endpointUri the base URI
+     */
+    void setEndpointUri(URI endpointUri) {
+        this.endpointUri = endpointUri
     }
 
     /**
@@ -45,8 +51,7 @@ abstract class Resource {
      * @return ok response builder
      */
     protected static ResponseBuilder ok(Object entity) {
-        ResponseBuilder responseBuilder = Response.ok()
-        responseBuilder.entity(entity)
+        Response.ok().entity(entity)
     }
 
     /**
@@ -56,8 +61,27 @@ abstract class Resource {
      * @return created response builder
      */
     protected static ResponseBuilder created(Object entity) {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.CREATED)
-        responseBuilder.entity(entity)
+        Response.status(Response.Status.CREATED)
+                .entity(entity)
+    }
+
+    /**
+     * Returns a builder for an HTTP 202 ("accepted") response with the argument entity as body.
+     * @param entity
+     * @return
+     */
+    protected static ResponseBuilder accepted(Object entity) {
+        Response.status(Response.Status.ACCEPTED)
+                .entity(entity)
+    }
+
+    /**
+     * Returns a builder for an HTTP 204 ("no content") response.
+     * @param entity
+     * @return
+     */
+    protected static ResponseBuilder noContent() {
+        Response.status(Response.Status.NO_CONTENT)
     }
 
     /**
@@ -67,14 +91,30 @@ abstract class Resource {
      * @return bad request response builder
      */
     protected static ResponseBuilder badRequest(String message) {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST)
-        responseBuilder.entity(new Error(
-                status: 400,
-                developerMessage: message,
-                userMessage: properties.get('badRequest.userMessage'),
-                code: Integer.parseInt(properties.get('badRequest.code')),
-                details: properties.get('badRequest.details')
+        Response.status(Response.Status.BAD_REQUEST)
+                .entity(Error.badRequest(message))
+    }
+
+    /**
+     * Returns a builder for an HTTP 400 when page[size] exceeds MAX_PAGE_SIZE
+     *
+     * @return bad request response builder
+     */
+    protected static ResponseBuilder pageSizeExceededError() {
+        Response.status(Response.Status.BAD_REQUEST)
+                .entity(Error.badRequest(
+                "page[size] cannot exceed ${MAX_PAGE_SIZE}."
         ))
+    }
+
+    /**
+     * Returns a builder for an HTTP 403 ("forbidden") response with an error message as body.
+     *
+     * @return forbidden response builder
+     */
+    protected static ResponseBuilder forbidden() {
+        Response.status(Response.Status.FORBIDDEN)
+                .entity(Error.forbidden())
     }
 
     /**
@@ -83,14 +123,8 @@ abstract class Resource {
      * @return not found response builder
      */
     protected static ResponseBuilder notFound() {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND)
-        responseBuilder.entity(new Error(
-                status: 404,
-                developerMessage: properties.get('notFound.developerMessage'),
-                userMessage: properties.get('notFound.userMessage'),
-                code: Integer.parseInt(properties.get('notFound.code')),
-                details: properties.get('notFound.details')
-        ))
+        Response.status(Response.Status.NOT_FOUND)
+                .entity(Error.notFound())
     }
 
     /**
@@ -99,14 +133,8 @@ abstract class Resource {
      * @return conflict response builder
      */
     protected static ResponseBuilder conflict() {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.CONFLICT)
-        responseBuilder.entity(new Error(
-                status: 409,
-                developerMessage: properties.get('conflict.developerMessage'),
-                userMessage: properties.get('conflict.userMessage'),
-                code: Integer.parseInt(properties.get('conflict.code')),
-                details: properties.get('conflict.details')
-        ))
+        Response.status(Response.Status.CONFLICT)
+                .entity(Error.conflict())
     }
 
     /**
@@ -116,18 +144,8 @@ abstract class Resource {
      * @return internal server error response builder
      */
     protected static ResponseBuilder internalServerError(String message) {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-        responseBuilder.entity(new Error(
-                status: 500,
-                developerMessage: message,
-                userMessage: properties.get('internalServerError.userMessage'),
-                code: Integer.parseInt(properties.get('internalServerError.code')),
-                details: properties.get('internalServerError.details')
-        ))
-    }
-
-    void setEndpointUri(URI endpointUri) {
-        this.endpointUri = endpointUri
+        Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(Error.internalServerError(message))
     }
 
     /**
@@ -141,11 +159,12 @@ abstract class Resource {
      * converted to page[number] and page[size].
      *
      * @param params a map of query parameters for the url
+     * @param resourceEndpoint: the endpoint to be appended on the uri.
      * @return the url
      */
-    protected String getPaginationUrl(Map params) {
-        URIBuilder uriBuilder = new URIBuilder(endpointUri).setPath(uriInfo.requestUri.path)
-
+    protected String getPaginationUrl(Map params, String resourceEndpoint) {
+        URI baseUri = UriBuilder.fromUri(endpointUri).path(resourceEndpoint).build()
+        URIBuilder uriBuilder = new URIBuilder(endpointUri).setPath(baseUri.path)
         // use a copy of params since other parameters could be present
         def nonNullParams = params.clone()
         nonNullParams.remove('pageSize')
@@ -162,6 +181,38 @@ abstract class Resource {
         uriBuilder.build().toString()
     }
 
+    protected Map getPagniationLinkMap(String resource, Integer totalPages) {
+        def links = [:]
+
+        links['self'] = getPaginationUrl(['pageNumber': getPageNumber(), 'pageSize': getPageSize()],
+                resource)
+
+        links['first'] = getPaginationUrl(['pageNumber': 1, 'pageSize': getPageSize()],
+                resource)
+
+        links['last'] = getPaginationUrl(['pageNumber': totalPages,
+                                          'pageSize': getPageSize()],
+                resource)
+
+        if (getPageNumber() <= 1) {
+            links['prev'] = null
+        } else {
+            links['prev'] = getPaginationUrl(['pageNumber': getPageNumber() - 1,
+                                              'pageSize': getPageSize()],
+                    resource)
+        }
+
+        if (getPageNumber() >= totalPages) {
+            links['next'] = null
+        } else {
+            links['next'] = getPaginationUrl(['pageNumber': getPageNumber() + 1,
+                                              'pageSize': getPageSize()],
+                    resource)
+        }
+
+        links
+    }
+
     /**
      *  Returns the page number used by pagination. The value of: page[number] in the url.
      *
@@ -169,7 +220,7 @@ abstract class Resource {
      */
     protected Integer getPageNumber() {
         def pageNumber = uriInfo.getQueryParameters().getFirst('page[number]')
-        if (!pageNumber || !pageNumber.isInteger() || pageNumber.toInteger() < 0) {
+        if (!pageNumber || !pageNumber.isInteger() || pageNumber.toInteger() <= 0) {
             return DEFAULT_PAGE_NUMBER
         }
 
@@ -183,10 +234,19 @@ abstract class Resource {
      */
     protected Integer getPageSize() {
         def pageSize = uriInfo.getQueryParameters().getFirst('page[size]')
-        if (!pageSize || !pageSize.isInteger() || pageSize.toInteger() < 0) {
+        if (!pageSize || !pageSize.isInteger() || pageSize.toInteger() <= 0) {
             return DEFAULT_PAGE_SIZE
         }
 
         pageSize.toInteger()
+    }
+
+    /**
+     * Returns true if page[size] exceeds MAX_PAGE_SIZE
+     *
+     * @return
+     */
+    protected Boolean maxPageSizeExceeded() {
+        getPageSize() > MAX_PAGE_SIZE
     }
 }

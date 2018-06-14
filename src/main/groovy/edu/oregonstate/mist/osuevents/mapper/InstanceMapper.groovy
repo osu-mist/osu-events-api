@@ -5,32 +5,28 @@ import org.skife.jdbi.v2.StatementContext
 import org.skife.jdbi.v2.tweak.ResultSetMapper
 import java.sql.ResultSet
 import java.sql.SQLException
+import java.sql.Timestamp
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 class InstanceMapper implements ResultSetMapper<Instance> {
     public Instance map(int i, ResultSet rs, StatementContext sc) throws SQLException {
         new Instance(
-                id: rs.getString("CLIENT_INSTANCE_ID"),
-                start: (rs.getString("START_TIME")) ?
-                        ZonedDateTime.parse(rs.getString("START_TIME"), dbFormatter) : null,
-                end: (rs.getString("END_TIME")) ?
-                        ZonedDateTime.parse(rs.getString("END_TIME"), dbFormatter) : null
+                start: parseTimestamp(rs.getTimestamp("START_TIME")),
+                end: parseTimestamp(rs.getTimestamp("END_TIME"))
         )
     }
-    private static DateTimeFormatter dbFormatter = DateTimeFormatter
-            .ofPattern("yyyy-MM-dd HH:mm:ss")
-            .withZone(ZoneId.of("UTC"))
 
-    public static String formatForDB (String inputDate) {
-        if (!inputDate || inputDate == "null") {
-            return null
+    /**
+     * Helper method to convert timestamp to ZonedDateTime
+     * @param timestamp
+     * @return
+     */
+    private ZonedDateTime parseTimestamp(Timestamp timestamp) {
+        if (timestamp) {
+            ZonedDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("UTC"))
+        } else {
+            null
         }
-        ZonedDateTime cleanDate = ZonedDateTime.parse(
-                inputDate,
-                DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-
-        cleanDate.format(dbFormatter)
     }
 }
