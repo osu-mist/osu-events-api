@@ -302,7 +302,7 @@ class LocalistDAO {
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 class Filters {
-    @JsonProperty("event_counties")
+    @JsonProperty("event_county")
     List<Filter> counties
 
     @JsonProperty("event_audience")
