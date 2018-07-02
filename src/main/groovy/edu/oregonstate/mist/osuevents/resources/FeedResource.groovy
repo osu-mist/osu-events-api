@@ -114,14 +114,10 @@ class FeedResource extends Resource {
                         } else {
                             location = localistDAO.getlocationByID(event.locationID)
 
-                            if (location) {
-                                locations[event.locationID] = location.name
-                                feedEvent.location = location.name
-                            } else {
-                                // if we can't find the location name,
-                                // use the ID as a backup/for debugging
-                                feedEvent.location = event.locationID
-                            }
+                            // if we can't find the location name,
+                            // use the ID as a backup/for debugging
+                            String locationName = location ? location.name : event.locationID
+                            locations[event.locationID] = feedEvent.location = locationName
                         }
                     } else if (event.otherLocationName) {
                         feedEvent.location = event.otherLocationName
@@ -148,14 +144,12 @@ class FeedResource extends Resource {
                                 departmentNames.add((String) departments[departmentID])
                             } else {
                                 Department department = localistDAO.getDepartmentByID(departmentID)
-                                if (department) {
-                                    departments[departmentID] = department.name
-                                    departmentNames.add(department.name)
-                                } else {
-                                    // if we can't find the department name,
-                                    // use the ID as a backup/for debugging
-                                    departmentNames.add(departmentID)
-                                }
+
+                                // if we can't find the department name,
+                                // use the ID as a backup/for debugging
+                                String departmentName = department ? department.name : departmentID
+                                departments[departmentID] = departmentName
+                                departmentNames.add(departmentName)
                             }
                         }
                         setDepartments(departmentNames)
@@ -167,14 +161,10 @@ class FeedResource extends Resource {
                         } else {
                             Campus campus = localistDAO.getCampusByID(event.campusID)
 
-                            if (campus) {
-                                campuses[event.campusID] = campus.name
-                                feedEvent.campus = campus.name
-                            } else {
-                                // if we can't find the location name,
-                                // use the ID as a backup/for debugging
-                                feedEvent.campus = event.campusID
-                            }
+                            // if we can't find the campus name,
+                            // use the ID as a backup/for debugging
+                            String campusName = campus ? campus.name : event.campusID
+                            campuses[event.campusID] = feedEvent.campus = campusName
                         }
                     }
                 }
