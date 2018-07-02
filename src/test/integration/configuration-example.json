@@ -1,0 +1,85 @@
+{
+    "hostname": "https://api.oregonstate.edu/",
+    "version": "v1",
+    "api": "/calendar/",
+    "token_api_url": "https://api.oregonstate.edu/oauth2/token",
+    "client_id": "client_id",
+    "client_secret": "client_secret",
+    "used_event_id": 1,
+    "unused_event_id": 977,
+    "invalid_event_id": 0,
+    "valid_event_create_body": {
+        "data": {
+            "id": null,
+            "type": "event",
+            "attributes": {
+                "title": "Party",
+                "description": "It's a party!",
+                "location": "Student Union",
+                "room": "Third door on the left",
+                "address": "123 Main St.",
+                "city": "Nullville",
+                "state": "Oregon",
+                "eventURL": "www.example.com",
+                "photoURL": "www.example.com",
+                "ticketURL": "www.example.com",
+                "facebookURL": "www.facebook.com/example",
+                "cost": "Free",
+                "hashtag": "nullvilleparty",
+                "keywords": "party, fun, awesome",
+                "tags": "activity, entertainment",
+                "group": "Party Group",
+                "department": "Department of Party",
+                "allowsReviews": true,
+                "sponsored": false,
+                "venuePageOnly": false,
+                "excludeFromTrending": true,
+                "visibility": null,
+                "customFields": [
+                    {
+                        "field": "Theme",
+                        "value": "Tropical Island"
+                    }
+                ],
+                "filters": [
+                    {
+                        "filter": "Event Type",
+                        "items": [
+                            "Party"
+                        ]
+                    },
+                    {
+                        "filter": "Meals Provided",
+                        "items": [
+                            "Lunch"
+                        ]
+                    }
+                ],
+                "instances": [
+                    {
+                        "id": "1",
+                        "start": "2017-01-13T12:00:00-08:00",
+                        "end": "2017-01-13T14:00:00-08:00"
+                    }
+                ]
+            }
+        }
+    },
+    "valid_event_update_body": {
+        "data": {
+            "id": "e116b4b4-3696-4b74-a5d5-21b2b9ad6fee",
+            "type": "event",
+            "attributes": {
+                "room": "Second floor, third door on the left",
+                "cost": "Free, but bring pizza money!",
+                "instances": [
+                    {
+                        "id": "1",
+                        "start": "2017-01-13T13:00:00-08:00",
+                        "end": "2017-01-13T15:00:00-08:00"
+                    }
+                ]
+            }
+        }
+    }
+}
