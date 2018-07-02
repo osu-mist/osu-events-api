@@ -5,78 +5,47 @@
     "token_api_url": "https://api.oregonstate.edu/oauth2/token",
     "client_id": "client_id",
     "client_secret": "client_secret",
-    "used_event_id": 1,
-    "unused_event_id": 977,
-    "invalid_event_id": 0,
-    "valid_event_create_body": {
+    "invalid_event_id": "invalidID",
+    "valid_event_body": {
         "data": {
             "id": null,
-            "type": "event",
+            "type": "events",
             "attributes": {
-                "title": "Party",
-                "description": "It's a party!",
-                "location": "Student Union",
-                "room": "Third door on the left",
-                "address": "123 Main St.",
-                "city": "Nullville",
+                "title": "Test event",
+                "description": "testing and testing and testing",
+                "locationID": null,
+                "otherLocationName": "Place for things",
+                "room": "some room",
+                "address": "123 Main street",
+                "city": "Corvallis",
                 "state": "Oregon",
-                "eventURL": "www.example.com",
-                "photoURL": "www.example.com",
-                "ticketURL": "www.example.com",
-                "facebookURL": "www.facebook.com/example",
-                "cost": "Free",
-                "hashtag": "nullvilleparty",
-                "keywords": "party, fun, awesome",
-                "tags": "activity, entertainment",
-                "group": "Party Group",
-                "department": "Department of Party",
-                "allowsReviews": true,
-                "sponsored": false,
-                "venuePageOnly": false,
-                "excludeFromTrending": true,
+                "countyIDs": null,
+                "campusID": null,
+                "eventURL": "www.eventurl.com",
+                "photoURL": "http://communications.oregonstate.edu/sites/communications.oregonstate.edu/files/beaverlogo_primary_v4.png",
+                "ticketURL": "www.ticketurl.com",
+                "ticketCost": "Lots of money! Like $400!",
+                "hashtag": "apisarecool",
+                "keywords": null,
+                "tags": null,
+                "allowsReviews": false,
+                "allowUserActivity": true,
+                "departmentIDs": null,
+                "contactName": "Contact Name",
+                "contactEmail": "contact@contact.com",
+                "contactPhone": "123-456-7890",
+                "eventTypeIDs": null,
+                "eventTopicIDs": null,
+                "audienceIDs": null,
                 "visibility": null,
-                "customFields": [
+                "instances": [
                     {
-                        "field": "Theme",
-                        "value": "Tropical Island"
-                    }
-                ],
-                "filters": [
-                    {
-                        "filter": "Event Type",
-                        "items": [
-                            "Party"
-                        ]
+                        "start": "2018-12-02T21:15:00Z",
+                        "end": "2018-12-02T21:30:00Z"
                     },
                     {
-                        "filter": "Meals Provided",
-                        "items": [
-                            "Lunch"
-                        ]
-                    }
-                ],
-                "instances": [
-                    {
-                        "id": "1",
-                        "start": "2017-01-13T12:00:00-08:00",
-                        "end": "2017-01-13T14:00:00-08:00"
-                    }
-                ]
-            }
-        }
-    },
-    "valid_event_update_body": {
-        "data": {
-            "id": "e116b4b4-3696-4b74-a5d5-21b2b9ad6fee",
-            "type": "event",
-            "attributes": {
-                "room": "Second floor, third door on the left",
-                "cost": "Free, but bring pizza money!",
-                "instances": [
-                    {
-                        "id": "1",
-                        "start": "2017-01-13T13:00:00-08:00",
-                        "end": "2017-01-13T15:00:00-08:00"
+                        "start": "2018-12-04T00:15:00Z",
+                        "end": "2018-12-04T00:30:00Z"
                     }
                 ]
             }
