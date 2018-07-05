@@ -66,7 +66,7 @@ calendarAPI:
   exceptionTimezone: America/Boise #for certain campuses or locations, a different timezone is used
   exceptionTimezoneCampusID: 110 #campus ID that uses the exception timezone
 
-httpClient:
+httpClientConfiguration:
   timeout: 150000ms
   connectionTimeout: 15000ms
   timeToLive: 1h
