@@ -1,0 +1,45 @@
+{
+    "data": {
+        "id": null,
+        "type": "events",
+        "attributes": {
+            "title": "Test event",
+            "description": "testing and testing and testing",
+            "locationID": null,
+            "otherLocationName": "Place for things",
+            "room": "some room",
+            "address": "123 Main street",
+            "city": "Corvallis",
+            "state": "Oregon",
+            "countyIDs": null,
+            "campusID": null,
+            "eventURL": "www.eventurl.com",
+            "photoURL": "http://communications.oregonstate.edu/sites/communications.oregonstate.edu/files/beaverlogo_primary_v4.png",
+            "ticketURL": "www.ticketurl.com",
+            "ticketCost": "Lots of money! Like $400!",
+            "hashtag": "apisarecool",
+            "keywords": null,
+            "tags": null,
+            "allowsReviews": false,
+            "allowUserActivity": true,
+            "departmentIDs": null,
+            "contactName": "Contact Name",
+            "contactEmail": "contact@contact.com",
+            "contactPhone": "123-456-7890",
+            "eventTypeIDs": null,
+            "eventTopicIDs": null,
+            "audienceIDs": null,
+            "visibility": null,
+            "instances": [
+                {
+                    "start": "2018-12-02T21:15:00Z",
+                    "end": "2018-12-02T21:30:00Z"
+                },
+                {
+                    "start": "2018-12-04T00:15:00Z",
+                    "end": "2018-12-04T00:30:00Z"
+                }
+            ]
+        }
+    }
+}

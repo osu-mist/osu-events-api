@@ -2,6 +2,7 @@ import argparse
 import requests
 import json
 import sys
+import logging
 
 
 def set_url(config):
@@ -17,21 +18,26 @@ def set_headers(token):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", help="path to input file", dest="inputfile")
+    parser.add_argument("event_body")
+    parser.add_argument("--info", help="show info logs", action="store_true")
     namespace, args = parser.parse_known_args()
+    if namespace.info:
+        logging.basicConfig(level=logging.INFO)
     return namespace, sys.argv[:1] + args
 
 
 # Retrieves OAUTH2 access token and sets authorization in headers
 def post_token(config):
+    token = "access_token"
     data = {
         "client_id": config["client_id"],
         "client_secret": config["client_secret"],
         "grant_type": "client_credentials"
     }
     response = requests.post(url=config["token_api_url"], data=data)
-    if "access_token" not in response.json():
+    if token not in response.json():
         sys.exit("Error: invalid OAUTH2 credentials")
-    set_headers(response.json()["access_token"])
+    set_headers(response.json()[token])
 
 
 def post_event(body):
@@ -54,6 +60,13 @@ def delete_event(id):
     )
 
 
+def get_feed(client_id):
+    return requests.get(
+        url="{}feed".format(url),
+        params={"apikey": client_id}
+    )
+
+
 # Generic request for GET /calendar/{result}
 def get_results(result):
     return requests.get(
@@ -70,3 +83,7 @@ def get_result_by_id(result, id):
         ),
         headers=headers
     )
+
+
+def get(url):
+    return requests.get(url=url, headers=headers)
