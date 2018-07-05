@@ -3,6 +3,7 @@ import unittest
 import json
 import sys
 import logging
+import csv
 
 
 class TestStringMethods(unittest.TestCase):
@@ -203,8 +204,17 @@ class TestStringMethods(unittest.TestCase):
 
     # Test GET /calendar/feed
     def test_feed(self):
-        valid_feed = utils.get_feed(config["client_id"])
+        valid_feed = utils.get_feed()
         validate_response(self, valid_feed, 200)
+
+        try:
+            reader = csv.reader(valid_feed.text.splitlines(),
+                                dialect=csv.excel_tab)
+            logging.info("/calendar/feed returned {} rows of CSV".format(
+                sum(1 for row in reader)
+            ))
+        except csv.Error:
+            self.fail("calendar/feed returned invalid CSV")
 
 
 def validate_response(self, response, code=None, res_type=None, message=None):
@@ -286,5 +296,6 @@ if __name__ == "__main__":
     event_body = json.load(open("valid_event_body.json"))
     utils.set_url(config)
     utils.post_token(config)
+    utils.set_client_id(config)
     sys.argv = args
     unittest.main()

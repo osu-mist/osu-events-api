@@ -15,6 +15,11 @@ def set_headers(token):
     headers = {"Authorization": "Bearer {}".format(token)}
 
 
+def set_client_id(config):
+    global client_id
+    client_id = config["client_id"]
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", help="path to input file", dest="inputfile")
@@ -59,7 +64,7 @@ def delete_event(id):
     )
 
 
-def get_feed(client_id):
+def get_feed():
     return requests.get(
         url="{}feed".format(url),
         params={"apikey": client_id}
