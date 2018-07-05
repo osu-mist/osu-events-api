@@ -9,7 +9,7 @@ $ pip3 install -r requirements.txt
 2. Copy configuration-example.json to configuration.json and modify as necessary.
 3. Run the integration tests:
 ```
-$ python3 integration-tests.py -i configuration.json valid_event_body.json [--info] [-v]
+$ python3 integration-tests.py -i configuration.json [--info] [-v]
 ```
 Use `--info` to view `INFO` logging.
 
@@ -18,6 +18,5 @@ Use `--info` to view `INFO` logging.
 $ docker build --rm -t osu-events-api-integration-tests .
 $ docker run \
 -v "$PWD"/configuration.json:/usr/src/app/configuration.json:ro \
--v "$PWD"/valid_event_body.json:/usr/src/app/valid_event_body.json:ro \
 osu-events-api-integration-tests [--info] [-v]
 ```

@@ -283,7 +283,7 @@ def invalid_event_attribute(self, attribute_name, bad_value, put_id=None):
 if __name__ == "__main__":
     namespace, args = utils.parse_args()
     config = json.load(open(namespace.inputfile))
-    event_body = json.load(open(namespace.event_body))
+    event_body = json.load(open("valid_event_body.json"))
     utils.set_url(config)
     utils.post_token(config)
     sys.argv = args

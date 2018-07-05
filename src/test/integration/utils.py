@@ -18,7 +18,6 @@ def set_headers(token):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", help="path to input file", dest="inputfile")
-    parser.add_argument("event_body")
     parser.add_argument("--info", help="show info logs", action="store_true")
     namespace, args = parser.parse_known_args()
     if namespace.info:
