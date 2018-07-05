@@ -289,6 +289,8 @@ class EventsResource extends Resource {
 
         if (!event.instances) {
             addBadRequest("At least one event instance is required.")
+        } else if (event.instances.contains(null)) {
+            addBadRequest("An instance can not be null.")
         } else {
             if (event.instances.find { !it.start }) {
                 addBadRequest("An instance can not have a null start time.")
