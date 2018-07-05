@@ -232,7 +232,6 @@ def validate_bad_list(self, list_name, bad_list, put_id=None,
         message = list_name
     good_list = event_body["data"]["attributes"][list_name]
     event_body["data"]["attributes"][list_name] = bad_list
-    # event_body["data"]["attributes"][list_name].append(bad_item)
     if put_id:
         bad_response = utils.put_event(put_id, event_body)
     else:
