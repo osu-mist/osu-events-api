@@ -1,0 +1,9 @@
+{
+    "hostname": "https://api.oregonstate.edu/",
+    "version": "v1",
+    "api": "/calendar/",
+    "token_api_url": "https://api.oregonstate.edu/oauth2/token",
+    "client_id": "client_id",
+    "client_secret": "client_secret",
+    "max_pages_to_validate": 5
+}
