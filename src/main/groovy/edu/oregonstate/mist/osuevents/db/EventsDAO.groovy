@@ -44,8 +44,8 @@ public interface EventsDAO extends Closeable {
             OWNER
         FROM EVENTS_EVENTS
         WHERE (EVENT_ID = :eventID OR :eventID IS NULL)
-	   AND (CREATED_AT >= SYSDATE - :changedInPastHours/24 OR :changedInPastHours IS NULL)
-	   AND (UPDATED_AT >= SYSDATE - :changedInPastHours/24)
+	 AND (CREATED_AT >= SYSDATE - :changedInPastHours/24 OR :changedInPastHours IS NULL)
+	 AND (UPDATED_AT >= SYSDATE - :changedInPastHours/24)
         AND DELETED_AT IS NULL
     """)
     @Mapper(EventMapper)
