@@ -447,7 +447,7 @@ paths:
           description: "Feed will only contain events created or changed within this many past hours"
           type: integer
       produces:
-        - application/csv
+        - text/csv
       responses:
         200:
           description: "Succesful Response"
