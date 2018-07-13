@@ -50,7 +50,7 @@ public interface EventsDAO extends Closeable {
     """)
     @Mapper(EventMapper)
     List<Event> getEvents(@Bind("eventID") String,
-    			 @Bind("changedInPastHours") Integer changedInPastHours)
+    			   @Bind("changedInPastHours") Integer changedInPastHours)
 
     @SqlQuery("""
         SELECT
