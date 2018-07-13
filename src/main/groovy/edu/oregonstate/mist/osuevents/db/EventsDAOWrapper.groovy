@@ -14,7 +14,7 @@ class EventsDAOWrapper {
     }
 
     /**
-     * Get all events.
+     * Get all events within past time window, or all events if changedInPastHours is not passed
      * @return
      */
     List<Event> getEvents(Integer changedInPastHours = null) {
