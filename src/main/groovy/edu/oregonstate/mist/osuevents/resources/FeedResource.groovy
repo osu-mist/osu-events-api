@@ -28,7 +28,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Path('/calendar/feed')
-@Produces("text/csv")
+@Produces(["application/json", "text/csv"])
 @PermitAll
 @TypeChecked
 class FeedResource extends Resource {
@@ -62,6 +62,10 @@ class FeedResource extends Resource {
     Response getFeed(@QueryParam("changedInPastHours") Integer changedInPastHours) {
         CsvMapper mapper = new CsvMapper()
         CsvSchema schema = mapper.schemaFor(FeedEvent.class).withHeader()
+
+	   if (changedInPastHours <= 0) {
+		  return badRequest("changedInPastHours must be a positive, non-zero value").build()
+	   }
 
         List<Event> events = eventsDAOWrapper.getEvents(changedInPastHours)
 
