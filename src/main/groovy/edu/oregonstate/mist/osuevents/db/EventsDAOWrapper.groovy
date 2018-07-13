@@ -28,7 +28,7 @@ class EventsDAOWrapper {
 
     /**
      * Get single event by ID.
-     * @param eventID
+    * @param eventID
      * @return
      */
     Event getEventByID(String eventID) {
