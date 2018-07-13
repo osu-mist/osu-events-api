@@ -448,13 +448,14 @@ paths:
           type: integer
       produces:
         - text/csv
+        - application/json
       responses:
         200:
           description: "Succesful Response"
           schema:
             type: file
         400:
-          description: "Bad request."
+          description: "Bad request"
           schema:
             $ref: "#/definitions/Error"
         500:
