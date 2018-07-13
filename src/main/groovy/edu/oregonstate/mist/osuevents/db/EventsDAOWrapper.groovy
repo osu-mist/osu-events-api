@@ -15,7 +15,7 @@ class EventsDAOWrapper {
 
     /**
      * Get all events, within time window if argument is passed
-	* @param changedInPastHours defaults to null so that argument is optional
+    * @param changedInPastHours defaults to null so that argument is optional
      * @return
      */
     List<Event> getEvents(Integer changedInPastHours = null) {
@@ -28,7 +28,7 @@ class EventsDAOWrapper {
 
     /**
      * Get single event by ID.
-    * @param eventID
+     * @param eventID
      * @return
      */
     Event getEventByID(String eventID) {
