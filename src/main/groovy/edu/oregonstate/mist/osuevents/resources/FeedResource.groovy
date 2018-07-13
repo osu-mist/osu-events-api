@@ -19,6 +19,7 @@ import groovy.transform.TypeChecked
 
 import javax.annotation.security.PermitAll
 import javax.ws.rs.GET
+import javax.ws.rs.QueryParam
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.Response
@@ -58,11 +59,11 @@ class FeedResource extends Resource {
      */
     @GET
     @Timed
-    Response getFeed() {
+    Response getFeed(@QueryParam("changedInPastHours") Integer changedInPastHours) {
         CsvMapper mapper = new CsvMapper()
         CsvSchema schema = mapper.schemaFor(FeedEvent.class).withHeader()
 
-        List<Event> events = eventsDAOWrapper.getEvents()
+        List<Event> events = eventsDAOWrapper.getEvents(changedInPastHours)
 
         List<FeedEvent> feedEvents = []
 

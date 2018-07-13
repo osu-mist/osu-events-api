@@ -17,8 +17,11 @@ class EventsDAOWrapper {
      * Get all events.
      * @return
      */
-    List<Event> getEvents() {
-        List<Event> events = eventsDAO.getEvents(null)
+    List<Event> getEvents(Integer changedInPastHours = null) {
+	   if (!changedInPastHours) {
+		   changedInPastHours = 0
+	   }
+        List<Event> events = eventsDAO.getEvents(null, changedInPastHours)
 
         events.each {
             it.instances = eventsDAO.getInstances(it.eventID)
@@ -35,7 +38,7 @@ class EventsDAOWrapper {
             throw new EventsDAOWrapperException("Cannot get an event with a null eventID.")
         }
 
-        def event = eventsDAO.getEvents(eventID)
+        def event = eventsDAO.getEvents(eventID, 0)
 
         if (event) {
             Event singleEvent = event?.get(0)

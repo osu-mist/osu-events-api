@@ -47,7 +47,8 @@ public interface EventsDAO extends Closeable {
         AND DELETED_AT IS NULL
     """)
     @Mapper(EventMapper)
-    List<Event> getEvents(@Bind("eventID") String eventID)
+    List<Event> getEvents(@Bind("eventID") String,
+    					 @Bind("changedInPastHours") Integer changedInPastHours)
 
     @SqlQuery("""
         SELECT
