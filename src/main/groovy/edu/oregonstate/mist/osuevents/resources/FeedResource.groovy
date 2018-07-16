@@ -59,18 +59,16 @@ class FeedResource extends Resource {
      */
     @GET
     @Timed
-    Response getFeed(@QueryParam("changedInPastHours") Optional<Integer> changedInPastHours) {
+    Response getFeed(@QueryParam("changedInPastHours") Integer changedInPastHours) {
         CsvMapper mapper = new CsvMapper()
         CsvSchema schema = mapper.schemaFor(FeedEvent.class).withHeader()
 
-	   if (changedInPastHours.isPresent()) {
-		   if (changedInPastHours.get() <= 0) {
-			   //A null value is valid (returns all events), but negative and zero values are not
-			   return badRequest("changedInPastHours must be a positive, non-zero value").build()
-		   }
+	   if (changedInPastHours != null && changedInPastHours <= 0) {
+           //A null value is valid (returns all events), but negative and zero values are not
+           return badRequest("changedInPastHours must be a positive, non-zero value").build()
 	   }
 
-        List<Event> events = eventsDAOWrapper.getEvents(changedInPastHours.orElse(null))
+        List<Event> events = eventsDAOWrapper.getEvents(changedInPastHours)
 
         List<FeedEvent> feedEvents = []
 
