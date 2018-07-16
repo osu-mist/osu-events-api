@@ -14,11 +14,12 @@ class EventsDAOWrapper {
     }
 
     /**
-     * Get all events.
+     * Get all events, within time window if argument is passed
+    * @param changedInPastHours defaults to null so that argument is optional
      * @return
      */
-    List<Event> getEvents() {
-        List<Event> events = eventsDAO.getEvents(null)
+    List<Event> getEvents(Integer changedInPastHours = null) {
+        List<Event> events = eventsDAO.getEvents(null, changedInPastHours)
 
         events.each {
             it.instances = eventsDAO.getInstances(it.eventID)
@@ -35,7 +36,7 @@ class EventsDAOWrapper {
             throw new EventsDAOWrapperException("Cannot get an event with a null eventID.")
         }
 
-        def event = eventsDAO.getEvents(eventID)
+        def event = eventsDAO.getEvents(eventID, null)
 
         if (event) {
             Event singleEvent = event?.get(0)

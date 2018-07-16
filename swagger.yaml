@@ -436,6 +436,32 @@ paths:
           description: "Internal Server Error"
           schema:
             $ref: "#/definitions/Error"
+  /feed:
+    get:
+      tags:
+        - feed
+      description: "Gets a CSV feed of events to be added to the Localist calendar"
+      parameters:
+        - name: changedInPastHours
+          in: query
+          description: "Feed will only contain events created or changed within this many past hours"
+          type: integer
+      produces:
+        - text/csv
+        - application/json
+      responses:
+        200:
+          description: "Succesful Response"
+          schema:
+            type: file
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Error"
 
 parameters:
   pageSize:

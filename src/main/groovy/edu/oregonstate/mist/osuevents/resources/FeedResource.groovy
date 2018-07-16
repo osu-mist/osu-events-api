@@ -19,6 +19,7 @@ import groovy.transform.TypeChecked
 
 import javax.annotation.security.PermitAll
 import javax.ws.rs.GET
+import javax.ws.rs.QueryParam
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.Response
@@ -27,7 +28,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Path('/calendar/feed')
-@Produces("text/csv")
+@Produces(["application/json", "text/csv"])
 @PermitAll
 @TypeChecked
 class FeedResource extends Resource {
@@ -58,11 +59,16 @@ class FeedResource extends Resource {
      */
     @GET
     @Timed
-    Response getFeed() {
+    Response getFeed(@QueryParam("changedInPastHours") Integer changedInPastHours) {
         CsvMapper mapper = new CsvMapper()
         CsvSchema schema = mapper.schemaFor(FeedEvent.class).withHeader()
 
-        List<Event> events = eventsDAOWrapper.getEvents()
+	   if (changedInPastHours != null && changedInPastHours <= 0) {
+                //A null value is valid (returns all events), but negative and zero values are not
+                return badRequest("changedInPastHours must be a positive, non-zero value").build()
+	   }
+
+        List<Event> events = eventsDAOWrapper.getEvents(changedInPastHours)
 
         List<FeedEvent> feedEvents = []
 
