@@ -64,8 +64,8 @@ class FeedResource extends Resource {
         CsvSchema schema = mapper.schemaFor(FeedEvent.class).withHeader()
 
 	   if (changedInPastHours != null && changedInPastHours <= 0) {
-            //A null value is valid (returns all events), but negative and zero values are not
-            return badRequest("changedInPastHours must be a positive, non-zero value").build()
+                //A null value is valid (returns all events), but negative and zero values are not
+                return badRequest("changedInPastHours must be a positive, non-zero value").build()
 	   }
 
         List<Event> events = eventsDAOWrapper.getEvents(changedInPastHours)
