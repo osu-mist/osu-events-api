@@ -335,7 +335,7 @@ class FeedEvent {
         bool ? "1" : null
     }
 
-    @JsonProperty("Contact name for event questions or disability accommodations")
+    @JsonProperty("Contact Name")
     String contactName
     @JsonProperty("Contact Email")
     String contactEmail
