@@ -179,7 +179,8 @@ class TestStringMethods(unittest.TestCase):
         invalid_event_attribute(self, "contactEmail", None, valid_id)
 
         # Clean up test event
-        utils.delete_event(valid_id)
+        clean_up = utils.delete_event(valid_id)
+        validate_response(self, clean_up, 204)
 
     # Test GET /calendar/event-types and GET /calendar/event-types/{id}
     def test_event_types(self):
@@ -257,7 +258,8 @@ def validate_single_time(self, original, utc, put_id=None):
     self.assertEqual(res.json()["data"]["attributes"]["instances"][0], utc)
     # Clean up event if POST
     if not put_id:
-        utils.delete_event(res.json()["data"]["id"])
+        clean_up = utils.delete_event(res.json()["data"]["id"])
+        validate_response(self, clean_up, 204)
 
 
 def validate_response(self, response, code=None, res_type=None, message=None):
