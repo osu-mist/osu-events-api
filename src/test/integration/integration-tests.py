@@ -254,9 +254,7 @@ def validate_single_time(self, original, utc, put_id=None):
     else:
         res = utils.post_event(event_body)
         validate_response(self, res, 202)
-    self.assertEqual(
-        res.json()["data"]["attributes"]["instances"][0],
-        utc)
+    self.assertEqual(res.json()["data"]["attributes"]["instances"][0], utc)
     # Clean up event if POST
     if not put_id:
         utils.delete_event(res.json()["data"]["id"])
