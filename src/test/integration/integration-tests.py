@@ -35,6 +35,9 @@ class TestStringMethods(unittest.TestCase):
 
     # Test POST /calendar/events
     def test_post_event(self):
+        # Validate time
+        validate_time(self)
+
         valid_date = event_body["data"]["attributes"]["instances"][0]["start"]
         # Invalid date in instance
         validate_bad_list(self, "instances", [{"start": "badDate"}],
@@ -106,7 +109,11 @@ class TestStringMethods(unittest.TestCase):
 
         # Create test event
         valid_event = utils.post_event(event_body)
+        validate_response(self, valid_event, 202, "events")
         valid_id = valid_event.json()["data"]["id"]
+
+        # Validate time
+        validate_time(self, valid_id)
 
         # Invalid date in instance
         validate_bad_list(self, "instances", [{"start": "badDate"}],
@@ -215,6 +222,44 @@ class TestStringMethods(unittest.TestCase):
             ))
         except csv.Error:
             self.fail("calendar/feed returned invalid CSV")
+
+
+# Validates utc times are equivalent in request and response and
+# validates utc times response is correct utc equivalent of local times
+def validate_time(self, put_id=None):
+    utc = {
+        "start": "1994-11-05T08:15:00Z",
+        "end": "1994-11-05T08:15:30Z"
+    }
+    # local times are equivalent to utc times with -08:00 offset
+    local = {
+        "start": "1994-11-05T00:15:00-08:00",
+        "end": "1994-11-05T00:15:30-08:00"
+    }
+    if put_id:
+        validate_single_time(self, utc, utc, put_id)
+        validate_single_time(self, local, utc, put_id)
+    else:
+        validate_single_time(self, utc, utc)
+        validate_single_time(self, local, utc)
+
+
+# POSTs/PUTs event with original times and
+# compares response with utc equivalent times
+def validate_single_time(self, original, utc, put_id=None):
+    event_body["data"]["attributes"]["instances"][0] = original
+    if put_id:
+        res = utils.put_event(put_id, event_body)
+        validate_response(self, res, 200)
+    else:
+        res = utils.post_event(event_body)
+        validate_response(self, res, 202)
+    self.assertEqual(
+        res.json()["data"]["attributes"]["instances"][0],
+        utc)
+    # Clean up event if POST
+    if not put_id:
+        utils.delete_event(res.json()["data"]["id"])
 
 
 def validate_response(self, response, code=None, res_type=None, message=None):
