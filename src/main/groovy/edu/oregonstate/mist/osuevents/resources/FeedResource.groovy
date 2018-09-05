@@ -94,8 +94,7 @@ class FeedResource extends Resource {
                         hashtag: event.hashtag,
                         contactName: event.contactName,
                         contactEmail: event.contactEmail,
-                        contactPhone: event.contactPhone,
-                        visibility: event.visibility
+                        contactPhone: event.contactPhone
                 )
 
                 feedEvent.with {
@@ -172,6 +171,13 @@ class FeedResource extends Resource {
                             String campusName = campus ? campus.name : event.campusID
                             campuses[event.campusID] = feedEvent.campus = campusName
                         }
+                    }
+
+                    if (event.visibility == Event.channelsVisibility) {
+                        setChannelsOnly(true)
+                        visibility = Event.restrictedVisibility
+                    } else {
+                        visibility = event.visibility
                     }
                 }
                 feedEvents.add(feedEvent)
@@ -373,4 +379,11 @@ class FeedEvent {
 
     @JsonProperty("Visibility")
     String visibility
+
+    @JsonProperty("Channels Only")
+    String channelsOnly
+    @JsonIgnore
+    void setChannelsOnly(Boolean channelsOnly) {
+        this.channelsOnly = parseBoolean(channelsOnly)
+    }
 }

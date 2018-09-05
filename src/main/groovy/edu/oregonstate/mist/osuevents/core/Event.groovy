@@ -65,7 +65,17 @@ class Event {
      */
     public static Event fromResultObject(ResultObject resultObject) {
         try {
-            objectMapper.convertValue(resultObject.data['attributes'], Event.class)
+            Event event = objectMapper.convertValue(resultObject.data['attributes'], Event.class)
+            event.with {
+                locationID = trimID(locationID)
+                countyIDs = trimID(countyIDs)
+                campusID = trimID(campusID)
+                departmentIDs = trimID(departmentIDs)
+                eventTypeIDs = trimID(eventTypeIDs)
+                eventTopicIDs = trimID(eventTopicIDs)
+                audienceIDs = trimID(audienceIDs)
+            }
+            event
         } catch (IllegalArgumentException e) {
             throw new EventException("Some fields weren't able to map to an event object.")
         } catch (NullPointerException e) {
@@ -73,12 +83,22 @@ class Event {
         }
     }
 
+    private static trimID(List<String> IDs) {
+        IDs ? IDs.collect { it.trim() }.unique() : IDs
+    }
+
+    private static trimID(String ID) {
+        ID ? ID.trim() : ID
+    }
+
+    public static final String unlistedVisibility = "Unlisted"
+    public static final String restrictedVisibility = "Restricted"
+    public static final String channelsVisibility = "Channels"
+
     public static List<String> validVisibilityValues = [
-            "Unlisted",
-            "Place Pages",
-            "Widgets",
-            "Logged-In Users Only",
-            "Channels"
+            unlistedVisibility,
+            restrictedVisibility,
+            channelsVisibility
     ]
 
     @JsonIgnore
