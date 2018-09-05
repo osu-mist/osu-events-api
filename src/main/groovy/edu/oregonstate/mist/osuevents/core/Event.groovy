@@ -91,10 +91,14 @@ class Event {
         ID ? ID.trim() : ID
     }
 
+    public static final String unlistedVisibility = "Unlisted"
+    public static final String restrictedVisibility = "Restricted"
+    public static final String channelsVisibility = "Channels"
+
     public static List<String> validVisibilityValues = [
-            "Unlisted",
-            "Restricted",
-            "Channels"
+            unlistedVisibility,
+            restrictedVisibility,
+            channelsVisibility
     ]
 
     @JsonIgnore

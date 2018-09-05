@@ -94,8 +94,7 @@ class FeedResource extends Resource {
                         hashtag: event.hashtag,
                         contactName: event.contactName,
                         contactEmail: event.contactEmail,
-                        contactPhone: event.contactPhone,
-                        visibility: event.visibility
+                        contactPhone: event.contactPhone
                 )
 
                 feedEvent.with {
@@ -174,7 +173,12 @@ class FeedResource extends Resource {
                         }
                     }
 
-                    setChannelsOnly(event.visibility == "Channels")
+                    if (event.visibility == Event.channelsVisibility) {
+                        setChannelsOnly(true)
+                        visibility = Event.restrictedVisibility
+                    } else {
+                        visibility = event.visibility
+                    }
                 }
                 feedEvents.add(feedEvent)
             }
