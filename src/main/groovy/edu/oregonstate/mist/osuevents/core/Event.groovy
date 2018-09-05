@@ -75,9 +75,7 @@ class Event {
 
     public static List<String> validVisibilityValues = [
             "Unlisted",
-            "Place Pages",
-            "Widgets",
-            "Logged-In Users Only",
+            "Restricted",
             "Channels"
     ]
 

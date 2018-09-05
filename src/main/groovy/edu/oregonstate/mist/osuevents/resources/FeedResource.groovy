@@ -173,6 +173,8 @@ class FeedResource extends Resource {
                             campuses[event.campusID] = feedEvent.campus = campusName
                         }
                     }
+
+                    setChannelsOnly(event.visibility == "Channels")
                 }
                 feedEvents.add(feedEvent)
             }
@@ -373,4 +375,11 @@ class FeedEvent {
 
     @JsonProperty("Visibility")
     String visibility
+
+    @JsonProperty("Channels Only")
+    String channelsOnly
+    @JsonIgnore
+    void setChannelsOnly(Boolean channelsOnly) {
+        this.channelsOnly = parseBoolean(channelsOnly)
+    }
 }
