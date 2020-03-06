@@ -295,7 +295,16 @@ class LocalistDAO {
 
         logger.info("Making a request to ${requestURI}")
 
-        httpClient.execute(new HttpGet(requestURI))
+        HttpResponse response = httpClient.execute(new HttpGet(requestURI))
+
+        int statusCode = response.getStatusLine().getStatusCode()
+        // check for 308 and handle redirection with Location in header
+        if (statusCode == 308) {
+            String redirectUrl = response.getHeaders('Location')[0].getValue()
+            response = httpClient.execute(new HttpGet(redirectUrl.toURI()))
+        }
+
+        response
     }
 
 }
